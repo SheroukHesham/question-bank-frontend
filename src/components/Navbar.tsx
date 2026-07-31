@@ -1,19 +1,26 @@
 import { NAVBAR_ITEMS } from "@/data";
 import { Link } from "react-router-dom";
 import { ProfileAvatar } from "./ProfileAvatar";
-import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "@/store";
+import { changeActiveTab } from "@/features/activeTabSlice";
 //TODO:resizable for small screens
 
 const Navbar = () => {
-  const [activeLink, setActiveLink] = useState(NAVBAR_ITEMS[0].id);
+  const activeTab = useSelector(
+    (state: RootState) => state.activeTab.activeIdx,
+  );
+  const dispatch = useDispatch();
 
-  const renderNavItems = NAVBAR_ITEMS.map((item, idx) => {
+  const renderNavItems = NAVBAR_ITEMS.map((item) => {
     return (
       <Link
-        key={idx}
+        key={item.id}
         to={item.to}
-        onClick={() => setActiveLink(item.id)}
-        className={` border-b-2 py-1 ease-in duration-200 ${item.id === activeLink ? "border-b-primary" : "border-b-transparent"}`}
+        onClick={() => {
+          dispatch(changeActiveTab(item.id));
+        }}
+        className={` border-b-2 py-1 ease-in duration-200 cursor-pointer   ${item.id === activeTab ? "border-b-primary" : "border-b-transparent"}`}
       >
         {item.label}
       </Link>

@@ -1,4 +1,5 @@
 import { CollapsibleCard } from "@/components/CollapsibleCard";
+import { Button } from "@/components/ui/button";
 import {
   MOCK_GROUPED_ESSAY_QUESTIONS,
   MOCK_GROUPED_MCQ_QUESTIONS,
@@ -9,7 +10,7 @@ interface IProps {
   type: "essay" | "mcq";
 }
 
-const CategorizedQuestions = ({ type }: IProps) => {
+const Questions = ({ type }: IProps) => {
   const navigate = useNavigate();
   const data =
     type === "mcq" ? MOCK_GROUPED_MCQ_QUESTIONS : MOCK_GROUPED_ESSAY_QUESTIONS;
@@ -27,11 +28,7 @@ const CategorizedQuestions = ({ type }: IProps) => {
                       className="flex items-center  text-black font-semibold text-lg"
                       key={question._id}
                       onClick={() => {
-                        if (type === "mcq") {
-                          navigate(`/questions/mcq/${question._id}`);
-                        } else if (type === "essay") {
-                          navigate(`/questions/essay/${question._id}`);
-                        }
+                        navigate(`/questions/${question._id}`);
                       }}
                     >
                       <span> {idx + 1}- </span>
@@ -54,10 +51,11 @@ const CategorizedQuestions = ({ type }: IProps) => {
   return (
     <div className="w-full px-5">
       <div className="flex flex-col max-w-6xl mx-auto gap-y-5">
+        <Button onClick={() => {}}>Add Question</Button>
         {renderQuestions}
       </div>
     </div>
   );
 };
 
-export default CategorizedQuestions;
+export default Questions;

@@ -23,7 +23,10 @@ const QuestionDetailsCard = ({
   return (
     <Card>
       <CardHeader className="text-lg text-black font-semibold">
-        Q: {header}
+        <div className="flex flex-col">
+          <span className="font-bold">Question: </span>
+          <span>{header}</span>
+        </div>
       </CardHeader>
       <CardDescription className="px-5 text-[16px]">
         <span className="text-destructive font-semibold">Difficulty: </span>

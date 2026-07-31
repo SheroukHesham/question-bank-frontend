@@ -1,4 +1,4 @@
-import type { INavbar } from "@/interfaces";
+import type { IEssayQuestion, IMcqQuestion, INavbar } from "@/interfaces";
 
 export const NAVBAR_ITEMS: INavbar[] = [
   {
@@ -22,3 +22,27 @@ export const NAVBAR_ITEMS: INavbar[] = [
     to: "/exams",
   },
 ];
+export const defaultQuestion: IEssayQuestion = {
+  _id: "",
+  header: "",
+  difficulty: 1,
+  mark: 1,
+  categoryId: "",
+  subcategoryId: "",
+  createdBy: "",
+  type: "essay",
+  modelAnswer: "",
+};
+
+export const defaultMcqQuestion: IMcqQuestion = {
+  _id: "",
+  header: "",
+  difficulty: 1,
+  mark: 1,
+  categoryId: "",
+  subcategoryId: "",
+  createdBy: "",
+  type: "mcq",
+  key: "",
+  distractors: ["", "", "", ""],
+};

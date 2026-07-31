@@ -30,21 +30,25 @@ export const MOCK_CATEGORIES: ICategories[] = [
     _id: "cat001",
     name: "Programming",
     description: "Programming languages and software development",
+    subCategories: ["sub001", "sub002", "sub003"],
   },
   {
     _id: "cat002",
     name: "Database Systems",
     description: "Relational and NoSQL databases",
+    subCategories: ["sub004", "sub005"],
   },
   {
     _id: "cat003",
     name: "Computer Networks",
     description: "Networking fundamentals",
+    subCategories: ["sub006", "sub007"],
   },
   {
     _id: "cat004",
     name: "Operating Systems",
     description: "Operating system concepts",
+    subCategories: ["sub008", "sub009"],
   },
 ];
 

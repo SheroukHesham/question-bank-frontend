@@ -17,6 +17,7 @@ export interface ICategories {
   _id: string;
   name: string;
   description: string;
+  subCategories: string[];
 }
 
 export interface ISubCategories {
@@ -25,19 +26,29 @@ export interface ISubCategories {
   categoryId: string;
 }
 
-export interface IQuestions {
+interface IQuestionBase {
   _id: string;
-  type: "mcq" | "essay";
   header: string;
   difficulty: number;
   mark: number;
   categoryId: string;
   subcategoryId: string;
-  key?: string;
-  distractors?: string[];
-  modelAnswer?: string;
   createdBy: string;
 }
+
+export interface IEssayQuestion extends IQuestionBase {
+  type: "essay";
+  modelAnswer: string;
+}
+type d = [string, string, string, string];
+
+export interface IMcqQuestion extends IQuestionBase {
+  type: "mcq";
+  key: string;
+  distractors: d;
+}
+
+export type IQuestions = IEssayQuestion | IMcqQuestion;
 
 export interface IGroupedQuestions {
   categories: IQuestionCategory[];

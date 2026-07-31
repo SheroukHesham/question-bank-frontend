@@ -3,8 +3,8 @@ import Categories from "@/pages/Categories";
 import Exams from "@/pages/Exams";
 import Home from "@/pages/Home";
 import Layout from "@/pages/Layout";
-import McqQuestionDetails from "@/pages/McqQuestionDetails";
-import CategorizedQuestions from "@/pages/CategorizedQuestions";
+
+import Questions from "@/pages/Questions";
 import PageNotFound from "@/pages/PageNotFound";
 import QuestionTypes from "@/pages/QuestionTypes";
 import {
@@ -12,7 +12,8 @@ import {
   createRoutesFromElements,
   Route,
 } from "react-router-dom";
-import EssayQuestionDetails from "@/pages/EssayQuestionDetails";
+import QuestionDetails from "@/pages/QuestionDetails";
+import AddQuestion from "@/pages/AddQuestion";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -20,16 +21,10 @@ const router = createBrowserRouter(
       <Route element={<Layout />} path="/" errorElement={<ErrorHandler />}>
         <Route index element={<Home />} />
         <Route path="questions" element={<QuestionTypes />} />
-        <Route
-          path="questions/mcq"
-          element={<CategorizedQuestions type="mcq" />}
-        />
-        <Route path="questions/mcq/:id" element={<McqQuestionDetails />} />
-        <Route
-          path="questions/essay"
-          element={<CategorizedQuestions type="essay" />}
-        />
-        <Route path="questions/essay/:id" element={<EssayQuestionDetails />} />
+        <Route path="questions/mcq" element={<Questions type="mcq" />} />
+        <Route path="questions/essay" element={<Questions type="essay" />} />
+        <Route path="questions/:id" element={<QuestionDetails />} />
+        <Route path="new_question/:type" element={<AddQuestion />} />
 
         <Route path="exams" element={<Exams />} />
         <Route path="categories" element={<Categories />} />
