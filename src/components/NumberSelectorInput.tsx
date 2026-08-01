@@ -32,10 +32,12 @@ export function NumberSelectorInput({
   setQuestionToEdit,
   name,
   setValue,
+  defaultValue,
 }: IProps) {
   return (
     <div className="w-full max-w-48">
       <NumberField
+        defaultValue={defaultValue}
         value={setValue ? undefined : questionToEdit?.mark}
         onValueChange={(value) => {
           if (setValue)

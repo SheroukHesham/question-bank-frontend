@@ -13,7 +13,7 @@ import {
   Route,
 } from "react-router-dom";
 import QuestionDetails from "@/pages/QuestionDetails";
-import NewQuestion from "@/pages/NewQuestion";
+import AddQuestion from "@/pages/AddQuestion";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -24,7 +24,7 @@ const router = createBrowserRouter(
         <Route path="questions/mcq" element={<Questions type="mcq" />} />
         <Route path="questions/essay" element={<Questions type="essay" />} />
         <Route path="questions/:id" element={<QuestionDetails />} />
-        <Route path="new_question/:type" element={<NewQuestion />} />
+        <Route path="new_question/:type" element={<AddQuestion />} />
 
         <Route path="exams" element={<Exams />} />
         <Route path="categories" element={<Categories />} />

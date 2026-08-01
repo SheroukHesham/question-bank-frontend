@@ -1,17 +1,20 @@
 import { Alert } from "@/components/Alert";
-import { EditQuestionForm } from "@/components/EditQuestionForm";
 import QuestionDetailsCard from "@/components/QuestionDetailsCard";
+import { QuestionForm } from "@/components/QuestionForm";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { defaultQuestion } from "@/data";
 import { changeActiveTab } from "@/features/activeTabSlice";
-import type { IMcqQuestion, IQuestions } from "@/interfaces";
+import { toFormValues } from "@/functions";
+import type { IQuestions } from "@/interfaces";
 import { MOCK_QUESTIONS } from "@/mock";
+import { questionSchema, type QuestionFormValues } from "@/validation";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { Dot, Pen, Trash } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 
@@ -20,27 +23,48 @@ const QuestionDetails = () => {
   dispatch(changeActiveTab("questions"));
   // TODO: replace with getQuestion by id API request
   const params = useParams();
-  const question = MOCK_QUESTIONS.find((q) => q._id === params.id);
   const [editMode, setEditMode] = useState(false);
-  const [questionToEdit, setQuestionToEdit] =
-    useState<IQuestions>(defaultQuestion);
+
+  const question = MOCK_QUESTIONS.find((q) => q._id === params.id);
+  const isEssay = question?.type === "essay";
+  const {
+    register,
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<QuestionFormValues>({
+    resolver: yupResolver(questionSchema),
+    defaultValues: toFormValues(question as IQuestions),
+  });
+
+  const { fields } = useFieldArray({
+    control,
+    name: "distractors",
+  });
 
   if (!question) {
     return <h1>Question Not Found</h1>;
   }
 
-  console.log(questionToEdit);
+  // TODO: API request to to edit question
+  // TODO: revisit setQuestionToEdit logic
+  const onSubmit = (data: QuestionFormValues) => {
+    const payload =
+      data.type === "essay"
+        ? { ...data, modelAnswer: data.modelAnswer! }
+        : {
+            ...data,
+            key: data.key!,
+            distractors: data.distractors!.map((d) => d.value),
+          };
+    console.log("Payload", payload);
 
-  const onSubmit = () => {
-    // TODO: API request to to edit question
-    // TODO: revisit setQuestionToEdit logic
-    console.log("Submitted");
-    setQuestionToEdit(question as IQuestions);
     setEditMode(false);
   };
 
+  //TODO:test
   const onCancel = () => {
-    setQuestionToEdit(question as IQuestions);
     setEditMode(false);
   };
 
@@ -61,29 +85,6 @@ const QuestionDetails = () => {
       </span>
     ));
 
-  const renderEditDistractors = (q: IMcqQuestion) =>
-    q.distractors?.map((distractor, idx) => {
-      return (
-        <span key={idx} className="flex items-center font-bold">
-          <Dot />
-          <Input
-            className="flex items-center capitalize"
-            name="distractors"
-            id="distractors"
-            value={distractor}
-            onChange={(e) => {
-              const { name, value } = e.target;
-              const newDistractors = q.distractors?.with(idx, value);
-              setQuestionToEdit((prev) => ({
-                ...prev,
-                [name]: newDistractors,
-              }));
-            }}
-          />
-        </span>
-      );
-    });
-
   return (
     <div className="max-w-6xl mx-auto gap-y-3 flex flex-col mb-20">
       <div className="flex w-full justify-end">
@@ -91,7 +92,6 @@ const QuestionDetails = () => {
           <Button
             className="w-fit"
             onClick={() => {
-              setQuestionToEdit(question);
               setEditMode(true);
             }}
           >
@@ -118,71 +118,92 @@ const QuestionDetails = () => {
       <div>
         {editMode ? (
           <Card>
-            {questionToEdit?.type === "essay" ? (
-              <EditQuestionForm
-                questionToEdit={questionToEdit as IQuestions}
-                setQuestionToEdit={setQuestionToEdit}
-                onSubmit={onSubmit}
+            {isEssay ? (
+              <QuestionForm
+                errors={errors}
                 onCancel={onCancel}
+                register={register}
+                setValue={setValue}
+                onSubmit={handleSubmit(onSubmit)}
+                defaultValues={toFormValues(question)}
               >
+                <input
+                  type="hidden"
+                  {...register("type")}
+                  value={params.type === "essay" ? "essay" : "mcq"}
+                />
                 <Field>
                   <FieldLabel
                     htmlFor="modelAnswer"
-                    className="text-black font-bold mb-2 text-lg"
+                    className="text-black font-bold mb-2 text-[16px]"
                   >
                     Model Answer
                   </FieldLabel>
                   <Textarea
-                    id="modelAnswer"
-                    placeholder="Enter the model answer"
-                    name="modelAnswer"
-                    value={questionToEdit.modelAnswer}
-                    onChange={(e) => {
-                      const { name, value } = e.target;
-                      setQuestionToEdit((prev) => ({ ...prev, [name]: value }));
-                    }}
-                    className="text-[16px] text-black font-semibold text-justify min-h-fit "
+                    {...register("modelAnswer")}
+                    className="text-[16px] text-black font-semibold text-justify min-h-fit"
                   />
+                  {errors?.modelAnswer && (
+                    <p className="text-destructive text-sm">
+                      {errors.modelAnswer.message}
+                    </p>
+                  )}
                 </Field>
-              </EditQuestionForm>
+              </QuestionForm>
             ) : (
-              <EditQuestionForm
-                questionToEdit={questionToEdit as IQuestions}
-                setQuestionToEdit={setQuestionToEdit}
-                onSubmit={onSubmit}
+              <QuestionForm
+                errors={errors}
                 onCancel={onCancel}
+                register={register}
+                setValue={setValue}
+                onSubmit={handleSubmit(onSubmit)}
+                defaultValues={toFormValues(question)}
               >
                 <div className="flex w-[80%] gap-x-5 justify-center">
-                  <Field className="text-green-900 font-semibold flex flex-col  ">
-                    <FieldLabel className="text-[16px]">Key:</FieldLabel>
-                    <span className="flex items-center font-bold ">
+                  <Field className=" font-semibold flex flex-col">
+                    <FieldLabel
+                      htmlFor="questionKey"
+                      className="text-[16px] text-black font-semibold"
+                    >
+                      Key:
+                    </FieldLabel>
+                    <span className="flex items-center">
                       <Dot />
                       <Input
-                        id="questionKey"
-                        name="key"
-                        value={questionToEdit?.key}
-                        onChange={(e) => {
-                          const { name, value } = e.target;
-                          setQuestionToEdit((prev) => ({
-                            ...prev,
-                            [name]: value,
-                          }));
-                        }}
-                        className=" flex items-center capitalize"
+                        {...register("key")}
+                        className="flex items-center capitalize"
                       />
                     </span>
+                    {errors?.key && (
+                      <p className="text-destructive text-sm">
+                        {errors.key.message}
+                      </p>
+                    )}
                   </Field>
 
-                  <Field className="text-black font-semibold flex flex-col ">
+                  <Field className="text-black font-semibold flex flex-col">
                     <FieldLabel className="text-[16px]">
                       Distractors:
                     </FieldLabel>
-
-                    {questionToEdit?.type === "mcq" &&
-                      renderEditDistractors(questionToEdit)}
+                    {fields.map((field, idx) => (
+                      <div key={field.id}>
+                        <span className="flex items-center">
+                          <Dot />
+                          <Input
+                            {...register(`distractors.${idx}.value`)}
+                            className="flex items-center capitalize"
+                          />
+                        </span>
+                        {errors?.distractors?.[idx]?.value && (
+                          <p className="text-destructive text-sm">
+                            {errors.distractors[idx]?.value?.message}
+                          </p>
+                        )}
+                      </div>
+                    ))}
                   </Field>
                 </div>
-              </EditQuestionForm>
+              </QuestionForm>
             )}
           </Card>
         ) : question?.type === "essay" ? (

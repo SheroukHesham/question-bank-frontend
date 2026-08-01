@@ -12,7 +12,7 @@ import { defaultEssayFormValues, defaultMcqFormValues } from "@/data";
 import { Dot } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
-const NewQuestion = () => {
+const AddQuestion = () => {
   const dispatch = useDispatch();
   dispatch(changeActiveTab("questions"));
   const params = useParams();
@@ -146,4 +146,4 @@ const NewQuestion = () => {
   );
 };
 
-export default NewQuestion;
+export default AddQuestion;

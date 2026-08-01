@@ -40,6 +40,7 @@ interface IProps {
   register: UseFormRegister<QuestionFormValues>;
   setValue: UseFormSetValue<QuestionFormValues>;
   errors: FieldErrors<QuestionFormValues>;
+  defaultValues?: QuestionFormValues;
 }
 
 export function QuestionForm({
@@ -49,11 +50,21 @@ export function QuestionForm({
   errors,
   register,
   setValue,
+  defaultValues,
 }: IProps) {
+  console.log(defaultValues);
   const difficultyArray = Array.from({ length: 5 }, (_, index) => index + 1);
-  const [categoryToEdit, setCategoryToEdit] = useState<
-    ICategories | undefined
-  >();
+
+  const initialCategory = MOCK_CATEGORIES.find(
+    (cat) => cat._id === defaultValues?.categoryId,
+  );
+  const initialSubCategory = MOCK_SUB_CATEGORIES.find(
+    (sub) => sub._id === defaultValues?.subcategoryId,
+  );
+
+  const [categoryToEdit, setCategoryToEdit] = useState<ICategories | undefined>(
+    initialCategory,
+  );
 
   const renderCategories = MOCK_CATEGORIES.map((category) => {
     return (
@@ -92,19 +103,19 @@ export function QuestionForm({
                 <div className="flex flex-col gap-y-2">
                   <Selector
                     title="Category"
-                    isError={false}
-                    errorMsg="Please select a category"
-                    value={categoryToEdit?.name}
+                    isError={!!errors?.categoryId}
+                    errorMsg={
+                      errors?.categoryId?.message ?? "Please select a category"
+                    }
+                    value={categoryToEdit?.name} // now seeded from initialCategory on mount
                     onValueChange={(v: string) => {
                       const cat = MOCK_CATEGORIES.find(
                         (category) => category.name === v,
                       );
                       setCategoryToEdit(cat);
-                      if (setValue) {
-                        setValue("categoryId", cat?._id ?? "", {
-                          shouldValidate: true,
-                        });
-                      }
+                      setValue("categoryId", cat?._id ?? "", {
+                        shouldValidate: true,
+                      });
                     }}
                   >
                     {renderCategories}
@@ -117,17 +128,19 @@ export function QuestionForm({
                   <div className="pl-5">
                     <Selector
                       title="Subcategory"
-                      isError={false}
-                      errorMsg="Please select a category"
+                      isError={!!errors?.subcategoryId}
+                      errorMsg={
+                        errors?.subcategoryId?.message ??
+                        "Please select a category"
+                      }
+                      value={initialSubCategory?.name} // was missing a `value` prop entirely before — fixed
                       onValueChange={(v: string) => {
                         const subCat = MOCK_SUB_CATEGORIES.find(
                           (subcategory) => subcategory.name === v,
                         );
-                        if (setValue) {
-                          setValue("subcategoryId", subCat?._id ?? "", {
-                            shouldValidate: true,
-                          });
-                        }
+                        setValue("subcategoryId", subCat?._id ?? "", {
+                          shouldValidate: true,
+                        });
                       }}
                     >
                       {renderSubCategories()}
@@ -162,6 +175,7 @@ export function QuestionForm({
                       Difficulty
                     </FieldLabel>
                     <Select
+                      defaultValue={defaultValues?.difficulty?.toString()}
                       onValueChange={(v) =>
                         setValue("difficulty", Number(v), {
                           shouldValidate: true,
@@ -205,6 +219,7 @@ export function QuestionForm({
                 {children}
                 <Field className="w-32">
                   <NumberSelectorInput
+                    defaultValue={defaultValues?.mark}
                     label="Marks"
                     name="mark"
                     setValue={setValue}
