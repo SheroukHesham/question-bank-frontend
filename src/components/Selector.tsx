@@ -14,7 +14,7 @@ interface IProps {
   isError: boolean;
   errorMsg: string;
   value?: string;
-  onChange: (v: string) => void;
+  onValueChange: (v: string) => void;
 }
 
 export function Selector({
@@ -23,7 +23,7 @@ export function Selector({
   errorMsg,
   isError,
   value,
-  onChange,
+  onValueChange,
 }: IProps) {
   return (
     <Field data-invalid={isError} className="w-full max-w-48">
@@ -33,7 +33,7 @@ export function Selector({
             {title}
           </FieldLabel>
         )}
-        <Select value={value} onValueChange={(v) => onChange(v)}>
+        <Select value={value} onValueChange={(v) => onValueChange(v)}>
           <SelectTrigger aria-invalid={isError}>
             <SelectValue placeholder={`Select one of the following`} />
           </SelectTrigger>

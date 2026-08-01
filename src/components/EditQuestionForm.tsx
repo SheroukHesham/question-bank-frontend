@@ -103,7 +103,7 @@ export function EditQuestionForm({
                     isError={false}
                     errorMsg="Please select a category"
                     value={categoryToEdit?.name}
-                    onChange={(v: string) => {
+                    onValueChange={(v: string) => {
                       const cat = MOCK_CATEGORIES.find(
                         (category) => category.name === v,
                       );
@@ -122,7 +122,7 @@ export function EditQuestionForm({
                       isError={false}
                       errorMsg="Please select a category"
                       value={subcategoryToEdit?.name}
-                      onChange={(v: string) => {
+                      onValueChange={(v: string) => {
                         const subCat = MOCK_SUB_CATEGORIES.find(
                           (subcategory) => subcategory.name === v,
                         );

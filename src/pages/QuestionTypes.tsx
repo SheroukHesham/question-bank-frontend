@@ -1,9 +1,13 @@
 import { ClickCard } from "@/components/ClickCard";
 import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui/button";
+import { changeActiveTab } from "@/features/activeTabSlice";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const QuestionTypes = () => {
+  const dispatch = useDispatch();
+  dispatch(changeActiveTab("questions"));
   const navigate = useNavigate();
   return (
     <div className="flex flex-1 justify-center w-full top-0 ">

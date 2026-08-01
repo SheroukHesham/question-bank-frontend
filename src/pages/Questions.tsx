@@ -1,9 +1,11 @@
 import { CollapsibleCard } from "@/components/CollapsibleCard";
 import { Button } from "@/components/ui/button";
+import { changeActiveTab } from "@/features/activeTabSlice";
 import {
   MOCK_GROUPED_ESSAY_QUESTIONS,
   MOCK_GROUPED_MCQ_QUESTIONS,
 } from "@/mock";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 interface IProps {
@@ -11,6 +13,8 @@ interface IProps {
 }
 
 const Questions = ({ type }: IProps) => {
+  const dispatch = useDispatch();
+  dispatch(changeActiveTab("questions"));
   const navigate = useNavigate();
   const data =
     type === "mcq" ? MOCK_GROUPED_MCQ_QUESTIONS : MOCK_GROUPED_ESSAY_QUESTIONS;

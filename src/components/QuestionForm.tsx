@@ -21,47 +21,39 @@ import {
   CardFooter,
   CardHeader,
 } from "./ui/card";
-import type { ICategories, IQuestions, ISubCategories } from "@/interfaces";
-import {
-  useState,
-  type Dispatch,
-  type ReactNode,
-  type SetStateAction,
-} from "react";
+import type { ICategories } from "@/interfaces";
+import { useState, type ReactNode } from "react";
 import { NumberSelectorInput } from "./NumberSelectorInput";
 import { MOCK_CATEGORIES, MOCK_SUB_CATEGORIES } from "@/mock";
 import { Selector } from "./Selector";
+import type {
+  FieldErrors,
+  UseFormRegister,
+  UseFormSetValue,
+} from "react-hook-form";
+import type { QuestionFormValues } from "@/validation";
 
 interface IProps {
-  questionToEdit: IQuestions;
   children: ReactNode;
-  onSubmit: () => void;
+  onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
   onCancel: () => void;
-  setQuestionToEdit: Dispatch<SetStateAction<IQuestions>>;
+  register: UseFormRegister<QuestionFormValues>;
+  setValue: UseFormSetValue<QuestionFormValues>;
+  errors: FieldErrors<QuestionFormValues>;
 }
 
-export function AddQuestionForm({
-  questionToEdit,
-  setQuestionToEdit,
+export function QuestionForm({
   onSubmit,
   onCancel,
   children,
+  errors,
+  register,
+  setValue,
 }: IProps) {
-  //TODO:replace by API callS to get category and subCat by ID
-  const category = MOCK_CATEGORIES.find(
-    (cat) => cat._id === questionToEdit.categoryId,
-  );
-  const subCategory = MOCK_SUB_CATEGORIES.find(
-    (sub) => sub._id === questionToEdit.subcategoryId,
-  );
   const difficultyArray = Array.from({ length: 5 }, (_, index) => index + 1);
-  const { header, difficulty } = questionToEdit;
-  const [categoryToEdit, setCategoryToEdit] = useState<ICategories | undefined>(
-    category,
-  );
-  const [subcategoryToEdit, setSubCategoryToEdit] = useState<
-    ISubCategories | undefined
-  >(subCategory);
+  const [categoryToEdit, setCategoryToEdit] = useState<
+    ICategories | undefined
+  >();
 
   const renderCategories = MOCK_CATEGORIES.map((category) => {
     return (
@@ -97,44 +89,54 @@ export function AddQuestionForm({
           <FieldSet>
             <FieldGroup>
               <CardHeader className=" text-black font-semibold gap-y-10">
-                <div className="flex flex-col gap-y-5">
+                <div className="flex flex-col gap-y-2">
                   <Selector
                     title="Category"
                     isError={false}
                     errorMsg="Please select a category"
                     value={categoryToEdit?.name}
-                    onChange={(v: string) => {
+                    onValueChange={(v: string) => {
                       const cat = MOCK_CATEGORIES.find(
                         (category) => category.name === v,
                       );
                       setCategoryToEdit(cat);
-                      setQuestionToEdit((prev) => ({
-                        ...prev,
-                        categoryId: cat?._id as string,
-                      }));
+                      if (setValue) {
+                        setValue("categoryId", cat?._id ?? "", {
+                          shouldValidate: true,
+                        });
+                      }
                     }}
                   >
                     {renderCategories}
                   </Selector>
+                  {errors?.categoryId && (
+                    <p className="text-destructive text-sm">
+                      {errors.categoryId.message}
+                    </p>
+                  )}
                   <div className="pl-5">
                     <Selector
                       title="Subcategory"
                       isError={false}
                       errorMsg="Please select a category"
-                      value={subcategoryToEdit?.name}
-                      onChange={(v: string) => {
+                      onValueChange={(v: string) => {
                         const subCat = MOCK_SUB_CATEGORIES.find(
                           (subcategory) => subcategory.name === v,
                         );
-                        setSubCategoryToEdit(subCat);
-                        setQuestionToEdit((prev) => ({
-                          ...prev,
-                          subcategoryId: subCat?._id as string,
-                        }));
+                        if (setValue) {
+                          setValue("subcategoryId", subCat?._id ?? "", {
+                            shouldValidate: true,
+                          });
+                        }
                       }}
                     >
                       {renderSubCategories()}
                     </Selector>
+                    {errors?.subcategoryId && (
+                      <p className="text-destructive text-sm">
+                        {errors.subcategoryId.message}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <Field>
@@ -142,39 +144,31 @@ export function AddQuestionForm({
                     Question
                   </FieldLabel>
                   <Input
-                    id="header"
-                    name="header"
                     placeholder="Enter the question header."
-                    required
                     className="px-3 py-5 text-[16px]"
-                    value={header}
-                    onChange={(e) => {
-                      const { name, value } = e.target;
-                      setQuestionToEdit((prev) => ({ ...prev, [name]: value }));
-                    }}
+                    {...register("header")}
                   />
+                  {errors?.header && (
+                    <p className="text-destructive text-sm">
+                      {errors.header.message}
+                    </p>
+                  )}
                 </Field>
               </CardHeader>
-              <CardDescription className="px-5 text-[16px] text-destructive ">
+              <CardDescription className="px-5 text-[16px] ">
                 <Field>
                   <div className="flex gap-2">
-                    <FieldLabel htmlFor="difficulty" className="font-semibold">
+                    <FieldLabel htmlFor="difficulty" className="font-bold">
                       Difficulty
                     </FieldLabel>
                     <Select
-                      defaultValue={difficulty.toString()}
                       onValueChange={(v) =>
-                        setQuestionToEdit((prev) => ({
-                          ...prev,
-                          difficulty: Number(v),
-                        }))
+                        setValue("difficulty", Number(v), {
+                          shouldValidate: true,
+                        })
                       }
                     >
-                      <SelectTrigger
-                        id="difficulty"
-                        name="difficulty"
-                        className="font-bold"
-                      >
+                      <SelectTrigger id="difficulty" className="font-bold">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -184,7 +178,7 @@ export function AddQuestionForm({
                               <SelectItem
                                 key={value}
                                 value={`${value}`}
-                                className="font-bold text-destructive"
+                                className="font-bold "
                               >
                                 {value}
                               </SelectItem>
@@ -194,6 +188,11 @@ export function AddQuestionForm({
                       </SelectContent>
                     </Select>
                   </div>
+                  {errors?.difficulty && (
+                    <p className="text-destructive text-sm font-semibold">
+                      {errors.difficulty.message}
+                    </p>
+                  )}
                 </Field>
               </CardDescription>
             </FieldGroup>
@@ -208,9 +207,13 @@ export function AddQuestionForm({
                   <NumberSelectorInput
                     label="Marks"
                     name="mark"
-                    questionToEdit={questionToEdit}
-                    setQuestionToEdit={setQuestionToEdit}
+                    setValue={setValue}
                   />
+                  {errors?.mark && (
+                    <p className="text-destructive text-sm font-semibold">
+                      {errors.mark.message}
+                    </p>
+                  )}
                 </Field>
               </FieldGroup>
             </FieldSet>

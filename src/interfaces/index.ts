@@ -40,12 +40,11 @@ export interface IEssayQuestion extends IQuestionBase {
   type: "essay";
   modelAnswer: string;
 }
-type d = [string, string, string, string];
 
 export interface IMcqQuestion extends IQuestionBase {
   type: "mcq";
   key: string;
-  distractors: d;
+  distractors: [string, string, string, string];
 }
 
 export type IQuestions = IEssayQuestion | IMcqQuestion;

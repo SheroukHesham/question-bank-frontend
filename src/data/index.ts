@@ -46,3 +46,26 @@ export const defaultMcqQuestion: IMcqQuestion = {
   key: "",
   distractors: ["", "", "", ""],
 };
+
+import type { QuestionFormValues } from "@/validation";
+
+export const defaultEssayFormValues: QuestionFormValues = {
+  type: "essay",
+  header: "",
+  difficulty: 0,
+  mark: 0,
+  categoryId: "",
+  subcategoryId: "",
+  modelAnswer: "",
+};
+
+export const defaultMcqFormValues: QuestionFormValues = {
+  type: "mcq",
+  header: "",
+  difficulty: 0,
+  mark: 0,
+  categoryId: "",
+  subcategoryId: "",
+  key: "",
+  distractors: [{ value: "" }, { value: "" }, { value: "" }, { value: "" }],
+};

@@ -7,13 +7,17 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { defaultQuestion } from "@/data";
+import { changeActiveTab } from "@/features/activeTabSlice";
 import type { IMcqQuestion, IQuestions } from "@/interfaces";
 import { MOCK_QUESTIONS } from "@/mock";
 import { Dot, Pen, Trash } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 
 const QuestionDetails = () => {
+  const dispatch = useDispatch();
+  dispatch(changeActiveTab("questions"));
   // TODO: replace with getQuestion by id API request
   const params = useParams();
   const question = MOCK_QUESTIONS.find((q) => q._id === params.id);
