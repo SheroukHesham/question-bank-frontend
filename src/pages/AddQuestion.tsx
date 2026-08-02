@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { defaultEssayFormValues, defaultMcqFormValues } from "@/data";
 import { Dot } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import Back from "@/components/Back";
 
 const AddQuestion = () => {
   const dispatch = useDispatch();
@@ -35,8 +36,6 @@ const AddQuestion = () => {
     name: "distractors",
   });
 
-  console.log(errors);
-
   //Todo: change to Api call to add question
   const onSubmit = (data: QuestionFormValues) => {
     const payload =
@@ -53,10 +52,11 @@ const AddQuestion = () => {
   };
 
   const onCancel = () => {
-    navigate("/questions");
+    navigate(-1);
   };
   return (
     <div className="max-w-6xl mx-auto gap-y-3 flex flex-col mb-20">
+      <Back />
       <Card>
         {isEssay ? (
           <QuestionForm
@@ -79,6 +79,7 @@ const AddQuestion = () => {
                 Model Answer
               </FieldLabel>
               <Textarea
+                placeholder="Enter the model answer."
                 {...register("modelAnswer")}
                 className="text-[16px] text-black font-semibold text-justify min-h-fit"
               />

@@ -1,4 +1,5 @@
 import { Alert } from "@/components/Alert";
+import Back from "@/components/Back";
 import QuestionDetailsCard from "@/components/QuestionDetailsCard";
 import { QuestionForm } from "@/components/QuestionForm";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ const QuestionDetails = () => {
   const {
     register,
     control,
+    reset,
     handleSubmit,
     setValue,
     formState: { errors },
@@ -65,6 +67,7 @@ const QuestionDetails = () => {
 
   //TODO:test
   const onCancel = () => {
+    reset(toFormValues(question));
     setEditMode(false);
   };
 
@@ -87,6 +90,7 @@ const QuestionDetails = () => {
 
   return (
     <div className="max-w-6xl mx-auto gap-y-3 flex flex-col mb-20">
+      <Back />
       <div className="flex w-full justify-end">
         {!editMode ? (
           <Button
@@ -144,7 +148,7 @@ const QuestionDetails = () => {
                     className="text-[16px] text-black font-semibold text-justify min-h-fit"
                   />
                   {errors?.modelAnswer && (
-                    <p className="text-destructive text-sm">
+                    <p className="text-destructive text-sm font-semibold">
                       {errors.modelAnswer.message}
                     </p>
                   )}

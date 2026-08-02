@@ -10,6 +10,18 @@ export const NAVBAR_ITEMS: INavbar[] = [
     id: "questions",
     label: "Questions",
     to: "/questions",
+    subLinks: [
+      {
+        id: "essay",
+        label: "Essay Questions",
+        to: "/questions/essay",
+      },
+      {
+        id: "mcq",
+        label: "MCQ Questions",
+        to: "/questions/mcq",
+      },
+    ],
   },
   {
     id: "categories",

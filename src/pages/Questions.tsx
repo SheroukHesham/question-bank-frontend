@@ -1,3 +1,4 @@
+import Back from "@/components/Back";
 import { CollapsibleCard } from "@/components/CollapsibleCard";
 import { Button } from "@/components/ui/button";
 import { changeActiveTab } from "@/features/activeTabSlice";
@@ -6,13 +7,11 @@ import {
   MOCK_GROUPED_MCQ_QUESTIONS,
 } from "@/mock";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-interface IProps {
-  type: "essay" | "mcq";
-}
-
-const Questions = ({ type }: IProps) => {
+const Questions = () => {
+  const params = useParams();
+  const type = params.type;
   const dispatch = useDispatch();
   dispatch(changeActiveTab("questions"));
   const navigate = useNavigate();
@@ -32,7 +31,7 @@ const Questions = ({ type }: IProps) => {
                       className="flex items-center  text-black font-semibold text-lg"
                       key={question._id}
                       onClick={() => {
-                        navigate(`/questions/${question._id}`);
+                        navigate(`/question/${question._id}`);
                       }}
                     >
                       <span> {idx + 1}- </span>
@@ -55,7 +54,17 @@ const Questions = ({ type }: IProps) => {
   return (
     <div className="w-full px-5">
       <div className="flex flex-col max-w-6xl mx-auto gap-y-5">
-        <Button onClick={() => {}}>Add Question</Button>
+        <Back />
+        <div className="w-full flex justify-end">
+          <Button
+            onClick={() => {
+              if (type === "essay") navigate("/new_question/essay");
+              else navigate("/new_question/mcq");
+            }}
+          >
+            Add Question
+          </Button>
+        </div>
         {renderQuestions}
       </div>
     </div>

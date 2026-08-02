@@ -21,9 +21,8 @@ const router = createBrowserRouter(
       <Route element={<Layout />} path="/" errorElement={<ErrorHandler />}>
         <Route index element={<Home />} />
         <Route path="questions" element={<QuestionTypes />} />
-        <Route path="questions/mcq" element={<Questions type="mcq" />} />
-        <Route path="questions/essay" element={<Questions type="essay" />} />
-        <Route path="questions/:id" element={<QuestionDetails />} />
+        <Route path="questions/:type" element={<Questions />} />
+        <Route path="question/:id" element={<QuestionDetails />} />
         <Route path="new_question/:type" element={<AddQuestion />} />
 
         <Route path="exams" element={<Exams />} />

@@ -21,7 +21,7 @@ import {
   CardFooter,
   CardHeader,
 } from "./ui/card";
-import type { ICategories } from "@/interfaces";
+import type { ICategories, ISubCategories } from "@/interfaces";
 import { useState, type ReactNode } from "react";
 import { NumberSelectorInput } from "./NumberSelectorInput";
 import { MOCK_CATEGORIES, MOCK_SUB_CATEGORIES } from "@/mock";
@@ -52,7 +52,6 @@ export function QuestionForm({
   setValue,
   defaultValues,
 }: IProps) {
-  console.log(defaultValues);
   const difficultyArray = Array.from({ length: 5 }, (_, index) => index + 1);
 
   const initialCategory = MOCK_CATEGORIES.find(
@@ -65,6 +64,9 @@ export function QuestionForm({
   const [categoryToEdit, setCategoryToEdit] = useState<ICategories | undefined>(
     initialCategory,
   );
+  const [subCategoryToEdit, setSubCategoryToEdit] = useState<
+    ISubCategories | undefined
+  >(initialSubCategory);
 
   const renderCategories = MOCK_CATEGORIES.map((category) => {
     return (
@@ -133,11 +135,12 @@ export function QuestionForm({
                         errors?.subcategoryId?.message ??
                         "Please select a category"
                       }
-                      value={initialSubCategory?.name} // was missing a `value` prop entirely before — fixed
+                      value={subCategoryToEdit?.name}
                       onValueChange={(v: string) => {
                         const subCat = MOCK_SUB_CATEGORIES.find(
                           (subcategory) => subcategory.name === v,
                         );
+                        setSubCategoryToEdit(subCat);
                         setValue("subcategoryId", subCat?._id ?? "", {
                           shouldValidate: true,
                         });

@@ -2,6 +2,7 @@ export interface INavbar {
   id: string;
   label: string;
   to: string;
+  subLinks?: INavbar[];
 }
 
 export interface IUser {
