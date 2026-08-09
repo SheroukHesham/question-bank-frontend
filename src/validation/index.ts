@@ -2,7 +2,10 @@ import * as yup from "yup";
 
 export const questionSchema = yup.object({
   type: yup.mixed<"essay" | "mcq">().oneOf(["essay", "mcq"]).required(),
-  header: yup.string().required("Question header is required"),
+  header: yup
+    .string()
+    .min(8, "Question header is required")
+    .required("Question header is required"),
   difficulty: yup
     .number()
     .min(1, "Difficulty is required")
@@ -14,26 +17,29 @@ export const questionSchema = yup.object({
 
   modelAnswer: yup.string().when("type", {
     is: "essay",
-    then: (schema) => schema.required("Model Answer is required"),
+    then: (schema) =>
+      schema
+        .min(8, "Model Answer is required")
+        .required("Model Answer is required"),
     otherwise: (schema) => schema.strip(),
   }),
 
-  key: yup.string().when("type", {
-    is: "mcq",
-    then: (schema) => schema.required("Key is required"),
-    otherwise: (schema) => schema.strip(),
-  }),
+  // key: yup.string().when("type", {
+  //   is: "mcq",
+  //   then: (schema) => schema.required("This field is required"),
+  //   otherwise: (schema) => schema.strip(),
+  // }),
 
-  distractors: yup
+  choices: yup
     .array()
     .of(
       yup.object({
-        value: yup.string().required("Distractor is required"),
+        value: yup.string().required("Choices are required"),
       }),
     )
     .when("type", {
       is: "mcq",
-      then: (schema) => schema.min(4, "4 distractors are required").required(),
+      then: (schema) => schema.min(5, "5 choices are required").required(),
       otherwise: (schema) => schema.strip(),
     }),
 });

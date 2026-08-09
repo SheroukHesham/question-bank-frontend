@@ -1,3 +1,6 @@
+@import "./styles/_variables.scss";
+@import "./styles/_keyframe-animations.scss";
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -6,27 +9,62 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(97.515% 0.01276 244.483);
-  --foreground: oklch(0.145 0 0);
-  --primary: hsl(86, 59%, 60%);
-  --secondary: hsl(217, 62%, 18%);
+  --background: #f6f6f6;
+  --foreground: #424242;
+  --primary: #004afc;
+  --primary-foreground: #ffffff;
   --primary-hover: hsl(45, 100%, 63%);
+  --popover: #f6f5fa;
+  --popover-border: #b5b5b7;
+  --muted: #4a5565;
+  --outline: #eeeeee;
+  --secondary: hsl(217, 62%, 18%);
   --secondary-foreground: hsl(0, 43%, 99%);
-  --primary-foreground: hsl(217, 62%, 18%);
   --destructive: hsl(0, 71%, 41%);
-  --card: oklch(88.839% 0.044 245.204);
+  --sidebar: #ffffff;
+  --sidebar-foreground: #424242;
+  --border: #f1f1f1;
+  --card: #ffffff;
+  --card-foreground: #1b1b1b;
+  --destructive-foreground: var(--color-red-800);
+  --success: var(--color-emerald-500);
+  --success-foreground: var(--color-emerald-900);
+  --info: var(--color-violet-500);
+  --info-foreground: var(--color-violet-900);
+  --warning: var(--color-yellow-500);
+  --warning-foreground: var(--color-yellow-900);
+  --invert: var(--color-zinc-900);
+  --invert-foreground: var(--color-zinc-50);
 }
 
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --primary: hsl(132, 57%, 45%);
-  --secondary: hsl(217, 62%, 18%);
+  --primary-foreground: #ffffff;
   --primary-hover: hsl(45, 100%, 63%);
+  --popover: oklch(82.175% 0.06882 245.403);
+  --popover-border: #b5b5b7;
+  --muted: #828282;
+  --outline: #eeeeee;
+  --secondary: hsl(217, 62%, 18%);
   --secondary-foreground: hsl(0, 43%, 99%);
   --primary-foreground: hsl(0, 43%, 99%);
   --destructive: hsl(0, 71%, 41%);
-  --card: oklch(82.175% 0.06882 245.403);
+  --sidebar: #ffffff;
+  --sidebar-foreground: #c4c4c4;
+  --border: #f1f1f1;
+  --card: #ffffff;
+  --card-foreground: #1b1b1b;
+  --destructive-foreground: var(--color-red-600);
+  --success: var(--color-emerald-500);
+  --success-foreground: var(--color-emerald-600);
+  --info: var(--color-violet-500);
+  --info-foreground: var(--color-violet-600);
+  --warning: var(--color-yellow-500);
+  --warning-foreground: var(--color-yellow-600);
+  --invert: var(--color-zinc-700);
+  --invert-foreground: var(--color-zinc-50);
 }
 
 @theme inline {
@@ -38,11 +76,29 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-primary-foreground: var(--primary-foreground);
   --color-destructive: var(--destructive);
+  --color-popover: var(--popover);
+  --color-muted: var(--muted);
+  --color-outline: var(--outline);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-border: var(--border);
   --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover-border: var(--popover-border);
+  --color-invert-foreground: var(--invert-foreground);
+  --color-invert: var(--invert);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning: var(--warning);
+  --color-info-foreground: var(--info-foreground);
+  --color-info: var(--info);
+  --color-success-foreground: var(--success-foreground);
+  --color-success: var(--success);
+  --color-destructive-foreground: var(--destructive-foreground);
 }
 
 @layer base {
   body {
     @apply bg-background;
+    @apply text-foreground;
   }
 }

@@ -1,23 +1,36 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import type { ReactNode } from "react";
 
 interface IProps {
   title: string;
-  description: string;
+  description?: string;
+  children: ReactNode;
+  footer?: ReactNode;
   onClick: () => void;
 }
 
-export function ClickCard({ title, description, onClick }: IProps) {
+export function ClickCard({
+  title,
+  description,
+  children,
+  footer,
+  onClick,
+}: IProps) {
   return (
-    <div
-      className="grid w-full max-w-md items-start gap-4 cursor-pointer"
-      onClick={onClick}
-    >
-      <Alert className="px-5 py-16 flex flex-col gap-y-3 items-center justify-center border-dashed bg-card text-black font-semibold border-secondary ease-in-out duration-300 hover:scale-105">
-        <AlertTitle className="text-2xl">{title}</AlertTitle>
-        <AlertDescription className="text-lg text-gray-600">
-          {description}
-        </AlertDescription>
-      </Alert>
-    </div>
+    <Card size="sm" className="mx-auto w-full  cursor-pointer p-5 gap-5">
+      <CardHeader onClick={onClick}>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+      {footer && <CardFooter>{footer}</CardFooter>}
+    </Card>
   );
 }

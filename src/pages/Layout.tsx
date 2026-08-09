@@ -1,11 +1,18 @@
 import { Outlet } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/Sidebar";
+import Navbar from "@/components/Navbar";
 
 const Layout = () => {
   return (
     <>
-      <Navbar />
-      <Outlet />
+      <SidebarProvider>
+        <AppSidebar />
+        <div className="flex flex-col w-full">
+          <Navbar />
+          <Outlet />
+        </div>
+      </SidebarProvider>
     </>
   );
 };

@@ -1,39 +1,72 @@
-import type { IEssayQuestion, IMcqQuestion, INavbar } from "@/interfaces";
+import type {
+  IEssayQuestion,
+  IMcqQuestion,
+  INavbar,
+  IRadioGroupItem,
+} from "@/interfaces";
+import type { QuestionFormValues } from "@/validation";
+import {
+  CircleQuestionMark,
+  FileText,
+  House,
+  PenLine,
+  SquareCheckBig,
+} from "lucide-react";
 
 export const NAVBAR_ITEMS: INavbar[] = [
   {
     id: "dashboard",
     label: "Dashboard",
     to: "/",
+    icon: House,
   },
   {
     id: "questions",
     label: "Questions",
-    to: "/questions",
+    icon: CircleQuestionMark,
     subLinks: [
       {
-        id: "essay",
-        label: "Essay Questions",
+        id: "create-question",
+        label: "Create New Question",
         to: "/questions/essay",
       },
       {
-        id: "mcq",
-        label: "MCQ Questions",
-        to: "/questions/mcq",
+        id: "all-questions",
+        label: "All Questions",
+        to: "/questions",
+      },
+      {
+        id: "question-category",
+        label: "Question Category",
+        to: "/categories",
       },
     ],
-  },
-  {
-    id: "categories",
-    label: "Categories",
-    to: "/categories",
   },
   {
     id: "exams",
     label: "Exams",
     to: "/exams",
+    icon: FileText,
   },
 ];
+
+export const RadioQuestionGroup: IRadioGroupItem[] = [
+  {
+    id: "mcq",
+    title: "MCQ",
+    value: "mcq",
+    icon: SquareCheckBig,
+    description: "MCQ Question",
+  },
+  {
+    id: "essay",
+    title: "Essay",
+    value: "essay",
+    icon: PenLine,
+    description: "Essay Question",
+  },
+];
+
 export const defaultQuestion: IEssayQuestion = {
   _id: "",
   header: "",
@@ -58,8 +91,6 @@ export const defaultMcqQuestion: IMcqQuestion = {
   key: "",
   distractors: ["", "", "", ""],
 };
-
-import type { QuestionFormValues } from "@/validation";
 
 export const defaultEssayFormValues: QuestionFormValues = {
   type: "essay",

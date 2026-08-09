@@ -10,16 +10,15 @@ import type { IQuestions } from "@/interfaces";
 import type { QuestionFormValues } from "@/validation";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
-import type { FieldErrors, UseFormSetValue } from "react-hook-form";
+import type { UseFormSetValue } from "react-hook-form";
 
 interface IProps {
-  setValue?: UseFormSetValue<QuestionFormValues>;
-  errors?: FieldErrors<QuestionFormValues>;
   label: string;
   name: keyof IQuestions;
   defaultValue?: number;
   minValue?: number;
   maxValue?: number;
+  setValue?: UseFormSetValue<QuestionFormValues>;
   questionToEdit?: IQuestions;
   setQuestionToEdit?: Dispatch<SetStateAction<IQuestions>>;
 }
@@ -30,13 +29,14 @@ export function NumberSelectorInput({
   minValue = 1,
   questionToEdit,
   setQuestionToEdit,
-  name,
   setValue,
+  name,
   defaultValue,
 }: IProps) {
   return (
-    <div className="w-full max-w-48">
+    <div className="w-full max-w-3xs ">
       <NumberField
+        size={"lg"}
         defaultValue={defaultValue}
         value={setValue ? undefined : questionToEdit?.mark}
         onValueChange={(value) => {
@@ -51,11 +51,11 @@ export function NumberSelectorInput({
         min={minValue}
         max={maxValue}
       >
-        <div className="flex gap-2 text-black">
+        <div className="  flex flex-col gap-2 ">
           <NumberFieldScrubArea label={label} className={"font-s"} />
           <NumberFieldGroup>
             {setValue ? (
-              <NumberFieldInput className="text-start font-semibold " />
+              <NumberFieldInput className="text-start font-semibold py-5" />
             ) : (
               <NumberFieldInput
                 name={name}
@@ -64,11 +64,11 @@ export function NumberSelectorInput({
               />
             )}
 
-            <div className="border-input bg-muted/30 rounded-lg m-px flex shrink-0 flex-col overflow-hidden border">
-              <NumberFieldIncrement className="border-input hover:bg-accent focus-visible:bg-accent flex h-3.5 w-full flex-1 shrink-0 items-center rounded-none! border-b px-1.5 leading-none">
+            <div className=" rounded-lg m-px flex shrink-0 flex-col overflow-hidden ">
+              <NumberFieldIncrement className="border-input hover:bg-muted/10 focus-visible:bg-muted/10 flex h-3.5 w-full flex-1 shrink-0 items-center rounded-none!  px-1.5 leading-none">
                 <ChevronUpIcon className="size-3.5" />
               </NumberFieldIncrement>
-              <NumberFieldDecrement className="hover:bg-accent focus-visible:bg-accent flex h-3.5 w-full flex-1 shrink-0 items-center rounded-none! px-1.5 leading-none">
+              <NumberFieldDecrement className="hover:bg-muted/10 focus-visible:bg-muted/10 flex h-3.5 w-full flex-1 shrink-0 items-center rounded-none! px-1.5 leading-none">
                 <ChevronDownIcon className="size-3.5" />
               </NumberFieldDecrement>
             </div>

@@ -9,31 +9,42 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { FieldGroup } from "./ui/field";
 
 interface IProps {
   triggerText: string;
+  triggerIcon?: ReactElement;
   title: string;
   description?: string;
   children: ReactNode;
   saveButton?: boolean;
+  onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
 }
 
 export function Modal({
+  triggerIcon,
   title,
   triggerText,
   children,
   description,
+  onSubmit,
   saveButton = true,
 }: IProps) {
   return (
     <Dialog>
-      <form>
+      <form onSubmit={onSubmit}>
         <DialogTrigger asChild>
-          <Button variant="default">{triggerText}</Button>
+          <Button variant="secondary">
+            {triggerIcon}
+            {triggerText}
+          </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent
+          className="max-h-80vh overflow-scroll"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             {description && (

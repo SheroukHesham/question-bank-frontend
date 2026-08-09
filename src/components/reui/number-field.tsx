@@ -16,13 +16,13 @@ const NumberFieldContext = createContext<{
 } | null>(null);
 
 const numberFieldGroupVariants = cva(
-  "relative flex w-full justify-between border border-input data-disabled:pointer-events-none data-disabled:opacity-50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive focus-within:has-aria-invalid:border-destructive focus-within:has-aria-invalid:ring-destructive/20 dark:focus-within:has-aria-invalid:ring-destructive/40 rounded-lg bg-transparent dark:bg-input/30 transition-colors focus-within:border-ring focus-within:shadow-lg",
+  "relative flex w-full justify-between border border-popover-border data-disabled:pointer-events-none data-disabled:opacity-50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive focus-within:has-aria-invalid:border-destructive focus-within:has-aria-invalid:ring-destructive/20 dark:focus-within:has-aria-invalid:ring-destructive/40 rounded-lg bg-transparent dark:bg-input/30 transition-colors focus-within:border-ring focus-within:shadow-lg bg-white",
   {
     variants: {
       size: {
         sm: "h-7 text-sm",
         default: "h-8 text-sm",
-        lg: "h-9 text-sm",
+        lg: "h-10 text-sm",
       },
     },
     defaultVariants: {
@@ -218,7 +218,10 @@ function NumberFieldScrubArea({
       data-slot="number-field-scrub-area"
       {...props}
     >
-      <Label className="cursor-ew-resize font-bold" htmlFor={context.fieldId}>
+      <Label
+        className="cursor-ew-resize font-semibold text-lg text-foreground"
+        htmlFor={context.fieldId}
+      >
         {label}
       </Label>
       <NumberFieldPrimitive.ScrubAreaCursor className="drop-shadow-[0_1px_1px_#0008] filter">

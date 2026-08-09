@@ -6,7 +6,7 @@ import Layout from "@/pages/Layout";
 
 import Questions from "@/pages/Questions";
 import PageNotFound from "@/pages/PageNotFound";
-import QuestionTypes from "@/pages/QuestionTypes";
+// import QuestionTypes from "@/pages/QuestionTypes";
 import {
   createBrowserRouter,
   createRoutesFromElements,
@@ -14,13 +14,15 @@ import {
 } from "react-router-dom";
 import QuestionDetails from "@/pages/QuestionDetails";
 import AddQuestion from "@/pages/AddQuestion";
+import New_Questions from "@/pages/New_Questions";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route element={<Layout />} path="/" errorElement={<ErrorHandler />}>
         <Route index element={<Home />} />
-        <Route path="questions" element={<QuestionTypes />} />
+        <Route path="questions" element={<New_Questions />} />
+        {/* <Route path="questions" element={<QuestionTypes />} /> */}
         <Route path="questions/:type" element={<Questions />} />
         <Route path="question/:id" element={<QuestionDetails />} />
         <Route path="new_question/:type" element={<AddQuestion />} />
