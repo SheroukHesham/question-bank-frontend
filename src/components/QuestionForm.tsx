@@ -1,255 +1,198 @@
-import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-  FieldSeparator,
-  FieldSet,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-} from "./ui/card";
-import type { ICategories, ISubCategories } from "@/interfaces";
-import { useState, type ReactNode } from "react";
+import { Modal } from "./Modal";
+import { Plus } from "lucide-react";
+import { RadioGroupChoiceCard } from "./ChoiceCard";
 import { NumberSelectorInput } from "./NumberSelectorInput";
-import { MOCK_CATEGORIES, MOCK_SUB_CATEGORIES } from "@/mock";
-import { Selector } from "./Selector";
-import type {
-  FieldErrors,
-  UseFormRegister,
-  UseFormSetValue,
-} from "react-hook-form";
-import type { QuestionFormValues } from "@/validation";
+// import { SelectBox } from "./SelectGroup";
+import { Field, FieldLabel } from "./ui/field";
+import { SimpleEditor } from "./tiptap-templates/simple/simple-editor";
+import { SortableOPtions } from "./Sortable";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { questionSchema, type QuestionFormValues } from "@/validation";
+import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  defaultEssayFormValues,
+  defaultMcqFormValues,
+  RadioQuestionGroup,
+} from "@/data";
+import { MOCK_CATEGORIES } from "@/mock";
+import type { IEssayQuestion, IMcqQuestion, IQuestions } from "@/interfaces";
+import { SingleSelect } from "./SingleSelect";
+import { SelectItem } from "./ui/select";
+import { findSubCategory, splitFunction } from "@/functions";
 
-interface IProps {
-  children: ReactNode;
-  onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
-  onCancel: () => void;
-  register: UseFormRegister<QuestionFormValues>;
-  setValue: UseFormSetValue<QuestionFormValues>;
-  errors: FieldErrors<QuestionFormValues>;
-  defaultValues?: QuestionFormValues;
-}
+//TODO: add difficulty and API calls
 
-export function QuestionForm({
-  onSubmit,
-  onCancel,
-  children,
-  errors,
-  register,
-  setValue,
-  defaultValues,
-}: IProps) {
-  const difficultyArray = Array.from({ length: 5 }, (_, index) => index + 1);
+const QuestionForm = () => {
+  const [mcq, setMcq] = useState(true);
 
-  const initialCategory = MOCK_CATEGORIES.find(
-    (cat) => cat._id === defaultValues?.categoryId,
-  );
-  const initialSubCategory = MOCK_SUB_CATEGORIES.find(
-    (sub) => sub._id === defaultValues?.subcategoryId,
-  );
-
-  const [categoryToEdit, setCategoryToEdit] = useState<ICategories | undefined>(
-    initialCategory,
-  );
-  const [subCategoryToEdit, setSubCategoryToEdit] = useState<
-    ISubCategories | undefined
-  >(initialSubCategory);
-
-  const renderCategories = MOCK_CATEGORIES.map((category) => {
-    return (
-      <SelectItem value={category.name} key={category._id}>
-        {category.name}
-      </SelectItem>
-    );
+  const {
+    setValue,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<QuestionFormValues>({
+    resolver: yupResolver(questionSchema),
+    defaultValues: mcq ? defaultMcqFormValues : defaultEssayFormValues,
   });
 
-  //TODO: revisit;can be replaced with API call
-  function renderSubCategories(): ReactNode {
-    const subCategories = categoryToEdit?.subCategories.map((subCategory) => {
-      return MOCK_SUB_CATEGORIES.find((sub) => sub._id === subCategory);
+  const onHeaderChange = (html: string) => {
+    setValue("header", html);
+  };
+  const onAnswerChange = (html: string) => {
+    setValue("modelAnswer", html);
+  };
+
+  const extractKey = (
+    choices:
+      | {
+          value: string;
+          isCorrect: NonNullable<boolean | undefined>;
+        }[]
+      | undefined,
+  ) => {
+    const key = choices?.find((choice) => choice.isCorrect);
+    const distractorsRaw = choices?.filter((choice) => !choice.isCorrect);
+    const distractors = distractorsRaw?.map((item) => {
+      return item.value;
     });
-    return subCategories?.map((subCat) => {
-      return (
-        <SelectItem value={subCat?.name as string} key={subCat?._id}>
-          {subCat?.name}
-        </SelectItem>
-      );
-    });
-  }
+
+    return { key: key?.value, distractors: distractors };
+  };
+
+  const onSelectValueChange = (v: string) => {
+    const [category, subcategory] = splitFunction(v, "-");
+    if (setValue) {
+      setValue("categoryId", category, { shouldValidate: true });
+      setValue("subcategoryId", subcategory, { shouldValidate: true });
+    }
+
+    //  if (setQuestionToEdit)
+    //    setQuestionToEdit((prev) => ({
+    //      ...prev,
+    //      mark: Number(value),
+    //    }));
+  };
+
+  const onSubmit = (data: QuestionFormValues) => {
+    const { choices, ...rest } = data;
+
+    const payload: IQuestions =
+      data.type === "essay"
+        ? ({ ...rest, modelAnswer: data.modelAnswer! } as IEssayQuestion)
+        : (() => {
+            const { key, distractors } = extractKey(choices);
+            return {
+              ...rest,
+              key: key!,
+              distractors: distractors!,
+            } as IMcqQuestion;
+          })();
+
+    console.log(payload);
+    // TODO: API call with payload
+  };
 
   return (
-    <div className="w-full ">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          onSubmit();
-        }}
-      >
-        <FieldGroup>
-          <FieldSet>
-            <FieldGroup>
-              <CardHeader className=" text-black font-semibold gap-y-10">
-                <div className="flex flex-col gap-y-2">
-                  <Selector
-                    title="Category"
-                    isError={!!errors?.categoryId}
-                    errorMsg={
-                      errors?.categoryId?.message ?? "Please select a category"
-                    }
-                    value={categoryToEdit?.name} // now seeded from initialCategory on mount
-                    onValueChange={(v: string) => {
-                      const cat = MOCK_CATEGORIES.find(
-                        (category) => category.name === v,
-                      );
-                      setCategoryToEdit(cat);
-                      setValue("categoryId", cat?._id ?? "", {
-                        shouldValidate: true,
-                      });
-                    }}
-                  >
-                    {renderCategories}
-                  </Selector>
-                  {errors?.categoryId && (
-                    <p className="text-destructive text-sm">
-                      {errors.categoryId.message}
-                    </p>
-                  )}
-                  <div className="pl-5">
-                    <Selector
-                      title="Subcategory"
-                      isError={!!errors?.subcategoryId}
-                      errorMsg={
-                        errors?.subcategoryId?.message ??
-                        "Please select a category"
-                      }
-                      value={subCategoryToEdit?.name}
-                      onValueChange={(v: string) => {
-                        const subCat = MOCK_SUB_CATEGORIES.find(
-                          (subcategory) => subcategory.name === v,
-                        );
-                        setSubCategoryToEdit(subCat);
-                        setValue("subcategoryId", subCat?._id ?? "", {
-                          shouldValidate: true,
-                        });
-                      }}
+    <Modal
+      title="Create New Question"
+      triggerText="Create New Question"
+      triggerIcon={<Plus />}
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <div className="w-full flex gap-5 flex-col overflow-scroll ">
+        <div className="flex w-full relative justify-between">
+          <div className="flex flex-col w-lg min-w-sm gap-2">
+            <span className="text-lg font-semibold">Question Type</span>
+            <div className="flex gap-5">
+              <RadioGroupChoiceCard
+                setMcq={setMcq}
+                setValue={setValue}
+                defaultValue="mcq"
+                radioItems={RadioQuestionGroup}
+              />
+            </div>
+            {errors.type && (
+              <p className="text-destructive text-sm font-semibold">
+                {errors.type.message}
+              </p>
+            )}
+          </div>
+          <div className="flex flex-col gap-3 w-3xs ">
+            <NumberSelectorInput
+              label="Question Mark"
+              name="mark"
+              setValue={setValue}
+            />
+            {errors.mark && (
+              <p className="text-destructive text-sm font-semibold">
+                {errors.mark.message}
+              </p>
+            )}
+            <SingleSelect
+              label="Specialization"
+              onValueChange={onSelectValueChange}
+            >
+              {MOCK_CATEGORIES.map((category) => {
+                return category.subCategories.map((subcategory) => {
+                  return (
+                    <SelectItem
+                      key={`${category._id}-${subcategory}`}
+                      value={`${category._id}-${subcategory}`}
                     >
-                      {renderSubCategories()}
-                    </Selector>
-                    {errors?.subcategoryId && (
-                      <p className="text-destructive text-sm">
-                        {errors.subcategoryId.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <Field>
-                  <FieldLabel htmlFor="header" className="font-bold text-lg">
-                    Question
-                  </FieldLabel>
-                  <Input
-                    placeholder="Enter the question header."
-                    className="px-3 py-5 text-[16px]"
-                    {...register("header")}
-                  />
-                  {errors?.header && (
-                    <p className="text-destructive text-sm">
-                      {errors.header.message}
-                    </p>
-                  )}
-                </Field>
-              </CardHeader>
-              <CardDescription className="px-5 text-[16px] ">
-                <Field>
-                  <div className="flex gap-2">
-                    <FieldLabel htmlFor="difficulty" className="font-bold">
-                      Difficulty
-                    </FieldLabel>
-                    <Select
-                      defaultValue={defaultValues?.difficulty?.toString()}
-                      onValueChange={(v) =>
-                        setValue("difficulty", Number(v), {
-                          shouldValidate: true,
-                        })
-                      }
-                    >
-                      <SelectTrigger id="difficulty" className="font-bold">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup className="bg-card">
-                          {difficultyArray.map((value) => {
-                            return (
-                              <SelectItem
-                                key={value}
-                                value={`${value}`}
-                                className="font-bold "
-                              >
-                                {value}
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {errors?.difficulty && (
-                    <p className="text-destructive text-sm font-semibold">
-                      {errors.difficulty.message}
-                    </p>
-                  )}
-                </Field>
-              </CardDescription>
-            </FieldGroup>
-          </FieldSet>
-          <FieldSeparator />
+                      {category.name}, {findSubCategory(subcategory)}
+                    </SelectItem>
+                  );
+                });
+              })}
+            </SingleSelect>
 
-          <CardContent>
-            <FieldSet>
-              <FieldGroup>
-                {children}
-                <Field className="w-32">
-                  <NumberSelectorInput
-                    defaultValue={defaultValues?.mark}
-                    label="Marks"
-                    name="mark"
-                    setValue={setValue}
-                  />
-                  {errors?.mark && (
-                    <p className="text-destructive text-sm font-semibold">
-                      {errors.mark.message}
-                    </p>
-                  )}
-                </Field>
-              </FieldGroup>
-            </FieldSet>
-          </CardContent>
-          <CardFooter className="border-t-0">
-            <Field orientation="horizontal" className="flex justify-between ">
-              <Button type="submit">Save</Button>
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => onCancel()}
-              >
-                Cancel
-              </Button>
+            {errors.categoryId && (
+              <p className="text-destructive text-sm font-semibold">
+                {errors.categoryId.message}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className=" flex flex-col gap-5">
+          <Field data-invalid={false}>
+            <FieldLabel htmlFor="question-header">Question</FieldLabel>
+            <div className="h-50">
+              <SimpleEditor onChange={onHeaderChange} />
+            </div>
+            {errors.header && (
+              <p className="text-destructive text-sm font-semibold">
+                {errors.header.message}
+              </p>
+            )}
+          </Field>
+          {mcq ? (
+            <Field data-invalid={false}>
+              <FieldLabel htmlFor="">Options</FieldLabel>
+              <SortableOPtions setValue={setValue} />
+              {errors.choices && (
+                <p className="text-destructive text-sm font-semibold">
+                  {errors.choices.message}
+                </p>
+              )}
             </Field>
-          </CardFooter>
-        </FieldGroup>
-      </form>
-    </div>
+          ) : (
+            <Field data-invalid={false}>
+              <FieldLabel htmlFor="model-answer">Model Answer</FieldLabel>
+              <div className="h-50">
+                <SimpleEditor onChange={onAnswerChange} />
+              </div>
+              {errors.modelAnswer && (
+                <p className="text-destructive text-sm font-semibold">
+                  {errors.modelAnswer.message}
+                </p>
+              )}
+            </Field>
+          )}
+        </div>
+      </div>
+    </Modal>
   );
-}
+};
+
+export default QuestionForm;

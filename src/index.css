@@ -97,8 +97,19 @@
 }
 
 @layer base {
-  body {
-    @apply bg-background;
-    @apply text-foreground;
+  @layer base {
+    ::-webkit-scrollbar-thumb {
+      background-color: var(--primary);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    html {
+      scrollbar-color: var(--primary) var(--primary);
+    }
+    body {
+      @apply bg-background text-foreground;
+    }
   }
 }

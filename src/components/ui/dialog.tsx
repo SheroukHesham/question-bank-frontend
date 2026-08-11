@@ -37,7 +37,7 @@ function DialogOverlay({
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 max-h-80vh overflow-scroll",
+        "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 max-h-80vh overflow-scroll ",
         className,
       )}
       {...props}
@@ -104,7 +104,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "-mx-4 -mb-4 flex flex-col-reverse gap-5 rounded-b-xl border-t  px-4  py-7 sm:flex-row sm:justify-end",
+        "-mx-4 -mb-4  flex flex-col-reverse gap-5 rounded-b-xl justify-center items-center px-4  pt-5 sm:flex-row sm:justify-end",
         className,
       )}
       {...props}

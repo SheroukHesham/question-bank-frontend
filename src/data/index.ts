@@ -26,17 +26,18 @@ export const NAVBAR_ITEMS: INavbar[] = [
     icon: CircleQuestionMark,
     subLinks: [
       {
-        id: "create-question",
-        label: "Create New Question",
-        to: "/questions/essay",
-      },
-      {
         id: "all-questions",
         label: "All Questions",
         to: "/questions",
       },
       {
-        id: "question-category",
+        id: "create-questions",
+        label: "Create New Question",
+        to: "/questions/essay",
+      },
+
+      {
+        id: "questions-categories",
         label: "Question Category",
         to: "/categories",
       },
@@ -109,6 +110,11 @@ export const defaultMcqFormValues: QuestionFormValues = {
   mark: 0,
   categoryId: "",
   subcategoryId: "",
-  key: "",
-  distractors: [{ value: "" }, { value: "" }, { value: "" }, { value: "" }],
+  choices: [
+    // { value: "", isCorrect: false },
+    // { value: "", isCorrect: false },
+    // { value: "", isCorrect: false },
+    // { value: "", isCorrect: false },
+    // { value: "", isCorrect: false },
+  ],
 };

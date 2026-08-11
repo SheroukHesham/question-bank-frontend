@@ -18,6 +18,7 @@ interface IProps {
   errors?: FieldErrors<QuestionFormValues>;
   questionToEdit?: IQuestions;
   setQuestionToEdit?: Dispatch<SetStateAction<IQuestions>>;
+  setMcq: Dispatch<SetStateAction<boolean>>;
 }
 
 export function RadioGroupChoiceCard({
@@ -26,12 +27,14 @@ export function RadioGroupChoiceCard({
   questionToEdit,
   setQuestionToEdit,
   setValue,
+  setMcq,
 }: IProps) {
   return (
     <RadioGroup
       defaultValue={defaultValue}
       value={setValue ? undefined : questionToEdit?.type}
       onValueChange={(value: "mcq" | "essay") => {
+        setMcq(value === "mcq" ? true : false);
         if (setValue) setValue("type", value, { shouldValidate: true });
         if (setQuestionToEdit)
           setQuestionToEdit((prev) => ({

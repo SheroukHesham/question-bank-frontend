@@ -33,6 +33,10 @@ export const findSubCategory = (subId: string) => {
   const subcategory = MOCK_SUB_CATEGORIES.find((item) => item._id === subId);
   return subcategory?.name;
 };
+export const findSubCategoryByName = (subName: string) => {
+  const subcategory = MOCK_SUB_CATEGORIES.find((item) => item.name === subName);
+  return subcategory?._id;
+};
 
 export const findCategory = (catId: string) => {
   const category = MOCK_CATEGORIES.find((item) => item._id === catId);

@@ -3,32 +3,27 @@ import Categories from "@/pages/Categories";
 import Exams from "@/pages/Exams";
 import Home from "@/pages/Home";
 import Layout from "@/pages/Layout";
-
-import Questions from "@/pages/Questions";
 import PageNotFound from "@/pages/PageNotFound";
-// import QuestionTypes from "@/pages/QuestionTypes";
 import {
   createBrowserRouter,
   createRoutesFromElements,
   Route,
 } from "react-router-dom";
 import QuestionDetails from "@/pages/QuestionDetails";
-import AddQuestion from "@/pages/AddQuestion";
-import New_Questions from "@/pages/New_Questions";
+import Questions from "@/pages/Questions";
+import CategoryQuestions from "@/pages/CategoryQuestions";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route element={<Layout />} path="/" errorElement={<ErrorHandler />}>
         <Route index element={<Home />} />
-        <Route path="questions" element={<New_Questions />} />
-        {/* <Route path="questions" element={<QuestionTypes />} /> */}
-        <Route path="questions/:type" element={<Questions />} />
+        <Route path="questions" element={<Questions />} />
         <Route path="question/:id" element={<QuestionDetails />} />
-        <Route path="new_question/:type" element={<AddQuestion />} />
 
         <Route path="exams" element={<Exams />} />
         <Route path="categories" element={<Categories />} />
+        <Route path="category/:id" element={<CategoryQuestions />} />
       </Route>
 
       <Route path="*" element={<PageNotFound />} />

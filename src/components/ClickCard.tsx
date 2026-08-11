@@ -24,12 +24,18 @@ export function ClickCard({
   onClick,
 }: IProps) {
   return (
-    <Card size="sm" className="mx-auto w-full  cursor-pointer p-5 gap-5">
-      <CardHeader onClick={onClick}>
+    <Card
+      size="default"
+      className="mx-auto w-full cursor-pointer p-5 gap-5 justify-around min-h-64"
+      onClick={onClick}
+    >
+      <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent>{children}</CardContent>
+      <CardContent className="h-full flex flex-col justify-around">
+        {children}
+      </CardContent>
       {footer && <CardFooter>{footer}</CardFooter>}
     </Card>
   );

@@ -33,7 +33,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel
             asChild
-            className={`${item.id === activeTab ? "text-primary" : ""}`}
+            className={`${activeTab.includes(item.id) ? "text-primary" : ""}`}
           >
             <CollapsibleTrigger className="capitalize flex items-center gap-2">
               {Icon && <Icon size={20} />}
@@ -42,11 +42,13 @@ export function AppSidebar() {
               <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
             </CollapsibleTrigger>
           </SidebarGroupLabel>
-          <CollapsibleContent>
+          <CollapsibleContent className="flex flex-col gap-1">
             {item.subLinks.map((subLink) => {
               return (
                 <SidebarMenu key={subLink.id}>
-                  <SidebarMenuItem className="capitalize ">
+                  <SidebarMenuItem
+                    className={`capitalize ${subLink.id === activeTab ? "bg-primary/10 text-primary" : ""} `}
+                  >
                     <SidebarMenuButton asChild>
                       <Link to={subLink.to as string}>
                         <span className="text-[16px]">{subLink.label}</span>
