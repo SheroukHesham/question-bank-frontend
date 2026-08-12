@@ -15,6 +15,7 @@ interface IProps {
   placeholder?: string;
   children: ReactNode;
   onValueChange: (value: string | TQuestionTypeFilter) => void;
+  defaultValue?: string;
 }
 
 export function SingleSelect({
@@ -22,11 +23,12 @@ export function SingleSelect({
   placeholder,
   children,
   onValueChange,
+  defaultValue,
 }: IProps) {
   return (
     <Field className="w-full max-w-3xs gap-2 ">
       {label && <FieldLabel>{label}</FieldLabel>}
-      <Select onValueChange={onValueChange}>
+      <Select defaultValue={defaultValue} onValueChange={onValueChange}>
         <div className="w-70 ">
           <SelectTrigger className="cursor-pointer bg-white">
             <SelectValue

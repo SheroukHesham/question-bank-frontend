@@ -15,7 +15,7 @@ import { ModalProvider } from "@/context/ModalContext";
 
 interface IProps {
   size?: "default" | "sm";
-  triggerText: string;
+  triggerText: string | null;
   triggerIcon?: ReactElement;
   title: string;
   description?: string;
@@ -40,9 +40,12 @@ export function Modal({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="secondary">
+        <Button
+          variant={triggerText ? "secondary" : "outline"}
+          size={triggerText ? "default" : "icon"}
+        >
           {triggerIcon}
-          {triggerText}
+          {triggerText !== null && triggerText}
         </Button>
       </DialogTrigger>
       <DialogContent

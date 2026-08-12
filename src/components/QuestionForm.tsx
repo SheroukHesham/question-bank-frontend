@@ -1,12 +1,12 @@
 import { Modal } from "./Modal";
-import { Plus } from "lucide-react";
+import { PenBoxIcon, Plus } from "lucide-react";
 import { RadioGroupChoiceCard } from "./ChoiceCard";
 import { NumberSelectorInput } from "./NumberSelectorInput";
 // import { SelectBox } from "./SelectGroup";
 import { Field, FieldLabel } from "./ui/field";
 import { SimpleEditor } from "./tiptap-templates/simple/simple-editor";
 import { SortableOPtions } from "./Sortable";
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { questionSchema, type QuestionFormValues } from "@/validation";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -19,11 +19,26 @@ import { MOCK_CATEGORIES } from "@/mock";
 import type { IEssayQuestion, IMcqQuestion, IQuestions } from "@/interfaces";
 import { SingleSelect } from "./SingleSelect";
 import { SelectItem } from "./ui/select";
-import { findSubCategory, splitFunction } from "@/functions";
+import {
+  findSubCategory,
+  isEssayQuestion,
+  isMcqQuestion,
+  splitFunction,
+} from "@/functions";
 
 //TODO: add difficulty and API calls
 
-const QuestionForm = () => {
+interface IProps {
+  type?: "create" | "edit";
+  questionToEdit?: IQuestions;
+  setQuestionToEdit?: Dispatch<SetStateAction<IEssayQuestion | IMcqQuestion>>;
+}
+
+const QuestionForm = ({
+  type = "create",
+  questionToEdit,
+  setQuestionToEdit,
+}: IProps) => {
   const [mcq, setMcq] = useState(true);
 
   const {
@@ -32,7 +47,12 @@ const QuestionForm = () => {
     formState: { errors },
   } = useForm<QuestionFormValues>({
     resolver: yupResolver(questionSchema),
-    defaultValues: mcq ? defaultMcqFormValues : defaultEssayFormValues,
+    defaultValues:
+      type === "create"
+        ? mcq
+          ? defaultMcqFormValues
+          : defaultEssayFormValues
+        : questionToEdit,
   });
 
   const onHeaderChange = (html: string) => {
@@ -65,12 +85,6 @@ const QuestionForm = () => {
       setValue("categoryId", category, { shouldValidate: true });
       setValue("subcategoryId", subcategory, { shouldValidate: true });
     }
-
-    //  if (setQuestionToEdit)
-    //    setQuestionToEdit((prev) => ({
-    //      ...prev,
-    //      mark: Number(value),
-    //    }));
   };
 
   const onSubmit = (data: QuestionFormValues) => {
@@ -88,15 +102,60 @@ const QuestionForm = () => {
             } as IMcqQuestion;
           })();
 
-    console.log(payload);
-    // TODO: API call with payload
+    // TODO: API call with payload to create question or edit question
+    console.log("Payload", payload);
+    if (setQuestionToEdit) setQuestionToEdit(payload);
+  };
+
+  const renderAnswerFrom = (type: "mcq" | "essay") => {
+    if (type === "mcq") {
+      return (
+        <Field data-invalid={false}>
+          <FieldLabel>Options</FieldLabel>
+          <SortableOPtions
+            setValue={setValue}
+            itemList={
+              questionToEdit && isMcqQuestion(questionToEdit)
+                ? [questionToEdit.key, questionToEdit.distractors]
+                : undefined
+            }
+          />
+          {errors.choices && (
+            <p className="text-destructive text-sm font-semibold">
+              {errors.choices.message}
+            </p>
+          )}
+        </Field>
+      );
+    } else {
+      return (
+        <Field data-invalid={false}>
+          <FieldLabel htmlFor="model-answer">Model Answer</FieldLabel>
+          <div className="h-50">
+            <SimpleEditor
+              onChange={onAnswerChange}
+              initialContent={
+                questionToEdit && isEssayQuestion(questionToEdit)
+                  ? questionToEdit.modelAnswer
+                  : undefined
+              }
+            />
+          </div>
+          {errors.modelAnswer && (
+            <p className="text-destructive text-sm font-semibold">
+              {errors.modelAnswer.message}
+            </p>
+          )}
+        </Field>
+      );
+    }
   };
 
   return (
     <Modal
-      title="Create New Question"
-      triggerText="Create New Question"
-      triggerIcon={<Plus />}
+      title={type === "create" ? "Create New Question" : "Edit Question"}
+      triggerText={type === "create" ? "Create New Question" : null}
+      triggerIcon={type === "create" ? <Plus /> : <PenBoxIcon />}
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="w-full flex gap-5 flex-col overflow-scroll ">
@@ -107,7 +166,9 @@ const QuestionForm = () => {
               <RadioGroupChoiceCard
                 setMcq={setMcq}
                 setValue={setValue}
-                defaultValue="mcq"
+                defaultValue={
+                  type === "create" ? "mcq" : (questionToEdit?.type as string)
+                }
                 radioItems={RadioQuestionGroup}
               />
             </div>
@@ -122,6 +183,7 @@ const QuestionForm = () => {
               label="Question Mark"
               name="mark"
               setValue={setValue}
+              defaultValue={type === "edit" ? questionToEdit?.mark : undefined}
             />
             {errors.mark && (
               <p className="text-destructive text-sm font-semibold">
@@ -131,6 +193,11 @@ const QuestionForm = () => {
             <SingleSelect
               label="Specialization"
               onValueChange={onSelectValueChange}
+              defaultValue={
+                type === "edit"
+                  ? `${questionToEdit?.categoryId}-${questionToEdit?.subcategoryId}`
+                  : undefined
+              }
             >
               {MOCK_CATEGORIES.map((category) => {
                 return category.subCategories.map((subcategory) => {
@@ -158,7 +225,10 @@ const QuestionForm = () => {
           <Field data-invalid={false}>
             <FieldLabel htmlFor="question-header">Question</FieldLabel>
             <div className="h-50">
-              <SimpleEditor onChange={onHeaderChange} />
+              <SimpleEditor
+                onChange={onHeaderChange}
+                initialContent={questionToEdit?.header}
+              />
             </div>
             {errors.header && (
               <p className="text-destructive text-sm font-semibold">
@@ -166,29 +236,11 @@ const QuestionForm = () => {
               </p>
             )}
           </Field>
-          {mcq ? (
-            <Field data-invalid={false}>
-              <FieldLabel htmlFor="">Options</FieldLabel>
-              <SortableOPtions setValue={setValue} />
-              {errors.choices && (
-                <p className="text-destructive text-sm font-semibold">
-                  {errors.choices.message}
-                </p>
-              )}
-            </Field>
-          ) : (
-            <Field data-invalid={false}>
-              <FieldLabel htmlFor="model-answer">Model Answer</FieldLabel>
-              <div className="h-50">
-                <SimpleEditor onChange={onAnswerChange} />
-              </div>
-              {errors.modelAnswer && (
-                <p className="text-destructive text-sm font-semibold">
-                  {errors.modelAnswer.message}
-                </p>
-              )}
-            </Field>
-          )}
+          {type === "create"
+            ? mcq
+              ? renderAnswerFrom("mcq")
+              : renderAnswerFrom("essay")
+            : renderAnswerFrom(questionToEdit?.type as "mcq" | "essay")}
         </div>
       </div>
     </Modal>

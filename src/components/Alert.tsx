@@ -16,6 +16,15 @@ import type { ReactNode } from "react";
 interface IProps {
   buttonChildren: ReactNode;
   variant: "destructive" | "default";
+  buttonSize?:
+    | "default"
+    | "icon"
+    | "sm"
+    | "xs"
+    | "lg"
+    | "icon-xs"
+    | "icon-sm"
+    | "icon-lg";
   icon?: ReactNode;
   title: string;
   description: string;
@@ -26,6 +35,7 @@ interface IProps {
 
 export function Alert({
   buttonChildren,
+  buttonSize = "default",
   description,
   onCancel,
   onSubmit,
@@ -37,9 +47,11 @@ export function Alert({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={variant}>{buttonChildren}</Button>
+        <Button variant={variant} size={buttonSize}>
+          {buttonChildren}
+        </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent size="sm">
+      <AlertDialogContent size="default">
         <AlertDialogHeader>
           {icon && (
             <AlertDialogMedia

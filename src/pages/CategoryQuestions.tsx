@@ -1,3 +1,4 @@
+import QuestionCard from "@/components/QuestionCard";
 import QuestionForm from "@/components/QuestionForm";
 import { SingleSelect } from "@/components/SingleSelect";
 import { SelectItem } from "@/components/ui/select";
@@ -32,8 +33,8 @@ const CategoryQuestions = () => {
     filterQuestions(value as TQuestionTypeFilter);
   };
 
-  const renderQuestions = questions.map((question) => {
-    return <span>{question.header}</span>;
+  const renderQuestions = questions.map((question, idx) => {
+    return <QuestionCard key={question._id} idx={idx} question={question} />;
   });
 
   return (
@@ -59,7 +60,7 @@ const CategoryQuestions = () => {
         </SingleSelect>
       </div>
 
-      <div className="w-full flex flex-col gap-5">{renderQuestions}</div>
+      <div className="w-full flex flex-col gap-5 mt-5">{renderQuestions}</div>
     </div>
   );
 };
