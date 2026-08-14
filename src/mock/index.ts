@@ -1,6 +1,6 @@
 import type {
   ICategories,
-  IGroupedQuestions,
+  // IGroupedQuestions,
   IQuestions,
   ISubCategories,
   IUser,
@@ -113,9 +113,7 @@ export const MOCK_QUESTIONS: IQuestions[] = [
     headerImageUrl:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTZDXM43whq2NiG2eicShUxSv8vgv0aqHCsA9NP0HUfVI04qLSBwCJs4w&s=10",
 
-    difficulty: 1,
-
-    mark: 1,
+    difficulty: "moderate",
 
     categoryId: "cat001",
 
@@ -153,9 +151,7 @@ export const MOCK_QUESTIONS: IQuestions[] = [
 
     header: "Explain polymorphism in Object-Oriented Programming.",
 
-    difficulty: 3,
-
-    mark: 8,
+    difficulty: "easy",
 
     categoryId: "cat001",
 
@@ -173,9 +169,7 @@ export const MOCK_QUESTIONS: IQuestions[] = [
 
     header: "Which SQL statement retrieves data?",
 
-    difficulty: 1,
-
-    mark: 2,
+    difficulty: "easy",
 
     categoryId: "cat002",
 
@@ -214,9 +208,7 @@ export const MOCK_QUESTIONS: IQuestions[] = [
 
     header: "Compare SQL and MongoDB databases.",
 
-    difficulty: 4,
-
-    mark: 10,
+    difficulty: "difficult",
 
     categoryId: "cat002",
 
@@ -235,9 +227,7 @@ export const MOCK_QUESTIONS: IQuestions[] = [
 
     header: "Which protocol guarantees reliable delivery?",
 
-    difficulty: 2,
-
-    mark: 2,
+    difficulty: "easy",
 
     categoryId: "cat003",
 
@@ -276,9 +266,7 @@ export const MOCK_QUESTIONS: IQuestions[] = [
 
     header: "Describe process scheduling algorithms.",
 
-    difficulty: 5,
-
-    mark: 12,
+    difficulty: "difficult",
 
     categoryId: "cat004",
 
@@ -291,265 +279,263 @@ export const MOCK_QUESTIONS: IQuestions[] = [
   },
 ];
 
-export const MOCK_GROUPED_MCQ_QUESTIONS: IGroupedQuestions = {
-  categories: [
-    {
-      _id: "cat001",
-      name: "Programming",
-      description: "Programming languages and software development",
-      subcategories: [
-        {
-          _id: "sub001",
-          name: "Java",
-          categoryId: "cat001",
-          questions: [
-            {
-              _id: "q001",
-              type: "mcq",
-              header: "Which keyword creates a subclass in Java?",
-              difficulty: 1,
-              mark: 1,
-              categoryId: "cat001",
-              subcategoryId: "sub001",
-              createdBy: "64a100000000000000000001",
-              key: "extends",
-              distractors: [
-                "implements",
-                "inherits",
-                "super",
-                "None of the above",
-              ],
-            },
-          ],
-        },
-        {
-          _id: "sub002",
-          name: "C++",
-          categoryId: "cat001",
-          questions: [],
-        },
-        {
-          _id: "sub003",
-          name: "JavaScript",
-          categoryId: "cat001",
-          questions: [],
-        },
-      ],
-    },
+// export const MOCK_GROUPED_MCQ_QUESTIONS: IGroupedQuestions = {
+//   categories: [
+//     {
+//       _id: "cat001",
+//       name: "Programming",
+//       description: "Programming languages and software development",
+//       subcategories: [
+//         {
+//           _id: "sub001",
+//           name: "Java",
+//           categoryId: "cat001",
+//           questions: [
+//             {
+//               _id: "q001",
+//               type: "mcq",
+//               header: "Which keyword creates a subclass in Java?",
+//               difficulty: "moderate",
+//               subcategoryId: "sub001",
+//               createdBy: "64a100000000000000000001",
+//               key: "extends",
+//               distractors: [
+//                 "implements",
+//                 "inherits",
+//                 "super",
+//                 "None of the above",
+//               ],
+//             },
+//           ],
+//         },
+//         {
+//           _id: "sub002",
+//           name: "C++",
+//           categoryId: "cat001",
+//           questions: [],
+//         },
+//         {
+//           _id: "sub003",
+//           name: "JavaScript",
+//           categoryId: "cat001",
+//           questions: [],
+//         },
+//       ],
+//     },
 
-    {
-      _id: "cat002",
-      name: "Database Systems",
-      description: "Relational and NoSQL databases",
-      subcategories: [
-        {
-          _id: "sub004",
-          name: "SQL",
-          categoryId: "cat002",
-          questions: [
-            {
-              _id: "q003",
-              type: "mcq",
-              header: "Which SQL statement retrieves data?",
-              difficulty: 1,
-              mark: 2,
-              categoryId: "cat002",
-              subcategoryId: "sub004",
-              createdBy: "64a100000000000000000002",
-              key: "SELECT",
-              distractors: ["INSERT", "DELETE", "UPDATE", "CREATE"],
-            },
-          ],
-        },
-        {
-          _id: "sub005",
-          name: "MongoDB",
-          categoryId: "cat002",
-          questions: [],
-        },
-      ],
-    },
+//     {
+//       _id: "cat002",
+//       name: "Database Systems",
+//       description: "Relational and NoSQL databases",
+//       subcategories: [
+//         {
+//           _id: "sub004",
+//           name: "SQL",
+//           categoryId: "cat002",
+//           questions: [
+//             {
+//               _id: "q003",
+//               type: "mcq",
+//               header: "Which SQL statement retrieves data?",
+//               difficulty: 1,
+//               mark: 2,
+//               categoryId: "cat002",
+//               subcategoryId: "sub004",
+//               createdBy: "64a100000000000000000002",
+//               key: "SELECT",
+//               distractors: ["INSERT", "DELETE", "UPDATE", "CREATE"],
+//             },
+//           ],
+//         },
+//         {
+//           _id: "sub005",
+//           name: "MongoDB",
+//           categoryId: "cat002",
+//           questions: [],
+//         },
+//       ],
+//     },
 
-    {
-      _id: "cat003",
-      name: "Computer Networks",
-      description: "Networking fundamentals",
-      subcategories: [
-        {
-          _id: "sub006",
-          name: "TCP/IP",
-          categoryId: "cat003",
-          questions: [
-            {
-              _id: "q005",
-              type: "mcq",
-              header: "Which protocol guarantees reliable delivery?",
-              difficulty: 2,
-              mark: 2,
-              categoryId: "cat003",
-              subcategoryId: "sub006",
-              createdBy: "64a100000000000000000001",
-              key: "TCP",
-              distractors: ["UDP", "IP", "ARP", "HTTP"],
-            },
-          ],
-        },
-        {
-          _id: "sub007",
-          name: "Routing",
-          categoryId: "cat003",
-          questions: [],
-        },
-      ],
-    },
+//     {
+//       _id: "cat003",
+//       name: "Computer Networks",
+//       description: "Networking fundamentals",
+//       subcategories: [
+//         {
+//           _id: "sub006",
+//           name: "TCP/IP",
+//           categoryId: "cat003",
+//           questions: [
+//             {
+//               _id: "q005",
+//               type: "mcq",
+//               header: "Which protocol guarantees reliable delivery?",
+//               difficulty: 2,
+//               mark: 2,
+//               categoryId: "cat003",
+//               subcategoryId: "sub006",
+//               createdBy: "64a100000000000000000001",
+//               key: "TCP",
+//               distractors: ["UDP", "IP", "ARP", "HTTP"],
+//             },
+//           ],
+//         },
+//         {
+//           _id: "sub007",
+//           name: "Routing",
+//           categoryId: "cat003",
+//           questions: [],
+//         },
+//       ],
+//     },
 
-    {
-      _id: "cat004",
-      name: "Operating Systems",
-      description: "Operating system concepts",
-      subcategories: [
-        {
-          _id: "sub008",
-          name: "Processes",
-          categoryId: "cat004",
-          questions: [],
-        },
-        {
-          _id: "sub009",
-          name: "Memory Management",
-          categoryId: "cat004",
-          questions: [],
-        },
-      ],
-    },
-  ],
-};
+//     {
+//       _id: "cat004",
+//       name: "Operating Systems",
+//       description: "Operating system concepts",
+//       subcategories: [
+//         {
+//           _id: "sub008",
+//           name: "Processes",
+//           categoryId: "cat004",
+//           questions: [],
+//         },
+//         {
+//           _id: "sub009",
+//           name: "Memory Management",
+//           categoryId: "cat004",
+//           questions: [],
+//         },
+//       ],
+//     },
+//   ],
+// };
 
-export const MOCK_GROUPED_ESSAY_QUESTIONS: IGroupedQuestions = {
-  categories: [
-    {
-      _id: "cat001",
-      name: "Programming",
-      description: "Programming languages and software development",
-      subcategories: [
-        {
-          _id: "sub001",
-          name: "Java",
-          categoryId: "cat001",
-          questions: [
-            {
-              _id: "q002",
-              type: "essay",
-              header: "Explain polymorphism in Object-Oriented Programming.",
-              difficulty: 3,
-              mark: 8,
-              categoryId: "cat001",
-              subcategoryId: "sub001",
-              createdBy: "64a100000000000000000001",
-              modelAnswer:
-                "Polymorphism allows one interface to represent many implementations...",
-            },
-          ],
-        },
-        {
-          _id: "sub002",
-          name: "C++",
-          categoryId: "cat001",
-          questions: [],
-        },
-        {
-          _id: "sub003",
-          name: "JavaScript",
-          categoryId: "cat001",
-          questions: [],
-        },
-      ],
-    },
+// export const MOCK_GROUPED_ESSAY_QUESTIONS: IGroupedQuestions = {
+//   categories: [
+//     {
+//       _id: "cat001",
+//       name: "Programming",
+//       description: "Programming languages and software development",
+//       subcategories: [
+//         {
+//           _id: "sub001",
+//           name: "Java",
+//           categoryId: "cat001",
+//           questions: [
+//             {
+//               _id: "q002",
+//               type: "essay",
+//               header: "Explain polymorphism in Object-Oriented Programming.",
+//               difficulty: 3,
+//               mark: 8,
+//               categoryId: "cat001",
+//               subcategoryId: "sub001",
+//               createdBy: "64a100000000000000000001",
+//               modelAnswer:
+//                 "Polymorphism allows one interface to represent many implementations...",
+//             },
+//           ],
+//         },
+//         {
+//           _id: "sub002",
+//           name: "C++",
+//           categoryId: "cat001",
+//           questions: [],
+//         },
+//         {
+//           _id: "sub003",
+//           name: "JavaScript",
+//           categoryId: "cat001",
+//           questions: [],
+//         },
+//       ],
+//     },
 
-    {
-      _id: "cat002",
-      name: "Database Systems",
-      description: "Relational and NoSQL databases",
-      subcategories: [
-        {
-          _id: "sub004",
-          name: "SQL",
-          categoryId: "cat002",
-          questions: [],
-        },
-        {
-          _id: "sub005",
-          name: "MongoDB",
-          categoryId: "cat002",
-          questions: [
-            {
-              _id: "q004",
-              type: "essay",
-              header: "Compare SQL and MongoDB databases.",
-              difficulty: 4,
-              mark: 10,
-              categoryId: "cat002",
-              subcategoryId: "sub005",
-              createdBy: "64a100000000000000000002",
-              modelAnswer:
-                "SQL databases are relational while MongoDB is a document-oriented NoSQL database...",
-            },
-          ],
-        },
-      ],
-    },
+//     {
+//       _id: "cat002",
+//       name: "Database Systems",
+//       description: "Relational and NoSQL databases",
+//       subcategories: [
+//         {
+//           _id: "sub004",
+//           name: "SQL",
+//           categoryId: "cat002",
+//           questions: [],
+//         },
+//         {
+//           _id: "sub005",
+//           name: "MongoDB",
+//           categoryId: "cat002",
+//           questions: [
+//             {
+//               _id: "q004",
+//               type: "essay",
+//               header: "Compare SQL and MongoDB databases.",
+//               difficulty: 4,
+//               mark: 10,
+//               categoryId: "cat002",
+//               subcategoryId: "sub005",
+//               createdBy: "64a100000000000000000002",
+//               modelAnswer:
+//                 "SQL databases are relational while MongoDB is a document-oriented NoSQL database...",
+//             },
+//           ],
+//         },
+//       ],
+//     },
 
-    {
-      _id: "cat003",
-      name: "Computer Networks",
-      description: "Networking fundamentals",
-      subcategories: [
-        {
-          _id: "sub006",
-          name: "TCP/IP",
-          categoryId: "cat003",
-          questions: [],
-        },
-        {
-          _id: "sub007",
-          name: "Routing",
-          categoryId: "cat003",
-          questions: [],
-        },
-      ],
-    },
+//     {
+//       _id: "cat003",
+//       name: "Computer Networks",
+//       description: "Networking fundamentals",
+//       subcategories: [
+//         {
+//           _id: "sub006",
+//           name: "TCP/IP",
+//           categoryId: "cat003",
+//           questions: [],
+//         },
+//         {
+//           _id: "sub007",
+//           name: "Routing",
+//           categoryId: "cat003",
+//           questions: [],
+//         },
+//       ],
+//     },
 
-    {
-      _id: "cat004",
-      name: "Operating Systems",
-      description: "Operating system concepts",
-      subcategories: [
-        {
-          _id: "sub008",
-          name: "Processes",
-          categoryId: "cat004",
-          questions: [
-            {
-              _id: "q006",
-              type: "essay",
-              header: "Describe process scheduling algorithms.",
-              difficulty: 5,
-              mark: 12,
-              categoryId: "cat004",
-              subcategoryId: "sub008",
-              createdBy: "64a100000000000000000001",
-              modelAnswer:
-                "Common scheduling algorithms include FCFS, SJF, Round Robin and Priority Scheduling...",
-            },
-          ],
-        },
-        {
-          _id: "sub009",
-          name: "Memory Management",
-          categoryId: "cat004",
-          questions: [],
-        },
-      ],
-    },
-  ],
-};
+//     {
+//       _id: "cat004",
+//       name: "Operating Systems",
+//       description: "Operating system concepts",
+//       subcategories: [
+//         {
+//           _id: "sub008",
+//           name: "Processes",
+//           categoryId: "cat004",
+//           questions: [
+//             {
+//               _id: "q006",
+//               type: "essay",
+//               header: "Describe process scheduling algorithms.",
+//               difficulty: 5,
+//               mark: 12,
+//               categoryId: "cat004",
+//               subcategoryId: "sub008",
+//               createdBy: "64a100000000000000000001",
+//               modelAnswer:
+//                 "Common scheduling algorithms include FCFS, SJF, Round Robin and Priority Scheduling...",
+//             },
+//           ],
+//         },
+//         {
+//           _id: "sub009",
+//           name: "Memory Management",
+//           categoryId: "cat004",
+//           questions: [],
+//         },
+//       ],
+//     },
+//   ],
+// };

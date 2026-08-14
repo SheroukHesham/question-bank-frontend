@@ -29,7 +29,7 @@ const CategoryCards = () => {
               </div>
               <Separator />
               <div className="flex flex-col gap-3">
-                <span className="font-semibold text-[15px]">SubCategories</span>
+                <span className="font-semibold text-[15px]">Types</span>
 
                 <div className="flex w-full gap-2">
                   {category.subCategories.map((subcategory) => {

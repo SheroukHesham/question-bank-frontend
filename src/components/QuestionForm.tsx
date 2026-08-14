@@ -1,11 +1,8 @@
 import { Modal } from "./Modal";
 import { PenBoxIcon, Plus } from "lucide-react";
 import { RadioGroupChoiceCard } from "./ChoiceCard";
-import { NumberSelectorInput } from "./NumberSelectorInput";
-// import { SelectBox } from "./SelectGroup";
 import { Field, FieldLabel } from "./ui/field";
 import { SimpleEditor } from "./tiptap-templates/simple/simple-editor";
-import { SortableOPtions } from "./Sortable";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { questionSchema, type QuestionFormValues } from "@/validation";
@@ -26,6 +23,8 @@ import {
   splitFunction,
 } from "@/functions";
 import ImageUpload from "./ImageUpload";
+import { ChoicesInput } from "./ChoicesInput";
+import type { TQuestionDifficulty } from "@/types";
 
 //TODO: add difficulty and API calls
 
@@ -56,11 +55,17 @@ const QuestionForm = ({
         : questionToEdit,
   });
 
-  const onSelectValueChange = (v: string) => {
+  const onSelectTopicValueChange = (v: string) => {
     const [category, subcategory] = splitFunction(v, "-");
     if (setValue) {
       setValue("categoryId", category, { shouldValidate: true });
       setValue("subcategoryId", subcategory, { shouldValidate: true });
+    }
+  };
+
+  const onSelectDifficultyChange = (value: TQuestionDifficulty) => {
+    if (setValue) {
+      setValue("difficulty", value);
     }
   };
 
@@ -79,8 +84,8 @@ const QuestionForm = ({
     if (type === "mcq") {
       return (
         <Field data-invalid={false}>
-          <FieldLabel>Options</FieldLabel>
-          <SortableOPtions
+          <FieldLabel>Choices</FieldLabel>
+          <ChoicesInput
             setValue={setValue}
             itemList={
               questionToEdit && isMcqQuestion(questionToEdit)
@@ -149,20 +154,27 @@ const QuestionForm = ({
             )}
           </div>
           <div className="flex flex-col gap-3 w-3xs ">
-            <NumberSelectorInput
-              label="Question Mark"
-              name="mark"
-              setValue={setValue}
-              defaultValue={type === "edit" ? questionToEdit?.mark : undefined}
-            />
-            {errors.mark && (
+            <SingleSelect
+              label="Difficulty"
+              onValueChange={(value) =>
+                onSelectDifficultyChange(value as TQuestionDifficulty)
+              }
+              defaultValue={
+                type === "edit" ? `${questionToEdit?.difficulty}` : undefined
+              }
+            >
+              <SelectItem value="easy">Easy</SelectItem>
+              <SelectItem value="moderate">Moderate</SelectItem>
+              <SelectItem value="difficult">Difficult</SelectItem>
+            </SingleSelect>
+            {errors.difficulty && (
               <p className="text-destructive text-sm font-semibold">
-                {errors.mark.message}
+                {errors.difficulty.message}
               </p>
             )}
             <SingleSelect
-              label="Specialization"
-              onValueChange={onSelectValueChange}
+              label="Topic, Type"
+              onValueChange={onSelectTopicValueChange}
               defaultValue={
                 type === "edit"
                   ? `${questionToEdit?.categoryId}-${questionToEdit?.subcategoryId}`

@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 import Questions from "@/pages/Questions";
 import CategoryQuestions from "@/pages/CategoryQuestions";
+import CreateExam from "@/pages/CreateExam";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -18,9 +19,10 @@ const router = createBrowserRouter(
       <Route element={<Layout />} path="/" errorElement={<ErrorHandler />}>
         <Route index element={<Home />} />
         <Route path="questions" element={<Questions />} />
-        <Route path="exams" element={<Exams />} />
         <Route path="categories" element={<Categories />} />
         <Route path="category/:id" element={<CategoryQuestions />} />
+        <Route path="exams" element={<Exams />} />
+        <Route path="exams/new" element={<CreateExam />} />
       </Route>
 
       <Route path="*" element={<PageNotFound />} />

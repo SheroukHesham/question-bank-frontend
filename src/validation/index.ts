@@ -1,3 +1,4 @@
+import type { TQuestionDifficulty } from "@/types";
 import * as yup from "yup";
 
 const choiceSchema = yup.object({
@@ -7,24 +8,19 @@ const choiceSchema = yup.object({
 
 export const questionSchema = yup.object({
   type: yup.mixed<"essay" | "mcq">().oneOf(["essay", "mcq"]).required(),
+  difficulty: yup
+    .mixed<TQuestionDifficulty>()
+    .oneOf(["easy", "moderate", "difficult"])
+    .required("Difficulty level is required"),
   header: yup.string().required("Question header is required"),
-  // difficulty: yup
-  //   .number()
-  //   .min(1)
-  //   .max(5)
-  //   .required("Question difficulty is required"),
-  mark: yup.number().min(1, "Mark is required").required("Mark is required"),
-  categoryId: yup.string().required("Category is required"),
-  subcategoryId: yup.string().required("Subcategory is required"),
-
+  categoryId: yup.string().required("Topic is required"),
+  subcategoryId: yup.string().required("Type is required"),
   modelAnswer: yup.string().when("type", {
     is: "essay",
     then: (schema) => schema.required("Model Answer is required"),
     otherwise: (schema) => schema.strip(),
   }),
-
   headerImageUrl: yup.string(),
-
   choices: yup
     .array()
     .of(choiceSchema)
@@ -49,17 +45,17 @@ export type QuestionFormValues = yup.InferType<typeof questionSchema>;
 export const categorySchema = yup.object({
   name: yup
     .string()
-    .required("Category name is required")
+    .required("Topic name is required")
     .test(
       "not-purely-numeric",
-      "Category name cannot be only numbers",
+      "Topic name cannot be only numbers",
       (value) => !/^\d+$/.test(value ?? ""),
     ),
   subCategories: yup
     .array()
     .of(yup.string())
-    .min(1, "You must assign at least 1 subcategory")
-    .required("You must assign at least 1 subcategory"),
+    .min(1, "You must assign at least 1 Type")
+    .required("You must assign at least 1 Type"),
 });
 
 export type CategoryFormValues = yup.InferType<typeof categorySchema>;
@@ -67,10 +63,10 @@ export type CategoryFormValues = yup.InferType<typeof categorySchema>;
 export const subcategorySchema = yup.object({
   name: yup
     .string()
-    .required("Subcategory name is required")
+    .required("Type name is required")
     .test(
       "not-purely-numeric",
-      "Subcategory name cannot be only numbers",
+      "Type name cannot be only numbers",
       (value) => !/^\d+$/.test(value ?? ""),
     ),
 });

@@ -12,7 +12,7 @@ interface IProps {
 }
 
 const QuestionCard = ({ question, idx }: IProps) => {
-  const { header, mark, subcategoryId } = question;
+  const { header, difficulty, subcategoryId } = question;
   const [questionToEdit, setQuestionToEdit] = useState(question);
 
   //todo: replace by api call to delete question
@@ -60,9 +60,10 @@ const QuestionCard = ({ question, idx }: IProps) => {
         </div>
 
         <div className="gap-2 flex items-center">
-          <span className="text-muted font-semibold">Mark</span>
-          <span className="size-8 text-lg rounded-full bg-muted/5 font-semibold flex items-center justify-center text-muted pb-0.5">
-            {mark}
+          <span
+            className={`text-lg rounded-full  font-semibold flex items-center justify-center px-5 py-2 capitalize ${difficulty === "difficult" ? "bg-destructive/10 text-destructive" : difficulty === "moderate" ? "bg-warning/10 text-warning-foreground" : "bg-success/10 text-success-foreground"}`}
+          >
+            {difficulty}
           </span>
         </div>
       </div>

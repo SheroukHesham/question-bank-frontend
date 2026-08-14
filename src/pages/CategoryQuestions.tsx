@@ -86,7 +86,7 @@ const CategoryQuestions = () => {
               onClick={() => setIsAddingSubcategory(true)}
             >
               <Plus />
-              <span>Add Subcategory</span>
+              <span>Create New Type</span>
             </Button>
           )}
         </div>

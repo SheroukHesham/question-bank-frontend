@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { TQuestionTypeFilter } from "@/types";
+import type { TQuestionDifficulty, TQuestionTypeFilter } from "@/types";
 
 import type { ReactNode } from "react";
 
@@ -14,7 +14,9 @@ interface IProps {
   label?: string;
   placeholder?: string;
   children: ReactNode;
-  onValueChange: (value: string | TQuestionTypeFilter) => void;
+  onValueChange: (
+    value: string | TQuestionTypeFilter | TQuestionDifficulty,
+  ) => void;
   defaultValue?: string;
 }
 

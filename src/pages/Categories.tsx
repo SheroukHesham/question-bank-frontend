@@ -17,7 +17,7 @@ const Categories = () => {
   return (
     <div className="w-full p-10 ">
       <div className="flex  items-center gap-2">
-        <h1 className="text-4xl font-semibold ">All Categories</h1>
+        <h1 className="text-4xl font-semibold ">All Topics</h1>
         <span className="text-muted/50 text-3xl font-semibold">
           ({CATEGORY_COUNT})
         </span>

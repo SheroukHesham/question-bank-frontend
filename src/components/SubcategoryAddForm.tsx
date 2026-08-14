@@ -26,7 +26,7 @@ const SubcategoryAddForm = ({ onSaved, onCancel }: IProps) => {
   return (
     <div className="flex gap-5">
       <div className="flex flex-col w-full gap-3">
-        <Input placeholder="Enter subcategory name" {...register("name")} />
+        <Input placeholder="Enter type name" {...register("name")} />
         {errors.name && (
           <p className="text-destructive text-sm font-semibold">
             {errors.name.message}

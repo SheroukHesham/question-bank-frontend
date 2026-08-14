@@ -1,3 +1,4 @@
+import type { TQuestionDifficulty } from "@/types";
 import type { LucideProps } from "lucide-react";
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
 
@@ -51,8 +52,7 @@ export interface IChoice {
 interface IQuestionBase {
   _id: string;
   header: string;
-  difficulty: number;
-  mark: number;
+  difficulty: TQuestionDifficulty;
   categoryId: string;
   subcategoryId: string;
   createdBy: string;

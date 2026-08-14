@@ -32,7 +32,7 @@ export const NAVBAR_ITEMS: INavbar[] = [
       },
       {
         id: "questions-categories",
-        label: "Question Categories",
+        label: "Question Topics",
         to: "/categories",
       },
     ],
@@ -65,8 +65,7 @@ export const RadioQuestionGroup: IRadioGroupItem[] = [
 export const defaultQuestion: IEssayQuestion = {
   _id: "",
   header: "",
-  difficulty: 1,
-  mark: 1,
+  difficulty: "easy",
   categoryId: "",
   subcategoryId: "",
   createdBy: "",
@@ -77,8 +76,7 @@ export const defaultQuestion: IEssayQuestion = {
 export const defaultMcqQuestion: IMcqQuestion = {
   _id: "",
   header: "",
-  difficulty: 1,
-  mark: 1,
+  difficulty: "easy",
   categoryId: "",
   subcategoryId: "",
   createdBy: "",
@@ -89,8 +87,7 @@ export const defaultMcqQuestion: IMcqQuestion = {
 export const defaultEssayFormValues: QuestionFormValues = {
   type: "essay",
   header: "",
-  difficulty: 0,
-  mark: 0,
+  difficulty: "easy",
   categoryId: "",
   subcategoryId: "",
   modelAnswer: "",
@@ -99,8 +96,7 @@ export const defaultEssayFormValues: QuestionFormValues = {
 export const defaultMcqFormValues: QuestionFormValues = {
   type: "mcq",
   header: "",
-  difficulty: 1,
-  mark: 1,
+  difficulty: "easy",
   categoryId: "",
   subcategoryId: "",
   choices: Array.from({ length: 5 }, () => ({ choice: "", isCorrect: false })),

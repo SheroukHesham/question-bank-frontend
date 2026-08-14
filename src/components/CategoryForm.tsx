@@ -61,8 +61,8 @@ const CategoryForm = () => {
   return (
     <Modal
       size="sm"
-      title="Create New Category"
-      triggerText="Create New Category"
+      title="Create New Topic"
+      triggerText="Create New Topic"
       triggerIcon={<Plus />}
       onSubmit={handleSubmit(onSubmit)}
       onCancel={() => {
@@ -74,7 +74,7 @@ const CategoryForm = () => {
       <div className="w-full flex gap-5 flex-col overflow-scroll ">
         <div className="flex flex-col gap-5 w-full ">
           <div className="flex flex-col  min-w-sm gap-2">
-            <Label className="text-lg font-semibold">Category Name</Label>
+            <Label className="text-lg font-semibold">Topic Name</Label>
             <Input {...register("name")} placeholder="Enter category name" />
 
             {errors.name && (
@@ -84,9 +84,7 @@ const CategoryForm = () => {
             )}
           </div>
           <div className="flex flex-col  min-w-sm gap-2 scrollbar-primary/10">
-            <Label className="text-lg font-semibold">
-              Assign Subcategories
-            </Label>
+            <Label className="text-lg font-semibold">Assign Types</Label>
             {isAddingSubcategory ? (
               <SubcategoryAddForm
                 onSaved={onSubcategorySave}
@@ -105,7 +103,7 @@ const CategoryForm = () => {
                   type="button"
                   onClick={() => setIsAddingSubcategory(true)}
                 >
-                  Add New Subcategory
+                  Add New Type
                 </Button>
               </div>
             )}
