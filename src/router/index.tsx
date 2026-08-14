@@ -9,7 +9,6 @@ import {
   createRoutesFromElements,
   Route,
 } from "react-router-dom";
-import QuestionDetails from "@/pages/QuestionDetails";
 import Questions from "@/pages/Questions";
 import CategoryQuestions from "@/pages/CategoryQuestions";
 
@@ -19,8 +18,6 @@ const router = createBrowserRouter(
       <Route element={<Layout />} path="/" errorElement={<ErrorHandler />}>
         <Route index element={<Home />} />
         <Route path="questions" element={<Questions />} />
-        <Route path="question/:id" element={<QuestionDetails />} />
-
         <Route path="exams" element={<Exams />} />
         <Route path="categories" element={<Categories />} />
         <Route path="category/:id" element={<CategoryQuestions />} />

@@ -2,11 +2,14 @@ import CategoryCards from "@/components/CategoryCards";
 import QuestionForm from "@/components/QuestionForm";
 import { changeActiveTab } from "@/features/activeTabSlice";
 import { CircleQuestionMark, LayoutGrid } from "lucide-react";
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 const Questions = () => {
   const dispatch = useDispatch();
-  dispatch(changeActiveTab("all-questions"));
+  useEffect(() => {
+    dispatch(changeActiveTab("all-questions"));
+  }, [dispatch]);
 
   return (
     <div className="w-full p-10 ">

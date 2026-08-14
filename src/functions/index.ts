@@ -25,8 +25,7 @@ export const isMcqQuestion = (q: IQuestions): q is IMcqQuestion =>
 //         mark: q.mark,
 //         categoryId: q.categoryId,
 //         subcategoryId: q.subcategoryId,
-//         key: q.key,
-//         distractors: q.distractors.map((value) => ({ value })),
+//         choices: q.choices, // direct passthrough — no unwrap/rewrap needed anymore
 //       };
 
 export const findSubCategory = (subId: string) => {
@@ -40,7 +39,7 @@ export const findSubCategoryByName = (subName: string) => {
 
 export const findCategory = (catId: string) => {
   const category = MOCK_CATEGORIES.find((item) => item._id === catId);
-  return category?.name;
+  return category;
 };
 
 export const splitFunction = (text: string, splitter: string) => {

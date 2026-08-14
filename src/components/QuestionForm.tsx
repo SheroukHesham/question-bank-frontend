@@ -25,6 +25,7 @@ import {
   isMcqQuestion,
   splitFunction,
 } from "@/functions";
+import ImageUpload from "./ImageUpload";
 
 //TODO: add difficulty and API calls
 
@@ -55,30 +56,6 @@ const QuestionForm = ({
         : questionToEdit,
   });
 
-  const onHeaderChange = (html: string) => {
-    setValue("header", html);
-  };
-  const onAnswerChange = (html: string) => {
-    setValue("modelAnswer", html);
-  };
-
-  const extractKey = (
-    choices:
-      | {
-          value: string;
-          isCorrect: NonNullable<boolean | undefined>;
-        }[]
-      | undefined,
-  ) => {
-    const key = choices?.find((choice) => choice.isCorrect);
-    const distractorsRaw = choices?.filter((choice) => !choice.isCorrect);
-    const distractors = distractorsRaw?.map((item) => {
-      return item.value;
-    });
-
-    return { key: key?.value, distractors: distractors };
-  };
-
   const onSelectValueChange = (v: string) => {
     const [category, subcategory] = splitFunction(v, "-");
     if (setValue) {
@@ -88,19 +65,10 @@ const QuestionForm = ({
   };
 
   const onSubmit = (data: QuestionFormValues) => {
-    const { choices, ...rest } = data;
-
     const payload: IQuestions =
       data.type === "essay"
-        ? ({ ...rest, modelAnswer: data.modelAnswer! } as IEssayQuestion)
-        : (() => {
-            const { key, distractors } = extractKey(choices);
-            return {
-              ...rest,
-              key: key!,
-              distractors: distractors!,
-            } as IMcqQuestion;
-          })();
+        ? ({ ...data, modelAnswer: data.modelAnswer! } as IEssayQuestion)
+        : ({ ...data, choices: data.choices! } as IMcqQuestion);
 
     // TODO: API call with payload to create question or edit question
     console.log("Payload", payload);
@@ -116,7 +84,7 @@ const QuestionForm = ({
             setValue={setValue}
             itemList={
               questionToEdit && isMcqQuestion(questionToEdit)
-                ? [questionToEdit.key, questionToEdit.distractors]
+                ? questionToEdit.choices
                 : undefined
             }
           />
@@ -133,7 +101,9 @@ const QuestionForm = ({
           <FieldLabel htmlFor="model-answer">Model Answer</FieldLabel>
           <div className="h-50">
             <SimpleEditor
-              onChange={onAnswerChange}
+              onChange={(html) => {
+                setValue("modelAnswer", html);
+              }}
               initialContent={
                 questionToEdit && isEssayQuestion(questionToEdit)
                   ? questionToEdit.modelAnswer
@@ -226,7 +196,9 @@ const QuestionForm = ({
             <FieldLabel htmlFor="question-header">Question</FieldLabel>
             <div className="h-50">
               <SimpleEditor
-                onChange={onHeaderChange}
+                onChange={(html) => {
+                  setValue("header", html);
+                }}
                 initialContent={questionToEdit?.header}
               />
             </div>
@@ -236,6 +208,16 @@ const QuestionForm = ({
               </p>
             )}
           </Field>
+          <FieldLabel>Header Image (Optional)</FieldLabel>
+          <ImageUpload
+            onFileSelected={(file) => {
+              setValue("headerImageUrl", file.name);
+            }}
+            onClear={() => {
+              setValue("headerImageUrl", "", { shouldValidate: true });
+            }}
+          />
+
           {type === "create"
             ? mcq
               ? renderAnswerFrom("mcq")

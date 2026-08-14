@@ -120,14 +120,32 @@ export const MOCK_QUESTIONS: IQuestions[] = [
 
     createdBy: "64a100000000000000000001",
 
-    key: "extends",
-
-    distractors: ["implements", "inherits", "super", "None of the above"],
+    choices: [
+      {
+        choice: "implements",
+        isCorrect: false,
+      },
+      {
+        choice: "inherits",
+        isCorrect: false,
+      },
+      {
+        choice: "extends",
+        isCorrect: true,
+      },
+      {
+        choice: "super",
+        isCorrect: false,
+      },
+      {
+        choice: "None of the above",
+        isCorrect: false,
+      },
+    ],
   },
 
   {
     _id: "q002",
-
     type: "essay",
 
     header: "Explain polymorphism in Object-Oriented Programming.",
@@ -143,12 +161,11 @@ export const MOCK_QUESTIONS: IQuestions[] = [
     createdBy: "64a100000000000000000001",
 
     modelAnswer:
-      "Polymorphism allows one interface to represent many implementations...Polymorphism allows one interface to represent many implementations..Polymorphism allows one interface to represent many implementations..Polymorphism allows one interface to represent many implementations..Polymorphism allows one interface to represent many implementations..Polymorphism allows one interface to represent many implementations..Polymorphism allows one interface to represent many implementations..Polymorphism allows one interface to represent many implementations..",
+      "Polymorphism allows one interface to represent many implementations...Polymorphism allows one interface to represent many implementations..Polymorphism allows one interface to represent many implementations..Polymorphism allows one interface to represent many implementations..Polymorphism allows one interface to represent many implementations..Polymorphism allows one interface to represent many implementations..Polymorphism allows one interface to represent many implementations..",
   },
 
   {
     _id: "q003",
-
     type: "mcq",
 
     header: "Which SQL statement retrieves data?",
@@ -163,9 +180,28 @@ export const MOCK_QUESTIONS: IQuestions[] = [
 
     createdBy: "64a100000000000000000002",
 
-    key: "SELECT",
-
-    distractors: ["INSERT", "DELETE", "UPDATE", "CREATE"],
+    choices: [
+      {
+        choice: "SELECT",
+        isCorrect: true,
+      },
+      {
+        choice: "INSERT",
+        isCorrect: false,
+      },
+      {
+        choice: "DELETE",
+        isCorrect: false,
+      },
+      {
+        choice: "UPDATE",
+        isCorrect: false,
+      },
+      {
+        choice: "CREATE",
+        isCorrect: false,
+      },
+    ],
   },
 
   {
@@ -206,9 +242,28 @@ export const MOCK_QUESTIONS: IQuestions[] = [
 
     createdBy: "64a100000000000000000001",
 
-    key: "TCP",
-
-    distractors: ["UDP", "IP", "ARP", "HTTP"],
+    choices: [
+      {
+        choice: "TCP",
+        isCorrect: true,
+      },
+      {
+        choice: "UDP",
+        isCorrect: false,
+      },
+      {
+        choice: "IP",
+        isCorrect: false,
+      },
+      {
+        choice: "ARP",
+        isCorrect: false,
+      },
+      {
+        choice: "HTTP",
+        isCorrect: false,
+      },
+    ],
   },
 
   {

@@ -1,1 +1,1 @@
-export type TQuestionTypeFilter = "All" | "Mcq" | "Essay";
+export type TQuestionTypeFilter = "all" | "mcq" | "essay";

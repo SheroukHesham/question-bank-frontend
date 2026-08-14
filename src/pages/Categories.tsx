@@ -2,11 +2,14 @@ import CategoryCards from "@/components/CategoryCards";
 import CategoryForm from "@/components/CategoryForm";
 import { changeActiveTab } from "@/features/activeTabSlice";
 import { MOCK_CATEGORIES } from "@/mock";
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 const Categories = () => {
   const dispatch = useDispatch();
-  dispatch(changeActiveTab("questions-categories"));
+  useEffect(() => {
+    dispatch(changeActiveTab("questions-categories"));
+  }, [dispatch]);
 
   //todo: replace by api call or stored number of categories
   const CATEGORY_COUNT = MOCK_CATEGORIES.length;

@@ -63,14 +63,14 @@ export function AppSidebar() {
       </Collapsible>
     ) : (
       <SidebarGroup key={item.id}>
-        <SidebarGroupLabel
-          className={`${item.id === activeTab ? "text-primary" : ""}`}
-        >
-          <Link to={item.to as string} className="flex items-center gap-2">
+        <Link to={item.to as string} className={`flex items-center gap-2`}>
+          <SidebarGroupLabel
+            className={`${item.id === activeTab ? "text-primary" : ""}`}
+          >
             {Icon && <Icon size={20} />}
             <span className="text-[16px]">{item.label}</span>
-          </Link>
-        </SidebarGroupLabel>
+          </SidebarGroupLabel>
+        </Link>
       </SidebarGroup>
     );
   });

@@ -20,7 +20,6 @@ const SubcategoryAddForm = ({ onSaved, onCancel }: IProps) => {
   });
 
   const onSubmit = (data: SubcategoryFormValues) => {
-    console.log(data);
     onSaved(data);
   };
 

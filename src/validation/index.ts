@@ -1,7 +1,7 @@
 import * as yup from "yup";
 
 const choiceSchema = yup.object({
-  value: yup.string().required("Choice text is required"),
+  choice: yup.string().required("Choice text is required"),
   isCorrect: yup.boolean().required(),
 });
 
@@ -23,6 +23,8 @@ export const questionSchema = yup.object({
     otherwise: (schema) => schema.strip(),
   }),
 
+  headerImageUrl: yup.string(),
+
   choices: yup
     .array()
     .of(choiceSchema)
@@ -30,8 +32,8 @@ export const questionSchema = yup.object({
       is: "mcq",
       then: (schema) =>
         schema
-          .min(5, "Choices are required")
-          .required("Choices are required")
+          .min(5, "5 choices are required")
+          .required()
           .test(
             "one-correct",
             "Select exactly one correct choice",
@@ -45,7 +47,14 @@ export const questionSchema = yup.object({
 export type QuestionFormValues = yup.InferType<typeof questionSchema>;
 
 export const categorySchema = yup.object({
-  name: yup.string().required("Category name is required"),
+  name: yup
+    .string()
+    .required("Category name is required")
+    .test(
+      "not-purely-numeric",
+      "Category name cannot be only numbers",
+      (value) => !/^\d+$/.test(value ?? ""),
+    ),
   subCategories: yup
     .array()
     .of(yup.string())
@@ -56,7 +65,14 @@ export const categorySchema = yup.object({
 export type CategoryFormValues = yup.InferType<typeof categorySchema>;
 
 export const subcategorySchema = yup.object({
-  name: yup.string().required("Subcategory name is required"),
+  name: yup
+    .string()
+    .required("Subcategory name is required")
+    .test(
+      "not-purely-numeric",
+      "Subcategory name cannot be only numbers",
+      (value) => !/^\d+$/.test(value ?? ""),
+    ),
 });
 
 export type SubcategoryFormValues = yup.InferType<typeof subcategorySchema>;

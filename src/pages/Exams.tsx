@@ -1,9 +1,12 @@
 import { changeActiveTab } from "@/features/activeTabSlice";
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 const Exams = () => {
   const dispatch = useDispatch();
-  dispatch(changeActiveTab("exams"));
+  useEffect(() => {
+    dispatch(changeActiveTab("exams"));
+  }, [dispatch]);
   return <div>Exams</div>;
 };
 

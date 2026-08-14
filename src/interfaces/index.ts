@@ -43,6 +43,11 @@ export interface ISubCategories {
   categoryId: string;
 }
 
+export interface IChoice {
+  choice: string;
+  isCorrect: boolean;
+}
+
 interface IQuestionBase {
   _id: string;
   header: string;
@@ -52,6 +57,7 @@ interface IQuestionBase {
   subcategoryId: string;
   createdBy: string;
   type: "mcq" | "essay";
+  headerImageUrl?: string;
 }
 
 export interface IEssayQuestion extends IQuestionBase {
@@ -59,8 +65,7 @@ export interface IEssayQuestion extends IQuestionBase {
 }
 
 export interface IMcqQuestion extends IQuestionBase {
-  key: string;
-  distractors: [string, string, string, string];
+  choices: IChoice[];
 }
 
 export type IQuestions = IEssayQuestion | IMcqQuestion;

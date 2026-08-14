@@ -31,14 +31,8 @@ export const NAVBAR_ITEMS: INavbar[] = [
         to: "/questions",
       },
       {
-        id: "create-questions",
-        label: "Create New Question",
-        to: "/questions/essay",
-      },
-
-      {
         id: "questions-categories",
-        label: "Question Category",
+        label: "Question Categories",
         to: "/categories",
       },
     ],
@@ -89,8 +83,7 @@ export const defaultMcqQuestion: IMcqQuestion = {
   subcategoryId: "",
   createdBy: "",
   type: "mcq",
-  key: "",
-  distractors: ["", "", "", ""],
+  choices: [],
 };
 
 export const defaultEssayFormValues: QuestionFormValues = {
@@ -106,15 +99,9 @@ export const defaultEssayFormValues: QuestionFormValues = {
 export const defaultMcqFormValues: QuestionFormValues = {
   type: "mcq",
   header: "",
-  difficulty: 0,
-  mark: 0,
+  difficulty: 1,
+  mark: 1,
   categoryId: "",
   subcategoryId: "",
-  choices: [
-    // { value: "", isCorrect: false },
-    // { value: "", isCorrect: false },
-    // { value: "", isCorrect: false },
-    // { value: "", isCorrect: false },
-    // { value: "", isCorrect: false },
-  ],
+  choices: Array.from({ length: 5 }, () => ({ choice: "", isCorrect: false })),
 };

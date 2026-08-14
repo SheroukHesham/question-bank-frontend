@@ -12,6 +12,7 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
 import type { UseFormSetValue } from "react-hook-form";
 import type { QuestionFormValues } from "@/validation";
+import type { IChoice } from "@/interfaces";
 
 interface SortableOption {
   id: string;
@@ -19,29 +20,44 @@ interface SortableOption {
 }
 
 interface IProps {
-  itemList?: string[];
+  itemList?: IChoice[]; // now carries order + correctness, not just text
   setValue: UseFormSetValue<QuestionFormValues>;
 }
 
 const EMPTY_OPTION_COUNT = 5;
 
-const toOptions = (list: string[]): SortableOption[] =>
-  list.map((value, idx) => ({
-    id: `${idx}-${value}-${crypto.randomUUID()}`,
-    value,
+const toOptions = (list: IChoice[]): SortableOption[] =>
+  list.map((item, idx) => ({
+    id: `${idx}-${item.choice}-${crypto.randomUUID()}`,
+    value: item.choice,
   }));
 
+const buildInitialState = (list: IChoice[]) => {
+  const options = toOptions(list);
+  const correctIdx = list.findIndex((item) => item.isCorrect);
+  return { options, correctId: correctIdx >= 0 ? options[correctIdx].id : "" };
+};
+
 export function SortableOPtions({ itemList, setValue }: IProps) {
-  const [items, setItems] = useState<SortableOption[]>(() =>
-    toOptions(itemList ?? Array(EMPTY_OPTION_COUNT).fill("")),
+  const [{ options: initialItems, correctId: initialCorrectId }] = useState(
+    () =>
+      buildInitialState(
+        itemList ??
+          Array.from({ length: EMPTY_OPTION_COUNT }, () => ({
+            choice: "",
+            isCorrect: false,
+          })),
+      ),
   );
-  const [correctId, setCorrectId] = useState("");
+
+  const [items, setItems] = useState<SortableOption[]>(initialItems);
+  const [correctId, setCorrectId] = useState(initialCorrectId);
 
   const syncForm = (options: SortableOption[], correct: string) => {
     setValue(
       "choices",
       options.map((opt) => ({
-        value: opt.value,
+        choice: opt.value,
         isCorrect: opt.id === correct,
       })),
       { shouldValidate: true },
@@ -50,7 +66,7 @@ export function SortableOPtions({ itemList, setValue }: IProps) {
 
   const handleValueChange = (newItems: SortableOption[]) => {
     setItems(newItems);
-    syncForm(newItems, correctId);
+    syncForm(newItems, correctId); // order preserved directly — no reconstruction needed
   };
 
   const handleTextChange = (id: string, newValue: string) => {
@@ -72,10 +88,7 @@ export function SortableOPtions({ itemList, setValue }: IProps) {
 
   return (
     <div className="mx-auto w-full space-y-8">
-      <RadioGroup
-        defaultValue={items[0]?.id}
-        onValueChange={handleCorrectChange}
-      >
+      <RadioGroup defaultValue={correctId} onValueChange={handleCorrectChange}>
         <Sortable
           value={items}
           onValueChange={handleValueChange}
