@@ -6,28 +6,40 @@ import { Button } from "./ui/button";
 interface IProps {
   onFileSelected: (file: File) => void;
   onClear: () => void;
+  image?: string;
 }
 
-export default function ImageUpload({ onFileSelected, onClear }: IProps) {
-  const [preview, setPreview] = useState<string | null>(null);
+export default function ImageUpload({
+  onFileSelected,
+  onClear,
+  image,
+}: IProps) {
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
+  const [cleared, setCleared] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Derived, not synced: a locally picked file always wins; otherwise fall back
+  // to the existing image, unless the user explicitly cleared it.
+  const preview = localPreview ?? (cleared ? null : (image ?? null));
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setPreview((prev) => {
+    setLocalPreview((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return URL.createObjectURL(file);
     });
+    setCleared(false);
     onFileSelected(file);
   };
 
   const handleDelete = () => {
-    setPreview((prev) => {
+    setLocalPreview((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return null;
     });
+    setCleared(true);
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -35,7 +47,7 @@ export default function ImageUpload({ onFileSelected, onClear }: IProps) {
   };
 
   return (
-    <div className="flex gap-5  items-center">
+    <div className="flex gap-5 items-center">
       <Input
         ref={inputRef}
         type="file"

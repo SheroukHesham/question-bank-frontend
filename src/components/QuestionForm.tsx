@@ -209,14 +209,26 @@ const QuestionForm = ({
             )}
           </Field>
           <FieldLabel>Header Image (Optional)</FieldLabel>
-          <ImageUpload
-            onFileSelected={(file) => {
-              setValue("headerImageUrl", file.name);
-            }}
-            onClear={() => {
-              setValue("headerImageUrl", "", { shouldValidate: true });
-            }}
-          />
+          {type === "create" ? (
+            <ImageUpload
+              onFileSelected={(file) => {
+                setValue("headerImageUrl", file.name);
+              }}
+              onClear={() => {
+                setValue("headerImageUrl", "", { shouldValidate: true });
+              }}
+            />
+          ) : (
+            <ImageUpload
+              image={questionToEdit?.headerImageUrl}
+              onFileSelected={(file) => {
+                setValue("headerImageUrl", file.name);
+              }}
+              onClear={() => {
+                setValue("headerImageUrl", "", { shouldValidate: true });
+              }}
+            />
+          )}
 
           {type === "create"
             ? mcq

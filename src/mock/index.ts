@@ -110,6 +110,9 @@ export const MOCK_QUESTIONS: IQuestions[] = [
 
     header: "Which keyword creates a subclass in Java?",
 
+    headerImageUrl:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTZDXM43whq2NiG2eicShUxSv8vgv0aqHCsA9NP0HUfVI04qLSBwCJs4w&s=10",
+
     difficulty: 1,
 
     mark: 1,

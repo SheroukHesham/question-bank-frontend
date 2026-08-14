@@ -24,9 +24,9 @@ const QuestionCard = ({ question, idx }: IProps) => {
     if (isMcqQuestion(question)) {
       return (
         <div className="flex flex-col gap-y-4">
-          {question.choices.map((choice) => {
+          {question.choices.map((choice, idx) => {
             return (
-              <div className="flex items-center gap-2">
+              <div key={idx} className="flex items-center gap-2">
                 {choice.isCorrect ? (
                   <CircleCheckBigIcon size={20} />
                 ) : (
@@ -66,6 +66,15 @@ const QuestionCard = ({ question, idx }: IProps) => {
           </span>
         </div>
       </div>
+
+      {question.headerImageUrl && (
+        <div className="w-full flex  justify-center  ">
+          <img
+            src={question.headerImageUrl}
+            className="object-cover aspect-auto"
+          />
+        </div>
+      )}
 
       <div className="mx-10">{renderAnswer()}</div>
 

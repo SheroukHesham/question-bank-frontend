@@ -60,7 +60,12 @@ const CategoryQuestions = () => {
         <div className="flex gap-3 items-center ">
           {category?.subCategories.map((subCat) => {
             return (
-              <Badge variant={"primary-light"} radius={"full"} size={"xl"}>
+              <Badge
+                key={subCat}
+                variant={"primary-light"}
+                radius={"full"}
+                size={"xl"}
+              >
                 {findSubCategory(subCat)}
               </Badge>
             );
