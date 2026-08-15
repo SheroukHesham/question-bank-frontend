@@ -21,8 +21,11 @@ interface IProps {
   description?: string;
   children: ReactNode;
   saveButton?: boolean;
-  onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
+  onSubmit?: (e?: React.BaseSyntheticEvent) => Promise<void> | void;
   onCancel?: () => void;
+  onClose?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function Modal({
@@ -35,10 +38,21 @@ export function Modal({
   onSubmit,
   saveButton = true,
   onCancel,
+  open,
+  onClose,
+  onOpenChange,
 }: IProps) {
   const dialogContentRef = useRef<HTMLDivElement>(null);
   return (
-    <Dialog>
+    <Dialog
+      open={open}
+      onOpenChange={(open) => {
+        if (onOpenChange) onOpenChange(open);
+        if (!open && onClose) {
+          onClose();
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button
           variant={triggerText ? "secondary" : "outline"}
@@ -58,7 +72,7 @@ export function Modal({
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              onSubmit();
+              if (onSubmit) onSubmit();
             }}
           >
             <DialogHeader className="mb-5">

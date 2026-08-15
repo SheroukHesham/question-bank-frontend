@@ -14,54 +14,58 @@ import type { UseFormSetValue } from "react-hook-form";
 
 interface IProps {
   label: string;
-  name: keyof IQuestions;
+  name: string;
   defaultValue?: number;
   minValue?: number;
   maxValue?: number;
   setValue?: UseFormSetValue<QuestionFormValues>;
   questionToEdit?: IQuestions;
   setQuestionToEdit?: Dispatch<SetStateAction<IQuestions>>;
+  value?: number;
+  onValueChange: ((value: number | null) => void) | undefined;
 }
 
 export function NumberSelectorInput({
   label,
   maxValue = 100,
   minValue = 1,
-  questionToEdit,
-  setQuestionToEdit,
-  setValue,
+
   name,
   defaultValue,
+  value,
+  onValueChange,
 }: IProps) {
   return (
     <div className="w-full max-w-3xs ">
       <NumberField
         size={"lg"}
         defaultValue={defaultValue}
-        value={setValue ? undefined : questionToEdit?.mark}
-        onValueChange={(value) => {
-          if (setValue)
-            setValue("mark", Number(value), { shouldValidate: true });
-          if (setQuestionToEdit)
-            setQuestionToEdit((prev) => ({
-              ...prev,
-              mark: Number(value),
-            }));
-        }}
+        value={value}
+        onValueChange={onValueChange}
+        // value={setValue ? undefined : questionToEdit?.mark}
+        // onValueChange={(value) => {
+        //   if (setValue)
+        //     setValue("mark", Number(value), { shouldValidate: true });
+        //   if (setQuestionToEdit)
+        //     setQuestionToEdit((prev) => ({
+        //       ...prev,
+        //       mark: Number(value),
+        //     }));
+        // }}
         min={minValue}
         max={maxValue}
       >
         <div className="  flex flex-col gap-2 ">
           <NumberFieldScrubArea label={label} className={"font-s"} />
           <NumberFieldGroup>
-            {setValue ? (
-              <NumberFieldInput className="text-start font-semibold py-5" />
-            ) : (
+            {value ? (
               <NumberFieldInput
                 name={name}
-                value={questionToEdit?.mark}
+                value={value}
                 className="text-start font-semibold "
               />
+            ) : (
+              <NumberFieldInput className="text-start font-semibold py-5" />
             )}
 
             <div className=" rounded-lg m-px flex shrink-0 flex-col overflow-hidden ">

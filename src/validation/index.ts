@@ -6,6 +6,7 @@ const choiceSchema = yup.object({
   isCorrect: yup.boolean().required(),
 });
 
+//todo: choices must be unique
 export const questionSchema = yup.object({
   type: yup.mixed<"essay" | "mcq">().oneOf(["essay", "mcq"]).required(),
   difficulty: yup
@@ -72,3 +73,21 @@ export const subcategorySchema = yup.object({
 });
 
 export type SubcategoryFormValues = yup.InferType<typeof subcategorySchema>;
+
+export const examSchema = yup.object({
+  totalQuestions: yup
+    .number()
+    .min(1, "Exam must have at least 1 question.")
+    .required("Total number of questions is required"),
+
+  addedQuestions: yup
+    .number()
+    .required()
+    .test(
+      "matches-total",
+      "Added questions must equal the total number of questions",
+      (value, context) => value === context.parent.totalQuestions,
+    ),
+});
+
+export type ExamFormValues = yup.InferType<typeof examSchema>;

@@ -22,7 +22,7 @@ const router = createBrowserRouter(
         <Route path="categories" element={<Categories />} />
         <Route path="category/:id" element={<CategoryQuestions />} />
         <Route path="exams" element={<Exams />} />
-        <Route path="exams/new" element={<CreateExam />} />
+        <Route path="exams/new/:type" element={<CreateExam />} />
       </Route>
 
       <Route path="*" element={<PageNotFound />} />
