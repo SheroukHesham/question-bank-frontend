@@ -1,0 +1,8 @@
+{
+  "appId": "com.sherouk.question-bank",
+  "files": ["dist-electron", "dist-react"],
+  "icon": "./university.png",
+  "win": {
+    "target": ["portable", "msi"]
+  }
+}
