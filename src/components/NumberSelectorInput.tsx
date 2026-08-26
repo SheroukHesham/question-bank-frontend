@@ -13,7 +13,7 @@ import type { Dispatch, SetStateAction } from "react";
 import type { UseFormSetValue } from "react-hook-form";
 
 interface IProps {
-  label: string;
+  label?: string;
   name: string;
   defaultValue?: number;
   minValue?: number;
@@ -42,21 +42,11 @@ export function NumberSelectorInput({
         defaultValue={defaultValue}
         value={value}
         onValueChange={onValueChange}
-        // value={setValue ? undefined : questionToEdit?.mark}
-        // onValueChange={(value) => {
-        //   if (setValue)
-        //     setValue("mark", Number(value), { shouldValidate: true });
-        //   if (setQuestionToEdit)
-        //     setQuestionToEdit((prev) => ({
-        //       ...prev,
-        //       mark: Number(value),
-        //     }));
-        // }}
         min={minValue}
         max={maxValue}
       >
         <div className="  flex flex-col gap-2 ">
-          <NumberFieldScrubArea label={label} className={"font-s"} />
+          {label && <NumberFieldScrubArea label={label} className={"font-s"} />}
           <NumberFieldGroup>
             {value ? (
               <NumberFieldInput

@@ -1,7 +1,8 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/Sidebar";
-import Navbar from "@/components/Navbar";
+import { Toaster } from "sonner";
+// import Navbar from "@/components/Navbar";
 
 const Layout = () => {
   return (
@@ -9,7 +10,8 @@ const Layout = () => {
       <SidebarProvider>
         <AppSidebar />
         <div className="flex flex-col w-full">
-          <Navbar />
+          {/* <Navbar /> */}
+          <Toaster />
           <Outlet />
         </div>
       </SidebarProvider>

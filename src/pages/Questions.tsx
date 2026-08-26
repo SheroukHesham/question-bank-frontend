@@ -33,7 +33,7 @@ const Questions = () => {
             <LayoutGrid size={45} />
           </span>
           <div className="flex flex-col">
-            <span className="text-muted font-semibold  ">Total Categories</span>
+            <span className="text-muted font-semibold  ">Total Topics</span>
             <span className="font-semibold text-2xl text-black ">6</span>
           </div>
         </div>

@@ -8,18 +8,18 @@ import type { QuestionFormValues } from "@/validation";
 import {
   CircleQuestionMark,
   FileText,
-  House,
+  // House,
   PenLine,
   SquareCheckBig,
 } from "lucide-react";
 
 export const NAVBAR_ITEMS: INavbar[] = [
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    to: "/",
-    icon: House,
-  },
+  // {
+  //   id: "dashboard",
+  //   label: "Dashboard",
+  //   to: "/",
+  //   icon: House,
+  // },
   {
     id: "questions",
     label: "Questions",
@@ -28,7 +28,7 @@ export const NAVBAR_ITEMS: INavbar[] = [
       {
         id: "all-questions",
         label: "All Questions",
-        to: "/questions",
+        to: "/",
       },
       {
         id: "questions-categories",

@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { IQuestions, IRadioGroupItem } from "@/interfaces";
+import type { TQuestionTypes } from "@/types";
 import type { QuestionFormValues } from "@/validation";
 import type { SetStateAction, Dispatch } from "react";
 import type { FieldErrors, UseFormSetValue } from "react-hook-form";
@@ -33,7 +34,7 @@ export function RadioGroupChoiceCard({
     <RadioGroup
       defaultValue={defaultValue}
       value={setValue ? undefined : questionToEdit?.type}
-      onValueChange={(value: "mcq" | "essay") => {
+      onValueChange={(value: TQuestionTypes) => {
         setMcq(value === "mcq" ? true : false);
         if (setValue) setValue("type", value, { shouldValidate: true });
         if (setQuestionToEdit)

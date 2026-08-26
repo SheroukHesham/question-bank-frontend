@@ -1,2 +1,3 @@
-export type TQuestionTypeFilter = "all" | "mcq" | "essay";
+export type TQuestionTypes = "mcq" | "essay";
+export type TQuestionTypeFilter = "all" | TQuestionTypes;
 export type TQuestionDifficulty = "easy" | "moderate" | "difficult";

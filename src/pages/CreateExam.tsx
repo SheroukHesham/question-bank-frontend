@@ -1,9 +1,10 @@
 import ExamAddFromBankModal from "@/components/ExamAddFromBankModal";
+import GenerateExamModal from "@/components/GenerateExamModal";
 import { NumberSelectorInput } from "@/components/NumberSelectorInput";
 import QuestionCard from "@/components/QuestionCard";
 import { Button } from "@/components/ui/button";
 import type { IQuestions } from "@/interfaces";
-import { MOCK_QUESTIONS } from "@/mock";
+import type { TQuestionTypes } from "@/types";
 import { examSchema, type ExamFormValues } from "@/validation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
@@ -11,14 +12,10 @@ import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 
 const CreateExam = () => {
-  //todo:remove
-
   const params = useParams();
-  const examType = params.type;
-  const questions = MOCK_QUESTIONS.filter((item) => item.type === examType);
+  const examType = params.type as TQuestionTypes;
   const [totalQuestions, setTotalQuestions] = useState<number>(0);
-  const [addedQuestions, setAddedQuestions] = useState<IQuestions[]>(questions);
-  // const [addFromBank, setAddFromBank] = useState<IQuestions[]>();
+  const [addedQuestions, setAddedQuestions] = useState<IQuestions[]>([]);
 
   const {
     setValue,
@@ -55,9 +52,25 @@ const CreateExam = () => {
       </h1>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="w-full flex flex-col gap-5 ">
-          <div className="flex justify-between w-full sticky top-0 bg-popover py-2 z-10">
-            <div className="flex items-end ">
-              <div className="flex items-center gap-5">
+          <div className="flex flex-col gap-y-3 w-full sticky top-0 bg-popover py-2 z-10">
+            <div className="flex w-full justify-end">
+              <div className="flex flex-col gap-y-1">
+                <NumberSelectorInput
+                  label="Number of Questions"
+                  name="totalQuestions"
+                  onValueChange={(value) =>
+                    onTotalQuestionsChange(value as number)
+                  }
+                />
+                {errors.totalQuestions && (
+                  <p className="text-destructive text-sm font-semibold">
+                    {errors.totalQuestions.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex w-full items-center gap-5">
+              <div className="flex flex-col w-full  gap-3">
                 <div>
                   <span className="text-muted/70 font-semibold mr-2 items-center ">
                     Questions Added:
@@ -68,33 +81,25 @@ const CreateExam = () => {
                     {addedQuestions.length}
                   </span>
                   <span className="font-semibold">/{totalQuestions}</span>
-                  {errors.addedQuestions && (
-                    <p className="text-destructive text-sm font-semibold">
-                      {errors.addedQuestions.message}
-                    </p>
-                  )}
                 </div>
-
+                {errors.addedQuestions && (
+                  <p className="text-destructive text-sm font-semibold">
+                    {errors.addedQuestions.message}
+                  </p>
+                )}
+              </div>
+              <div className="flex gap-5">
+                <GenerateExamModal
+                  examType={examType}
+                  addedQuestions={addedQuestions}
+                  totalQuestions={totalQuestions}
+                />
                 <ExamAddFromBankModal
+                  examType={examType}
                   addedQuestions={addedQuestions}
                   setAddedQuestions={setAddedQuestions}
                 />
               </div>
-            </div>
-
-            <div className="mb-5">
-              <NumberSelectorInput
-                label="Number of Questions"
-                name="totalQuestions"
-                onValueChange={(value) =>
-                  onTotalQuestionsChange(value as number)
-                }
-              />
-              {errors.totalQuestions && (
-                <p className="text-destructive text-sm font-semibold">
-                  {errors.totalQuestions.message}
-                </p>
-              )}
             </div>
           </div>
 

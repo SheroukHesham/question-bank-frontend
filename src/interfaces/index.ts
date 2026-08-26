@@ -1,4 +1,4 @@
-import type { TQuestionDifficulty } from "@/types";
+import type { TQuestionDifficulty, TQuestionTypes } from "@/types";
 import type { LucideProps } from "lucide-react";
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
 
@@ -56,7 +56,7 @@ interface IQuestionBase {
   categoryId: string;
   subcategoryId: string;
   createdBy: string;
-  type: "mcq" | "essay";
+  type: TQuestionTypes;
   headerImageUrl?: string;
 }
 
@@ -86,4 +86,12 @@ export interface IQuestionSubcategory {
   name: string;
   categoryId: string;
   questions: IQuestions[];
+}
+
+export interface ICriteria {
+  _id: string;
+  numberOfQuestions: number;
+  difficulty: TQuestionDifficulty;
+  categoryId: string;
+  subId: string;
 }

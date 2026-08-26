@@ -1,5 +1,15 @@
-import type { TQuestionDifficulty } from "@/types";
+import type { TQuestionDifficulty, TQuestionTypes } from "@/types";
 import * as yup from "yup";
+
+export const loginSchema = yup.object({
+  email: yup
+    .string()
+    .email("Please enter a valid email address")
+    .required("Email is required"),
+  password: yup.string().required("Password is Required"),
+});
+
+export type LoginFormValues = yup.InferType<typeof loginSchema>;
 
 const choiceSchema = yup.object({
   choice: yup.string().required("Choice text is required"),
@@ -8,7 +18,7 @@ const choiceSchema = yup.object({
 
 //todo: choices must be unique
 export const questionSchema = yup.object({
-  type: yup.mixed<"essay" | "mcq">().oneOf(["essay", "mcq"]).required(),
+  type: yup.mixed<TQuestionTypes>().oneOf(["essay", "mcq"]).required(),
   difficulty: yup
     .mixed<TQuestionDifficulty>()
     .oneOf(["easy", "moderate", "difficult"])
@@ -91,3 +101,32 @@ export const examSchema = yup.object({
 });
 
 export type ExamFormValues = yup.InferType<typeof examSchema>;
+
+export const criteriaSchema = yup.object({
+  numberOfQuestions: yup
+    .number()
+    .min(1, "Each criteria should have at least 1 question.")
+    .required("Number of questions is required for each criteria"),
+  difficulty: yup
+    .mixed<TQuestionDifficulty>()
+    .oneOf(["difficult", "easy", "moderate"], "Choose difficulty from options")
+    .required("Difficulty is required for each criteria"),
+  categoryId: yup
+    .string()
+    .required("You must choose a topic for each criteria"),
+  subId: yup
+    .string()
+    .required("You must choose a specialization for each criteria"),
+});
+
+export const generateQuestionsSchema = yup.object({
+  criteria: yup
+    .array()
+    .of(criteriaSchema)
+    .min(1, "You must add at least 1 criteria")
+    .required("Criteria is required"),
+});
+
+export type GenerateQuestionFormValues = yup.InferType<
+  typeof generateQuestionsSchema
+>;

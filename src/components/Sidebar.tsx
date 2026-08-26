@@ -15,12 +15,15 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, LogOut } from "lucide-react";
 import { NAVBAR_ITEMS } from "@/data";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/store";
+import { Button } from "./ui/button";
+import { logout } from "@/features/userSlice";
 
 export function AppSidebar() {
+  const dispatch = useDispatch();
   const activeTab = useSelector(
     (state: RootState) => state.activeTab.activeIdx,
   );
@@ -78,9 +81,10 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="px-5 bg-white mt-5 mb-5">
+        <div className="px-5 bg-white mt-5 mb-5 ">
           <Link to={"/"}>
-            <img src="https://www.gu.edu.eg/wp-content/uploads/2023/08/GU-Powered-by-ASU-Colored.png" />
+            <img src="../../public/Screenshot 2026-08-25 175935.png" />
+            {/* <img src="https://www.gu.edu.eg/wp-content/uploads/2023/08/GU-Powered-by-ASU-Colored.png" /> */}
           </Link>
         </div>
       </SidebarHeader>
@@ -88,7 +92,20 @@ export function AppSidebar() {
         {renderNavBarItems}
         <SidebarGroup />
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter>
+        <Button
+          variant={"destructive"}
+          asChild
+          onClick={() => {
+            dispatch(logout());
+          }}
+        >
+          <SidebarGroupLabel className="hover:text-destructive px-0 py-5">
+            <LogOut size={20} />
+            <span className="mr-2 text-[16px]">Logout</span>
+          </SidebarGroupLabel>
+        </Button>
+      </SidebarFooter>
     </Sidebar>
   );
 }

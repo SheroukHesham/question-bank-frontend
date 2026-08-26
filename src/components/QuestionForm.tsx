@@ -24,7 +24,7 @@ import {
 } from "@/functions";
 import ImageUpload from "./ImageUpload";
 import { ChoicesInput } from "./ChoicesInput";
-import type { TQuestionDifficulty } from "@/types";
+import type { TQuestionDifficulty, TQuestionTypes } from "@/types";
 
 //TODO: add difficulty and API calls
 
@@ -80,7 +80,7 @@ const QuestionForm = ({
     if (setQuestionToEdit) setQuestionToEdit(payload);
   };
 
-  const renderAnswerFrom = (type: "mcq" | "essay") => {
+  const renderAnswerFrom = (type: TQuestionTypes) => {
     if (type === "mcq") {
       return (
         <Field data-invalid={false}>
@@ -246,7 +246,7 @@ const QuestionForm = ({
             ? mcq
               ? renderAnswerFrom("mcq")
               : renderAnswerFrom("essay")
-            : renderAnswerFrom(questionToEdit?.type as "mcq" | "essay")}
+            : renderAnswerFrom(questionToEdit?.type as TQuestionTypes)}
         </div>
       </div>
     </Modal>

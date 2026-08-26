@@ -6,11 +6,12 @@ import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import QuestionCard from "./QuestionCard";
 import { MOCK_CATEGORIES, MOCK_QUESTIONS, MOCK_SUB_CATEGORIES } from "@/mock";
 import { DialogClose } from "./ui/dialog";
-import type { TQuestionDifficulty } from "@/types";
+import type { TQuestionDifficulty, TQuestionTypes } from "@/types";
 import { SingleSelect } from "./SingleSelect";
 import { SelectItem } from "./ui/select";
 
 interface IProps {
+  examType: TQuestionTypes;
   addedQuestions: IQuestions[];
   setAddedQuestions: Dispatch<SetStateAction<IQuestions[]>>;
 }
@@ -18,6 +19,7 @@ interface IProps {
 const ExamAddFromBankModal = ({
   addedQuestions,
   setAddedQuestions,
+  examType,
 }: IProps) => {
   const [selectedQuestions, setSelectedQuestions] = useState<IQuestions[]>([]);
   const [difficultyFilter, setDifficultyFilter] =
@@ -29,7 +31,7 @@ const ExamAddFromBankModal = ({
 
   //todo: questions from store
   const mcqQuestions = MOCK_QUESTIONS.filter(
-    (question) => question.type === "mcq",
+    (question) => question.type === examType,
   );
 
   const filteredQuestions = useMemo(() => {
@@ -73,11 +75,19 @@ const ExamAddFromBankModal = ({
       );
 
       return filteredSub.map((sub) => {
-        return <SelectItem value={sub._id}>{sub.name}</SelectItem>;
+        return (
+          <SelectItem key={sub._id} value={sub._id}>
+            {sub.name}
+          </SelectItem>
+        );
       });
     } else {
       return MOCK_SUB_CATEGORIES.map((sub) => {
-        return <SelectItem value={sub._id}>{sub.name}</SelectItem>;
+        return (
+          <SelectItem key={sub._id} value={sub._id}>
+            {sub.name}
+          </SelectItem>
+        );
       });
     }
   };
@@ -101,76 +111,75 @@ const ExamAddFromBankModal = ({
   });
 
   return (
-    <div>
-      <Modal
-        title="Add Question"
-        triggerText={"Add From Question Bank"}
-        triggerIcon={<Plus />}
-        saveButton={false}
-        onClose={onClose}
-      >
-        <DialogClose asChild>
-          <div className=" sticky top-0 w-full flex justify-end  ">
-            <div className="bg-popover ">
-              <Button
-                type="button"
-                onClick={onAddFromBankSubmit}
-                disabled={selectedQuestions?.length === 0}
-                className="w-lg"
-              >
-                Add
-                {selectedQuestions?.length > 0
-                  ? ` (${selectedQuestions.length})`
-                  : ""}
-              </Button>
-            </div>
+    <Modal
+      title="Add Question"
+      triggerText={"Add From Question Bank"}
+      triggerIcon={<Plus />}
+      saveButton={false}
+      onClose={onClose}
+      buttonVariant={"default"}
+    >
+      <DialogClose asChild>
+        <div className=" sticky top-0 w-full flex justify-end  ">
+          <div className="bg-popover ">
+            <Button
+              type="button"
+              onClick={onAddFromBankSubmit}
+              disabled={selectedQuestions?.length === 0}
+              className="w-lg"
+            >
+              Add
+              {selectedQuestions?.length > 0
+                ? ` (${selectedQuestions.length})`
+                : ""}
+            </Button>
           </div>
-        </DialogClose>
-
-        <div className="w-full flex ">
-          <SingleSelect
-            placeholder="Question Difficulty"
-            onValueChange={(value) =>
-              setDifficultyFilter(
-                value === "all" ? null : (value as TQuestionDifficulty),
-              )
-            }
-          >
-            <SelectItem value="all">All Difficulties</SelectItem>
-            <SelectItem value="easy">Easy</SelectItem>
-            <SelectItem value="moderate">Moderate</SelectItem>
-            <SelectItem value="difficult">Difficult</SelectItem>
-          </SingleSelect>
-
-          <SingleSelect
-            placeholder="Topic"
-            onValueChange={(value) =>
-              setCategoryFilter(value === "all" ? null : value)
-            }
-          >
-            <SelectItem value="all">All</SelectItem>
-            {MOCK_CATEGORIES.map((category) => {
-              return (
-                <SelectItem key={category._id} value={category._id}>
-                  {category.name}
-                </SelectItem>
-              );
-            })}
-          </SingleSelect>
-          <SingleSelect
-            placeholder="Specialization"
-            onValueChange={(value) =>
-              setSpecializationFilter(value === "all" ? null : value)
-            }
-          >
-            <SelectItem value="all">All</SelectItem>
-            {renderSubFilters()}
-          </SingleSelect>
         </div>
+      </DialogClose>
 
-        <div className="grid grid-cols-2 gap-4">{renderQuestions}</div>
-      </Modal>
-    </div>
+      <div className="w-full flex ">
+        <SingleSelect
+          placeholder="Question Difficulty"
+          onValueChange={(value) =>
+            setDifficultyFilter(
+              value === "all" ? null : (value as TQuestionDifficulty),
+            )
+          }
+        >
+          <SelectItem value="all">All Difficulties</SelectItem>
+          <SelectItem value="easy">Easy</SelectItem>
+          <SelectItem value="moderate">Moderate</SelectItem>
+          <SelectItem value="difficult">Difficult</SelectItem>
+        </SingleSelect>
+
+        <SingleSelect
+          placeholder="Topic"
+          onValueChange={(value) =>
+            setCategoryFilter(value === "all" ? null : value)
+          }
+        >
+          <SelectItem value="all">All</SelectItem>
+          {MOCK_CATEGORIES.map((category) => {
+            return (
+              <SelectItem key={category._id} value={category._id}>
+                {category.name}
+              </SelectItem>
+            );
+          })}
+        </SingleSelect>
+        <SingleSelect
+          placeholder="Specialization"
+          onValueChange={(value) =>
+            setSpecializationFilter(value === "all" ? null : value)
+          }
+        >
+          <SelectItem value="all">All</SelectItem>
+          {renderSubFilters()}
+        </SingleSelect>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">{renderQuestions}</div>
+    </Modal>
   );
 };
 

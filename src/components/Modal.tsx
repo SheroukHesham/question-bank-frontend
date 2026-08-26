@@ -9,7 +9,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useRef, type ReactElement, type ReactNode } from "react";
+import {
+  useRef,
+  type Dispatch,
+  type ReactElement,
+  type ReactNode,
+  type SetStateAction,
+} from "react";
 import { FieldGroup } from "./ui/field";
 import { ModalProvider } from "@/context/ModalContext";
 
@@ -25,7 +31,18 @@ interface IProps {
   onCancel?: () => void;
   onClose?: () => void;
   open?: boolean;
+  setOpen?: Dispatch<SetStateAction<boolean>>;
   onOpenChange?: (open: boolean) => void;
+  buttonVariant?:
+    | "secondary"
+    | "link"
+    | "default"
+    | "outline"
+    | "ghost"
+    | "destructive"
+    | null
+    | undefined;
+  showCloseButton?: boolean;
 }
 
 export function Modal({
@@ -39,8 +56,11 @@ export function Modal({
   saveButton = true,
   onCancel,
   open,
+  setOpen,
   onClose,
   onOpenChange,
+  buttonVariant,
+  showCloseButton,
 }: IProps) {
   const dialogContentRef = useRef<HTMLDivElement>(null);
   return (
@@ -55,14 +75,24 @@ export function Modal({
     >
       <DialogTrigger asChild>
         <Button
-          variant={triggerText ? "secondary" : "outline"}
+          variant={
+            buttonVariant
+              ? buttonVariant
+              : triggerText
+                ? "secondary"
+                : "outline"
+          }
           size={triggerText ? "default" : "icon"}
+          onClick={() => {
+            if (setOpen) setOpen(true);
+          }}
         >
           {triggerIcon}
           {triggerText !== null && triggerText}
         </Button>
       </DialogTrigger>
       <DialogContent
+        showCloseButton={showCloseButton}
         ref={dialogContentRef}
         className={`overflow-scroll ${size === "sm" ? "max-w-5xl" : ""}`}
         onInteractOutside={(e) => e.preventDefault()}
@@ -89,6 +119,7 @@ export function Modal({
                   type="button"
                   onClick={() => {
                     if (onCancel) onCancel();
+                    if (setOpen) setOpen(false);
                   }}
                 >
                   Cancel
