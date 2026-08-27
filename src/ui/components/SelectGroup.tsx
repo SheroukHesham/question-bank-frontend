@@ -8,13 +8,13 @@ import {
   SelectValue,
 } from "@/ui/components/ui/select";
 import { findSubCategory, splitFunction } from "@/ui/functions";
-import type { ICategories } from "@/shared/interfaces";
+import type { ICategory } from "@/shared/interfaces";
 import type { QuestionFormValues } from "@/ui/validation";
 import type { UseFormSetValue } from "react-hook-form";
 
 interface IProps {
   label: string;
-  list: ICategories[];
+  list: ICategory[];
   setValue: UseFormSetValue<QuestionFormValues>;
 }
 

@@ -1,9 +1,26 @@
 {
   "compilerOptions": {
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "ignoreDeprecations": "6.0",
+
     "strict": true,
-    "target": "es2023",
-    "module": "esnext",
-    "outDir": "../../dist-electron",
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+
+    "outDir": "../dist-electron",
+    "rootDir": "..",
+
+    "types": ["node", "electron"],
+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    "baseUrl": "..",
+    "paths": {
+      "@/*": ["*"]
+    }
+  },
+
+  "include": ["./**/*.ts", "./**/*.cts", "../shared/**/*.ts"]
 }

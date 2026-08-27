@@ -1,11 +1,11 @@
 import type {
-  ICategories,
+  ICategory,
   // IGroupedQuestions,
   IQuestions,
-  ISubCategories,
+  ISubCategory,
 } from "@/shared/interfaces";
 
-export const MOCK_CATEGORIES: ICategories[] = [
+export const MOCK_CATEGORIES: ICategory[] = [
   {
     _id: "cat001",
     name: "Programming",
@@ -32,7 +32,7 @@ export const MOCK_CATEGORIES: ICategories[] = [
   },
 ];
 
-export const MOCK_SUB_CATEGORIES: ISubCategories[] = [
+export const MOCK_SUB_CATEGORIES: ISubCategory[] = [
   {
     _id: "sub001",
     name: "Java",

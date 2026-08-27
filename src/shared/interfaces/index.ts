@@ -1,16 +1,15 @@
-import type { TQuestionDifficulty, TQuestionTypes } from "../types";
+import type { TQuestionDifficulty, TQuestionTypes } from "../types/index.ts";
 
-export interface ICategories {
-  _id: string;
+export interface ICategory {
+  _id: number;
   name: string;
-  description: string;
   subCategories: string[];
 }
 
-export interface ISubCategories {
-  _id: string;
+export interface ISubCategory {
+  _id: number;
   name: string;
-  categoryId: string;
+  categoryId: number;
 }
 
 export interface IChoice {
@@ -19,12 +18,11 @@ export interface IChoice {
 }
 
 interface IQuestionBase {
-  _id: string;
+  _id: number;
   header: string;
   difficulty: TQuestionDifficulty;
   categoryId: string;
   subcategoryId: string;
-  createdBy: string;
   type: TQuestionTypes;
   headerImageUrl?: string;
 }
