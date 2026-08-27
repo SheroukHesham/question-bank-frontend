@@ -1,3 +1,4 @@
+import type { TQuestionDifficulty } from "@/shared/types";
 import { Field, FieldLabel } from "@/ui/components/ui/field";
 import {
   Select,
@@ -6,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/ui/components/ui/select";
-import type { TQuestionDifficulty, TQuestionTypeFilter } from "@/ui/types";
+import type { TQuestionTypeFilter } from "@/ui/types";
 
 import type { ReactNode } from "react";
 

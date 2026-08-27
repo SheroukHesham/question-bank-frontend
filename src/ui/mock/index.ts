@@ -3,27 +3,7 @@ import type {
   // IGroupedQuestions,
   IQuestions,
   ISubCategories,
-  IUser,
-} from "@/ui/interfaces";
-
-export const MOCK_USERS: IUser[] = [
-  {
-    _id: "64a100000000000000000001",
-    name: "Dr. Ahmed Hassan",
-    email: "ahmed.hassan@university.edu",
-    role: "professor",
-    verified: true,
-    profilePicture: "https://github.com/shadcn.png",
-  },
-  {
-    _id: "64a100000000000000000002",
-    name: "Dr. Sara Ali",
-    email: "sara.ali@university.edu",
-    role: "professor",
-    verified: true,
-    profilePicture: "https://github.com/shadcn.png",
-  },
-];
+} from "@/shared/interfaces";
 
 export const MOCK_CATEGORIES: ICategories[] = [
   {

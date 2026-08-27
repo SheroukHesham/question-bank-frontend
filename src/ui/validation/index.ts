@@ -1,4 +1,4 @@
-import type { TQuestionDifficulty, TQuestionTypes } from "@/ui/types";
+import type { TQuestionDifficulty, TQuestionTypes } from "@/shared/types";
 import * as yup from "yup";
 
 export const loginSchema = yup.object({

@@ -1,9 +1,6 @@
-import type {
-  IEssayQuestion,
-  IMcqQuestion,
-  INavbar,
-  IRadioGroupItem,
-} from "@/ui/interfaces";
+import type { IEssayQuestion, IMcqQuestion } from "@/shared/interfaces";
+import type { TQuestionDifficulty } from "@/shared/types";
+import type { INavbar, IRadioGroupItem } from "@/ui/interfaces";
 import type { QuestionFormValues } from "@/ui/validation";
 import {
   CircleQuestionMark,
@@ -12,7 +9,6 @@ import {
   PenLine,
   SquareCheckBig,
 } from "lucide-react";
-import type { TQuestionDifficulty } from "../types";
 
 export const NAVBAR_ITEMS: INavbar[] = [
   // {

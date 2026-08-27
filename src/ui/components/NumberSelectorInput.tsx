@@ -6,7 +6,7 @@ import {
   NumberFieldInput,
   NumberFieldScrubArea,
 } from "@/ui/components/reui/number-field";
-import type { IQuestions } from "@/ui/interfaces";
+import type { IQuestions } from "@/shared/interfaces";
 import type { QuestionFormValues } from "@/ui/validation";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";

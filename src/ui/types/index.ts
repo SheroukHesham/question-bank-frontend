@@ -1,3 +1,2 @@
-export type TQuestionTypes = "mcq" | "essay";
+import type { TQuestionTypes } from "@/shared/types";
 export type TQuestionTypeFilter = "all" | TQuestionTypes;
-export type TQuestionDifficulty = "easy" | "moderate" | "difficult";

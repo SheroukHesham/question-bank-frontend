@@ -7,7 +7,7 @@ import { Label } from "./ui/label";
 import { cn } from "@/ui/lib/utils";
 import type { FieldErrors, UseFormSetValue } from "react-hook-form";
 import type { QuestionFormValues } from "@/ui/validation";
-import type { IChoice } from "@/ui/interfaces";
+import type { IChoice } from "@/shared/interfaces";
 
 interface IProps {
   itemList?: IChoice[];

@@ -1,4 +1,4 @@
-import type { IQuestions } from "@/ui/interfaces";
+import type { IQuestions } from "@/shared/interfaces";
 import { Badge } from "./reui/badge";
 import { findSubCategory, isMcqQuestion } from "@/ui/functions";
 import { KeyRound, Trash2, X } from "lucide-react";

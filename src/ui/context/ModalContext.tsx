@@ -20,7 +20,7 @@ export function ModalProvider({
   );
 }
 
-export function useModalContext() {
+export function UseModalContext() {
   const context = useContext(ModalContext);
 
   if (!context) {

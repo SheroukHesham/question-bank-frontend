@@ -1,7 +1,7 @@
 import { Plus } from "lucide-react";
 import { Modal } from "./Modal";
 import { Button } from "./ui/button";
-import type { IQuestions } from "@/ui/interfaces";
+import type { IQuestions } from "@/shared/interfaces";
 import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import QuestionCard from "./QuestionCard";
 import {
@@ -10,7 +10,7 @@ import {
   MOCK_SUB_CATEGORIES,
 } from "@/ui/mock";
 import { DialogClose } from "./ui/dialog";
-import type { TQuestionDifficulty, TQuestionTypes } from "@/ui/types";
+import type { TQuestionDifficulty, TQuestionTypes } from "@/shared/types";
 import { SingleSelect } from "./SingleSelect";
 import { SelectItem } from "./ui/select";
 

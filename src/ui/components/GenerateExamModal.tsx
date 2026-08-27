@@ -1,8 +1,8 @@
 import { Plus, Sparkles, X } from "lucide-react";
 import { Modal } from "./Modal";
-import { type ICriteria, type IQuestions } from "@/ui/interfaces";
+import { type ICriteria } from "@/shared/interfaces";
 import { useState } from "react";
-import type { TQuestionDifficulty, TQuestionTypes } from "@/ui/types";
+import type { TQuestionDifficulty, TQuestionTypes } from "@/shared/types";
 import { Button } from "./ui/button";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -15,6 +15,7 @@ import { v4 as uuid } from "uuid";
 import { SingleSelect } from "./SingleSelect";
 import { MOCK_CATEGORIES, MOCK_SUB_CATEGORIES } from "@/ui/mock";
 import { SelectItem } from "./ui/select";
+import type { IQuestions } from "@/shared/interfaces";
 
 const defaultCriteria: ICriteria = {
   _id: "",

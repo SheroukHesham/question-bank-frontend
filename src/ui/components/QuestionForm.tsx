@@ -13,7 +13,11 @@ import {
   RadioQuestionGroup,
 } from "@/ui/data";
 import { MOCK_CATEGORIES } from "@/ui/mock";
-import type { IEssayQuestion, IMcqQuestion, IQuestions } from "@/ui/interfaces";
+import type {
+  IEssayQuestion,
+  IMcqQuestion,
+  IQuestions,
+} from "@/shared/interfaces";
 import { SingleSelect } from "./SingleSelect";
 import { SelectItem } from "./ui/select";
 import {
@@ -24,7 +28,7 @@ import {
 } from "@/ui/functions";
 import ImageUpload from "./ImageUpload";
 import { ChoicesInput } from "./ChoicesInput";
-import type { TQuestionDifficulty, TQuestionTypes } from "@/ui/types";
+import type { TQuestionDifficulty, TQuestionTypes } from "@/shared/types";
 
 //TODO: add difficulty and API calls
 
@@ -127,8 +131,6 @@ const QuestionForm = ({
       );
     }
   };
-
-  console.log(errors);
 
   return (
     <Modal

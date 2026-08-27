@@ -6,11 +6,12 @@ import {
   FieldTitle,
 } from "@/ui/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/ui/components/ui/radio-group";
-import type { IQuestions, IRadioGroupItem } from "@/ui/interfaces";
-import type { TQuestionTypes } from "@/ui/types";
+import type { IRadioGroupItem } from "@/ui/interfaces";
+import type { TQuestionTypes } from "@/shared/types";
 import type { QuestionFormValues } from "@/ui/validation";
 import type { SetStateAction, Dispatch } from "react";
 import type { FieldErrors, UseFormSetValue } from "react-hook-form";
+import type { IQuestions } from "@/shared/interfaces";
 
 interface IProps {
   radioItems: IRadioGroupItem[];

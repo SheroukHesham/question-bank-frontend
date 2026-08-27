@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/ui/components/ui/select";
 import { findSubCategory, splitFunction } from "@/ui/functions";
-import type { ICategories } from "@/ui/interfaces";
+import type { ICategories } from "@/shared/interfaces";
 import type { QuestionFormValues } from "@/ui/validation";
 import type { UseFormSetValue } from "react-hook-form";
 

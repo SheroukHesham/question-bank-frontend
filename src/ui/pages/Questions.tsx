@@ -11,6 +11,9 @@ const Questions = () => {
     dispatch(changeActiveTab("all-questions"));
   }, [dispatch]);
 
+  //ts-ignore
+  window.electron.getQuestions();
+
   return (
     <div className="w-full p-10 ">
       <h1 className="text-4xl font-semibold ">All Questions</h1>

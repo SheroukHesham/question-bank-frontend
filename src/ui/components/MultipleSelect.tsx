@@ -14,7 +14,7 @@ import {
   ComboboxValue,
   useComboboxAnchor,
 } from "@/ui/components/ui/combobox";
-import { useModalContext } from "@/ui/context/ModalContext";
+import { UseModalContext } from "@/ui/context/ModalContext";
 import type { UseFormSetValue } from "react-hook-form";
 import type { CategoryFormValues } from "@/ui/validation";
 
@@ -26,7 +26,7 @@ interface IProps {
 }
 
 export function MultipleSelect({ list, setValue, items, setItems }: IProps) {
-  const { dialogContentRef } = useModalContext();
+  const { dialogContentRef } = UseModalContext();
   const anchor = useComboboxAnchor();
 
   const handleChange = (v: string[]) => {

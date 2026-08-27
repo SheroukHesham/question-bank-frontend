@@ -1,4 +1,8 @@
-import type { IEssayQuestion, IMcqQuestion, IQuestions } from "@/ui/interfaces";
+import type {
+  IEssayQuestion,
+  IMcqQuestion,
+  IQuestions,
+} from "@/shared/interfaces";
 import { MOCK_CATEGORIES, MOCK_SUB_CATEGORIES } from "@/ui/mock";
 // import type { QuestionFormValues } from "@/validation";
 
