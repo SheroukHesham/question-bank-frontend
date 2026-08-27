@@ -52,25 +52,6 @@ export const questionSchema = yup.object({
 });
 
 export type QuestionFormValues = yup.InferType<typeof questionSchema>;
-
-export const categorySchema = yup.object({
-  name: yup
-    .string()
-    .required("Topic name is required")
-    .test(
-      "not-purely-numeric",
-      "Topic name cannot be only numbers",
-      (value) => !/^\d+$/.test(value ?? ""),
-    ),
-  subCategories: yup
-    .array()
-    .of(yup.string())
-    .min(1, "You must assign at least 1 Type")
-    .required("You must assign at least 1 Type"),
-});
-
-export type CategoryFormValues = yup.InferType<typeof categorySchema>;
-
 export const subcategorySchema = yup.object({
   name: yup
     .string()
@@ -83,6 +64,27 @@ export const subcategorySchema = yup.object({
 });
 
 export type SubcategoryFormValues = yup.InferType<typeof subcategorySchema>;
+
+export const categorySchema = yup.object({
+  name: yup
+    .string()
+    .required("Topic name is required")
+    .test(
+      "not-purely-numeric",
+      "Topic name cannot be only numbers",
+      (value) => !/^\d+$/.test(value ?? ""),
+    ),
+
+  subCategories: yup
+    .array()
+    .of(yup.string())
+    .test("unique", "Types must have unique names", (values) => {
+      const set = new Set(values);
+      if (values?.length !== set.size) return false;
+    }),
+});
+
+export type CategoryFormValues = yup.InferType<typeof categorySchema>;
 
 export const examSchema = yup.object({
   totalQuestions: yup

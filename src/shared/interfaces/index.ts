@@ -1,9 +1,26 @@
 import type { TQuestionDifficulty, TQuestionTypes } from "../types/index.ts";
 
+interface ICreateQuestionBase {
+  header: string;
+  difficulty: TQuestionDifficulty;
+  categoryId: number;
+  subcategoryId: number;
+  headerImageUrl?: string;
+}
+
+export interface ICreateMcqQuestion extends ICreateQuestionBase {
+  type: "mcq";
+  choices: IChoice[];
+}
+export interface ICreateEssayQuestion extends ICreateQuestionBase {
+  type: "essay";
+  modelAnswer: string;
+}
+
 export interface ICategory {
   _id: number;
   name: string;
-  subCategories: string[];
+  // subCategories: string[];
 }
 
 export interface ISubCategory {
@@ -17,12 +34,12 @@ export interface IChoice {
   isCorrect: boolean;
 }
 
-interface IQuestionBase {
+export interface IQuestionBase {
   _id: number;
   header: string;
   difficulty: TQuestionDifficulty;
-  categoryId: string;
-  subcategoryId: string;
+  categoryId: number;
+  subcategoryId: number;
   type: TQuestionTypes;
   headerImageUrl?: string;
 }

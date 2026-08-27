@@ -266,7 +266,6 @@ const GenerateExamModal = ({ addedQuestions, totalQuestions }: IProps) => {
               variant={"secondary"}
               onClick={() => {
                 const strippedCriteria = criteria.map((item) => {
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
                   const { _id, ...rest } = item;
                   return rest;
                 });

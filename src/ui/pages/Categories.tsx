@@ -14,6 +14,16 @@ const Categories = () => {
   //todo: replace by api call or stored number of categories
   const CATEGORY_COUNT = MOCK_CATEGORIES.length;
 
+  async function createCategory() {
+    try {
+      const created = await window.electron.categories.create("Surgery");
+      console.log("Created: ", created);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  createCategory();
+
   return (
     <div className="w-full p-10 ">
       <div className="flex  items-center gap-2">

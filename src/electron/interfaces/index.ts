@@ -1,4 +1,7 @@
-import type { TQuestionTypes } from "../../shared/types/index.ts";
+import type {
+  TQuestionDifficulty,
+  TQuestionTypes,
+} from "../../shared/types/index.ts";
 
 export interface CategoryRow {
   _id: number;
@@ -17,7 +20,7 @@ export interface QuestionRow {
   _id: number;
   type: TQuestionTypes;
   header: string;
-  difficulty: number;
+  difficulty: TQuestionDifficulty;
   category_id: number;
   subcategory_id: number;
   created_at: string;

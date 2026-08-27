@@ -19,19 +19,26 @@ import type { UseFormSetValue } from "react-hook-form";
 import type { CategoryFormValues } from "@/ui/validation";
 
 interface IProps {
-  list: string[];
+  list?: string[];
   items: string[];
   setItems: React.Dispatch<React.SetStateAction<string[]>>;
   setValue: UseFormSetValue<CategoryFormValues>;
+  hideOnEmpty?: boolean;
 }
 
-export function MultipleSelect({ list, setValue, items, setItems }: IProps) {
+export function MultipleSelect({
+  list,
+  // setValue,
+  items,
+  setItems,
+  hideOnEmpty = false,
+}: IProps) {
   const { dialogContentRef } = UseModalContext();
   const anchor = useComboboxAnchor();
 
   const handleChange = (v: string[]) => {
     setItems(v);
-    setValue("subCategories", v);
+    // setValue("subCategories", v);
   };
 
   return (
@@ -54,16 +61,20 @@ export function MultipleSelect({ list, setValue, items, setItems }: IProps) {
           )}
         </ComboboxValue>
       </ComboboxChips>
-      <ComboboxContent anchor={anchor} container={dialogContentRef}>
-        <ComboboxEmpty>No items found.</ComboboxEmpty>
-        <ComboboxList>
-          {(item) => (
-            <ComboboxItem key={item} value={item}>
-              {item}
-            </ComboboxItem>
-          )}
-        </ComboboxList>
-      </ComboboxContent>
+      {list && (
+        <ComboboxContent anchor={anchor} container={dialogContentRef}>
+          {!hideOnEmpty && <ComboboxEmpty>No items found.</ComboboxEmpty>}
+          {
+            <ComboboxList>
+              {(item) => (
+                <ComboboxItem key={item} value={item}>
+                  {item}
+                </ComboboxItem>
+              )}
+            </ComboboxList>
+          }
+        </ComboboxContent>
+      )}
     </Combobox>
   );
 }

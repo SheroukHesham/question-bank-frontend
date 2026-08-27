@@ -9,21 +9,17 @@ import {
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
-import { MultipleSelect } from "./MultipleSelect";
-import { MOCK_SUB_CATEGORIES } from "@/ui/mock";
-import { findSubCategoryByName } from "@/ui/functions";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import SubcategoryAddForm from "./SubcategoryAddForm";
-
-//TODO: add difficulty and API calls
+import { Badge } from "./reui/badge";
 
 const CategoryForm = () => {
   const [items, setItems] = useState<string[]>([]);
   const [isAddingSubcategory, setIsAddingSubcategory] = useState(false);
   const {
-    setValue,
     register,
+    setValue,
     reset,
     handleSubmit,
     formState: { errors },
@@ -31,14 +27,9 @@ const CategoryForm = () => {
     resolver: yupResolver(categorySchema),
   });
 
-  const subcategoryList = MOCK_SUB_CATEGORIES.map((subcategory) => {
-    return subcategory.name;
-  });
-
   const onSubcategorySave = (data: SubcategoryFormValues) => {
     //TODO: await api call to add subcategory
     setItems((prev) => [...prev, data.name]);
-    setValue("subCategories", items);
     setIsAddingSubcategory(false);
   };
 
@@ -47,16 +38,24 @@ const CategoryForm = () => {
   };
 
   const onSubmit = (data: CategoryFormValues) => {
-    const subcategories = data.subCategories.map((item) =>
-      findSubCategoryByName(item as string),
-    );
-    const payload: CategoryFormValues = {
+    if (items.length !== 0) {
+      setValue("subCategories", items);
+    }
+    const payload = {
       name: data.name,
-      subCategories: subcategories,
+      subCategories: [...items],
     };
     console.log(payload);
     // TODO: API call with payload
   };
+
+  const renderSubcategories = items.map((item, idx) => {
+    return (
+      <Badge key={idx} variant={"default"} size={"xl"} radius={"full"}>
+        {item}
+      </Badge>
+    );
+  });
 
   return (
     <Modal
@@ -66,6 +65,11 @@ const CategoryForm = () => {
       triggerIcon={<Plus />}
       onSubmit={handleSubmit(onSubmit)}
       onCancel={() => {
+        setItems([]);
+        reset();
+        onSubcategoryCancel();
+      }}
+      onClose={() => {
         setItems([]);
         reset();
         onSubcategoryCancel();
@@ -85,26 +89,24 @@ const CategoryForm = () => {
           </div>
           <div className="flex flex-col  min-w-sm gap-2 scrollbar-primary/10">
             <Label className="text-lg font-semibold">Assign Types</Label>
+            <div className="flex gap-3 flex-wrap">{renderSubcategories}</div>
+
             {isAddingSubcategory ? (
               <SubcategoryAddForm
                 onSaved={onSubcategorySave}
                 onCancel={onSubcategoryCancel}
               />
             ) : (
-              <div className="flex gap-5">
-                <MultipleSelect
-                  setValue={setValue}
-                  list={subcategoryList}
-                  items={items}
-                  setItems={setItems}
-                />
-                <Button
-                  variant={"outline"}
-                  type="button"
-                  onClick={() => setIsAddingSubcategory(true)}
-                >
-                  Add New Type
-                </Button>
+              <div className="w-full flex">
+                <div className="flex w-full justify-end gap-5">
+                  <Button
+                    variant={"outline"}
+                    type="button"
+                    onClick={() => setIsAddingSubcategory(true)}
+                  >
+                    Add New Type
+                  </Button>
+                </div>
               </div>
             )}
             {errors.subCategories && (

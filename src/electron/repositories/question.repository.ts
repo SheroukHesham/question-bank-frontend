@@ -1,0 +1,298 @@
+import type Database from "better-sqlite3";
+import type { QuestionRow } from "../interfaces/index.js";
+import {
+  ICreateEssayQuestion,
+  ICreateMcqQuestion,
+  IEssayQuestion,
+  IMcqQuestion,
+  IQuestions,
+} from "@/shared/interfaces/index.js";
+import {
+  validateBaseQuestion,
+  validateChoices,
+  validateModelAnswer,
+} from "../validation/index.js";
+
+export type GroupedQuestions = Record<string, Record<string, IQuestions[]>>;
+
+export class QuestionsRepository {
+  constructor(private readonly db: Database.Database) {}
+
+  createMcq(input: ICreateMcqQuestion): IMcqQuestion {
+    const { choices, ...base } = input;
+    validateChoices(choices);
+    validateBaseQuestion(base);
+
+    const insertQuestion = this.db.transaction((data: ICreateMcqQuestion) => {
+      const info = this.db
+        .prepare(
+          `INSERT INTO questions (type, header, difficulty, headerImageUrl, category_id, subcategory_id)
+           VALUES ('mcq', ?, ?, ?, ?, ?)`,
+        )
+        .run(
+          data.header,
+          data.difficulty,
+          data.headerImageUrl,
+          data.categoryId,
+          data.subcategoryId,
+        );
+
+      const questionId = info.lastInsertRowid as number;
+
+      this.db
+        .prepare(
+          "INSERT INTO mcq_key (question_id, correct_answer) VALUES (?, ?)",
+        )
+        .run(
+          questionId,
+          data.choices.find((choice) => choice.isCorrect === true)?.choice,
+        );
+
+      const insertDistractor = this.db.prepare(
+        "INSERT INTO mcq_distractors (question_id, distractor_text) VALUES (?, ?)",
+      );
+      const distractors = data.choices.filter(
+        (choice) => choice.isCorrect === false,
+      );
+      for (const distractor of distractors) {
+        insertDistractor.run(questionId, distractor.choice);
+      }
+
+      return questionId;
+    });
+
+    const questionId = insertQuestion(input);
+    return this.findById(questionId)! as IMcqQuestion;
+  }
+
+  createEssay(input: ICreateEssayQuestion): IQuestions {
+    const { modelAnswer, ...base } = input;
+    validateModelAnswer(modelAnswer);
+    validateBaseQuestion(base);
+    const insertQuestion = this.db.transaction((data: ICreateEssayQuestion) => {
+      const info = this.db
+        .prepare(
+          `INSERT INTO questions (type, header, difficulty, headerImageUrl,  category_id, subcategory_id)
+           VALUES ('essay', ?, ?, ?, ?, ?)`,
+        )
+        .run(
+          data.header,
+          data.difficulty,
+          data.headerImageUrl,
+          data.categoryId,
+          data.subcategoryId,
+        );
+
+      const questionId = info.lastInsertRowid as number;
+
+      this.db
+        .prepare(
+          "INSERT INTO essay_details (question_id, model_answer) VALUES (?, ?)",
+        )
+        .run(questionId, data.modelAnswer);
+
+      return questionId;
+    });
+
+    const questionId = insertQuestion(input);
+    return this.findById(questionId)!;
+  }
+
+  findById(id: number): IQuestions | undefined {
+    const question = this.db
+      .prepare<[number], QuestionRow>("SELECT * FROM questions WHERE _id = ?")
+      .get(id);
+    if (!question) return undefined;
+
+    return this.attachDetails(question);
+  }
+
+  /**
+   * Returns every question grouped as { [categoryName]: { [subcategoryName]: Question[] } },
+   * matching exactly what the "view questions grouped by specialization" screen needs.
+   */
+  findAllGrouped(): GroupedQuestions {
+    const rows = this.db
+      .prepare<
+        [],
+        QuestionRow & { category_name: string; subcategory_name: string }
+      >(
+        `SELECT q.*, c.name AS category_name, s.name AS subcategory_name
+         FROM questions q
+         JOIN categories c ON c._id = q.category_id
+         JOIN subcategories s ON s._id = q.subcategory_id
+         ORDER BY c.name, s.name, q._id`,
+      )
+      .all();
+
+    const grouped: GroupedQuestions = {};
+    for (const row of rows) {
+      const withDetails = this.attachDetails(row);
+      grouped[row.category_name] ??= {};
+      grouped[row.category_name][row.subcategory_name] ??= [];
+      grouped[row.category_name][row.subcategory_name].push(withDetails);
+    }
+    return grouped;
+  }
+
+  /** Used internally by the exam generator: raw matches for one (category, subcategory, difficulty) cell. */
+  findByFilter(
+    categoryId: number,
+    subcategoryId: number,
+    difficulty: number,
+  ): QuestionRow[] {
+    return this.db
+      .prepare<[number, number, number], QuestionRow>(
+        `SELECT * FROM questions
+         WHERE category_id = ? AND subcategory_id = ? AND difficulty = ?`,
+      )
+      .all(categoryId, subcategoryId, difficulty);
+  }
+
+  updateMcq(id: number, updatedQuestion: IMcqQuestion): IQuestions {
+    if (updatedQuestion.type === "mcq") {
+      const { choices, _id, ...base } = updatedQuestion;
+      validateChoices(choices);
+      validateBaseQuestion(base);
+      const key = choices.find((choice) => choice.isCorrect === true);
+      const distractors = choices.filter(
+        (choice) => choice.isCorrect === false,
+      );
+
+      this.db
+        .prepare("UPDATE mcq_key SET correct_answer = ? WHERE question_id = ?")
+        .run(key?.choice, id);
+
+      this.db
+        .prepare("DELETE FROM mcq_distractors WHERE question_id = ?")
+        .run(id);
+      const insertDistractor = this.db.prepare(
+        "INSERT INTO mcq_distractors (question_id, distractor_text) VALUES (?, ?)",
+      );
+      for (const distractor of distractors) {
+        insertDistractor.run(id, distractor.choice);
+      }
+      const applyUpdate = this.db.transaction(() => {
+        this.updateBaseFields(id, base);
+      });
+      applyUpdate();
+    }
+
+    const updated = this.findById(id);
+    if (!updated) throw new Error(`MCQ question ${id} not found`);
+    return updated;
+  }
+
+  updateEssay(id: number, updatedQuestion: IEssayQuestion): IQuestions {
+    const { modelAnswer, ...base } = updatedQuestion;
+    validateBaseQuestion(base);
+    validateModelAnswer(modelAnswer);
+    const applyUpdate = this.db.transaction(() => {
+      this.updateBaseFields(id, base);
+
+      if (modelAnswer !== undefined) {
+        this.db
+          .prepare(
+            "UPDATE essay_details SET model_answer = ? WHERE question_id = ?",
+          )
+          .run(modelAnswer, id);
+      }
+    });
+
+    applyUpdate();
+    const updated = this.findById(id);
+    if (!updated) throw new Error(`Essay question ${id} not found`);
+    return updated;
+  }
+
+  /** Cascades to mcq_details/mcq_distractors/essay_details automatically via ON DELETE CASCADE. */
+  delete(id: number): void {
+    const result = this.db
+      .prepare("DELETE FROM questions WHERE _id = ?")
+      .run(id);
+    if (result.changes === 0) {
+      throw new Error(`Question ${id} not found`);
+    }
+  }
+
+  private updateBaseFields(id: number, updates: Partial<IQuestions>): void {
+    const fields: string[] = [];
+    const values: unknown[] = [];
+
+    if (updates.header !== undefined) {
+      fields.push("header = ?");
+      values.push(updates.header);
+    }
+    if (updates.difficulty !== undefined) {
+      fields.push("difficulty = ?");
+      values.push(updates.difficulty);
+    }
+    if (updates.headerImageUrl !== undefined) {
+      fields.push("headerImageUrl = ?");
+      values.push(updates.headerImageUrl);
+    }
+
+    if (updates.categoryId !== undefined) {
+      fields.push("category_id = ?");
+      values.push(updates.categoryId);
+    }
+    if (updates.subcategoryId !== undefined) {
+      fields.push("subcategory_id = ?");
+      values.push(updates.subcategoryId);
+    }
+    if (fields.length === 0) return;
+
+    fields.push("updated_at = datetime('now')");
+    values.push(id);
+
+    this.db
+      .prepare(`UPDATE questions SET ${fields.join(", ")} WHERE _id = ?`)
+      .run(...values);
+  }
+
+  private attachDetails(question: QuestionRow): IQuestions {
+    if (question.type === "mcq") {
+      const key = this.db
+        .prepare<
+          [number],
+          { correct_answer: string }
+        >("SELECT correct_answer FROM mcq_details WHERE question_id = ?")
+        .get(question._id);
+
+      const distractors = this.db
+        .prepare<[number], { distractor_text: string }>(
+          "SELECT distractor_text FROM mcq_distractors WHERE question_id = ?",
+        )
+        .all(question._id)
+        .map((row) => row.distractor_text);
+
+      const choiceDistractors = distractors.map((distractor) => {
+        return { choice: distractor, isCorrect: false };
+      });
+
+      return {
+        ...question,
+        categoryId: question.category_id,
+        subcategoryId: question.subcategory_id,
+        choices: [
+          { choice: key?.correct_answer as string, isCorrect: true },
+          ...choiceDistractors,
+        ],
+      };
+    }
+
+    const essayDetails = this.db
+      .prepare<
+        [number],
+        { model_answer: string }
+      >("SELECT model_answer FROM essay_details WHERE question_id = ?")
+      .get(question._id);
+
+    return {
+      ...question,
+      categoryId: question.category_id,
+      subcategoryId: question.subcategory_id,
+      modelAnswer: essayDetails?.model_answer as string,
+    };
+  }
+}
