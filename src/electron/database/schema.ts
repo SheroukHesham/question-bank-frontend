@@ -21,7 +21,7 @@ const migrations: string[] = [
     _id             INTEGER PRIMARY KEY AUTOINCREMENT,
     type           TEXT NOT NULL CHECK (type IN ('mcq', 'essay')),
     header         TEXT NOT NULL,
-    difficulty     TEXT NOT NULL CHECK (type IN ('easy','moderate','difficult')),
+    difficulty     TEXT NOT NULL CHECK (difficulty IN ('easy','moderate','difficult')),
     headerImageUrl  TEXT,
     category_id    INTEGER NOT NULL REFERENCES categories(_id) ON DELETE RESTRICT,
     subcategory_id INTEGER NOT NULL REFERENCES subcategories(_id) ON DELETE RESTRICT,

@@ -9,24 +9,34 @@ import { registerQuestionIPC } from "./ipc/question.ipc.js";
 import { CategoriesRepository } from "./repositories/category.repository.js";
 import { CategoryService } from "./services/category.service.js";
 import { registerCategoryIPC } from "./ipc/category.ipc.js";
+import { SubcategoryRepository } from "./repositories/subcategory.repository.js";
+import { SubCategoryService } from "./services/subcategory.service.js";
+import { registerSubcategoryIPC } from "./ipc/subcategory.ipc.js";
 
 app.whenReady().then(() => {
-  const dbPath = path.join(app.getPath("userData"), "question-bank.db");
-
-  console.log("Database path:", dbPath);
   const db = getDb();
-  console.log("database", db);
+
   // 2. Create repository
   const questionsRepository = new QuestionsRepository(db);
   const categoryRepository = new CategoriesRepository(db);
+  const subcategoryRepository = new SubcategoryRepository(db);
 
   // 3. Create service
-  const questionsService = new QuestionsService(questionsRepository);
   const categoryService = new CategoryService(categoryRepository);
+  const subcategoryService = new SubCategoryService(
+    subcategoryRepository,
+    categoryService,
+  );
+  const questionsService = new QuestionsService(
+    questionsRepository,
+    categoryService,
+    subcategoryService,
+  );
 
   // 4. Register IPC handlers
   registerQuestionIPC(questionsService);
   registerCategoryIPC(categoryService);
+  registerSubcategoryIPC(subcategoryService);
 
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
   const mainWindow = new BrowserWindow({

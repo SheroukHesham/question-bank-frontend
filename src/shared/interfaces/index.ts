@@ -61,3 +61,7 @@ export interface ICriteria {
   categoryId: string;
   subId: string;
 }
+export interface IQuestionCountByCategory {
+  categoryId: number;
+  total: number;
+}

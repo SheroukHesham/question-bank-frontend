@@ -16,7 +16,8 @@ const Categories = () => {
 
   async function createCategory() {
     try {
-      const created = await window.electron.categories.create("Surgery");
+      const created =
+        await window.electron.categories.createCategory("Surgery");
       console.log("Created: ", created);
     } catch (error) {
       console.log(error);

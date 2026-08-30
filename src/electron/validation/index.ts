@@ -1,10 +1,38 @@
-import { IChoice, IQuestionBase } from "@/shared/interfaces/index.js";
+import {
+  IChoice,
+  IQuestionBase,
+  ISubCategory,
+} from "@/shared/interfaces/index.js";
+import { SubCategoryService } from "../services/subcategory.service.js";
+import { CategoryService } from "../services/category.service.js";
 
-export const validateBaseQuestion = (question: Partial<IQuestionBase>) => {
+export const validateBaseQuestion = (
+  question: Partial<IQuestionBase>,
+  categoryService: CategoryService,
+  subCategoriesService: SubCategoryService,
+) => {
   const { categoryId, difficulty, header, subcategoryId, type } = question;
 
   if (!categoryId || !difficulty || !header || !subcategoryId || !type) {
     throw new Error("Question is missing required fields");
+  }
+  if (!categoryService.findCategoryById(categoryId)) {
+    throw new Error("Category does not exist");
+  }
+  if (!subCategoriesService.findSubcategoryById(subcategoryId)) {
+    throw new Error("Subcategory does not exist");
+  }
+  if (
+    !(
+      difficulty === "easy" ||
+      difficulty === "moderate" ||
+      difficulty === "difficult"
+    )
+  ) {
+    throw new Error("Difficulty is invalid");
+  }
+  if (!(type === "mcq" || type === "essay")) {
+    throw new Error("Question must be either MCQ or Essay");
   }
 };
 
@@ -21,4 +49,17 @@ export const validateChoices = (choices: IChoice[]) => {
 export const validateModelAnswer = (modelAnswer: string) => {
   if (!modelAnswer || modelAnswer.length === 0)
     throw new Error("Model answer is required for essay questions.");
+};
+
+export const validateSubcategory = async (
+  name: string,
+  categoryId: number,
+  findSubcategoryByName: (name: string) => ISubCategory | undefined,
+  categoriesService: CategoryService,
+) => {
+  if (!name.trim()) throw new Error("Name is required.");
+  if (findSubcategoryByName(name)) throw new Error("This type already exists.");
+  if (!categoryId) throw new Error("category is required");
+  if (!categoriesService.findCategoryById(categoryId))
+    throw new Error("The category you are assigning does not exist.");
 };

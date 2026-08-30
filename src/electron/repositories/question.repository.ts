@@ -5,13 +5,9 @@ import {
   ICreateMcqQuestion,
   IEssayQuestion,
   IMcqQuestion,
+  IQuestionCountByCategory,
   IQuestions,
 } from "@/shared/interfaces/index.js";
-import {
-  validateBaseQuestion,
-  validateChoices,
-  validateModelAnswer,
-} from "../validation/index.js";
 
 export type GroupedQuestions = Record<string, Record<string, IQuestions[]>>;
 
@@ -19,10 +15,6 @@ export class QuestionsRepository {
   constructor(private readonly db: Database.Database) {}
 
   createMcq(input: ICreateMcqQuestion): IMcqQuestion {
-    const { choices, ...base } = input;
-    validateChoices(choices);
-    validateBaseQuestion(base);
-
     const insertQuestion = this.db.transaction((data: ICreateMcqQuestion) => {
       const info = this.db
         .prepare(
@@ -65,10 +57,7 @@ export class QuestionsRepository {
     return this.findById(questionId)! as IMcqQuestion;
   }
 
-  createEssay(input: ICreateEssayQuestion): IQuestions {
-    const { modelAnswer, ...base } = input;
-    validateModelAnswer(modelAnswer);
-    validateBaseQuestion(base);
+  createEssay(input: ICreateEssayQuestion): IEssayQuestion {
     const insertQuestion = this.db.transaction((data: ICreateEssayQuestion) => {
       const info = this.db
         .prepare(
@@ -95,7 +84,7 @@ export class QuestionsRepository {
     });
 
     const questionId = insertQuestion(input);
-    return this.findById(questionId)!;
+    return this.findById(questionId)! as IEssayQuestion;
   }
 
   findById(id: number): IQuestions | undefined {
@@ -149,11 +138,9 @@ export class QuestionsRepository {
       .all(categoryId, subcategoryId, difficulty);
   }
 
-  updateMcq(id: number, updatedQuestion: IMcqQuestion): IQuestions {
+  updateMcq(updatedQuestion: IMcqQuestion): IMcqQuestion {
+    const { choices, _id: id, ...base } = updatedQuestion;
     if (updatedQuestion.type === "mcq") {
-      const { choices, _id, ...base } = updatedQuestion;
-      validateChoices(choices);
-      validateBaseQuestion(base);
       const key = choices.find((choice) => choice.isCorrect === true);
       const distractors = choices.filter(
         (choice) => choice.isCorrect === false,
@@ -180,13 +167,12 @@ export class QuestionsRepository {
 
     const updated = this.findById(id);
     if (!updated) throw new Error(`MCQ question ${id} not found`);
-    return updated;
+    return updated as IMcqQuestion;
   }
 
-  updateEssay(id: number, updatedQuestion: IEssayQuestion): IQuestions {
-    const { modelAnswer, ...base } = updatedQuestion;
-    validateBaseQuestion(base);
-    validateModelAnswer(modelAnswer);
+  updateEssay(updatedQuestion: IEssayQuestion): IEssayQuestion {
+    const { _id: id, modelAnswer, ...base } = updatedQuestion;
+
     const applyUpdate = this.db.transaction(() => {
       this.updateBaseFields(id, base);
 
@@ -202,10 +188,10 @@ export class QuestionsRepository {
     applyUpdate();
     const updated = this.findById(id);
     if (!updated) throw new Error(`Essay question ${id} not found`);
-    return updated;
+    return updated as IEssayQuestion;
   }
 
-  /** Cascades to mcq_details/mcq_distractors/essay_details automatically via ON DELETE CASCADE. */
+  /** Cascades to mcq_key/mcq_distractors/essay_details automatically via ON DELETE CASCADE. */
   delete(id: number): void {
     const result = this.db
       .prepare("DELETE FROM questions WHERE _id = ?")
@@ -213,6 +199,26 @@ export class QuestionsRepository {
     if (result.changes === 0) {
       throw new Error(`Question ${id} not found`);
     }
+  }
+
+  totalQuestionCount(): { total: number } | undefined {
+    const result = this.db
+      .prepare<
+        [],
+        { total: number }
+      >("SELECT COUNT (*) as total FROM questions;")
+      .get();
+    return result;
+  }
+
+  totalQuestionsOfCategory() {
+    const result = this.db
+      .prepare<
+        [],
+        IQuestionCountByCategory[]
+      >("SELECT  category_id, COUNT (*) as total FROM questions GROUP BY category_id;")
+      .get();
+    return result;
   }
 
   private updateBaseFields(id: number, updates: Partial<IQuestions>): void {
@@ -256,7 +262,7 @@ export class QuestionsRepository {
         .prepare<
           [number],
           { correct_answer: string }
-        >("SELECT correct_answer FROM mcq_details WHERE question_id = ?")
+        >("SELECT correct_answer FROM mcq_key WHERE question_id = ?")
         .get(question._id);
 
       const distractors = this.db

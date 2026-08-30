@@ -1,10 +1,12 @@
-import type { ICreateMcqQuestion } from "@/shared/interfaces";
 import CategoryCards from "@/ui/components/CategoryCards";
 import QuestionForm from "@/ui/components/QuestionForm";
 import { changeActiveTab } from "@/ui/features/activeTabSlice";
 import { CircleQuestionMark, LayoutGrid } from "lucide-react";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { useFetch } from "../hooks/custom";
+import ErrorHandler from "../errors/ErrorHandler";
+import { Spinner } from "../components/ui/spinner";
 
 const Questions = () => {
   const dispatch = useDispatch();
@@ -12,41 +14,24 @@ const Questions = () => {
     dispatch(changeActiveTab("all-questions"));
   }, [dispatch]);
 
-  const question: ICreateMcqQuestion = {
-    type: "mcq",
-    header: "Which keyword creates a subclass in Java?",
-    difficulty: "easy",
-    categoryId: 1,
-    subcategoryId: 4,
-    choices: [
-      {
-        choice: "extends",
-        isCorrect: true,
-      },
-      {
-        choice: "implements",
-        isCorrect: false,
-      },
-      {
-        choice: "inherits",
-        isCorrect: false,
-      },
-      {
-        choice: "super",
-        isCorrect: false,
-      },
-    ],
-  };
+  const { data, isLoading, isError } = useFetch({
+    queryKey: ["questions", "total"],
+    queryFn: () => window.electron.question.getTotalQuestions(),
+  });
+  const {
+    data: groupedQuestions,
+    isLoading: isGroupLoading,
+    isError: isGroupError,
+  } = useFetch({
+    queryKey: ["categories", "total"],
+    queryFn: () => window.electron.question.findGroupedQuestions(),
+  });
 
-  const createdQuestion = async () => {
-    try {
-      const created = await window.electron.questions.createMcq(question);
-      console.log(created);
-    } catch (error) {
-      console.log("Errod", error);
-    }
-  };
-  createdQuestion();
+  console.log(groupedQuestions[0]);
+
+  if (isError) {
+    return <ErrorHandler />;
+  }
 
   return (
     <div className="w-full p-10 ">
@@ -61,7 +46,9 @@ const Questions = () => {
           </span>
           <div className="flex flex-col sm:items-center md:items-start">
             <span className="text-muted font-semibold  ">Total Questions</span>
-            <span className="font-semibold text-2xl text-black ">1135</span>
+            <span className="font-semibold text-2xl text-black ">
+              {isLoading ? <Spinner /> : data?.total}
+            </span>
           </div>
         </div>
 

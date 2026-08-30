@@ -41,4 +41,7 @@ export class CategoryService {
   deleteCategory(id: number) {
     return this.categoryRepository.delete(id);
   }
+  findCategoryById(id: number) {
+    return this.categoryRepository.findById(id);
+  }
 }
