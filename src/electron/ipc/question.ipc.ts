@@ -3,12 +3,12 @@ import type {
   ICreateEssayQuestion,
   ICreateMcqQuestion,
   IEssayQuestion,
+  IGroupedQuestionCategory,
   IMcqQuestion,
   IQuestionCountByCategory,
   IQuestions,
 } from "../../shared/interfaces/index.js";
 import { QuestionsService } from "../services/question.service.js";
-import { GroupedQuestions } from "../repositories/question.repository.js";
 import { QuestionRow } from "../interfaces/index.js";
 
 export function registerQuestionIPC(questionsService: QuestionsService) {
@@ -35,8 +35,14 @@ export function registerQuestionIPC(questionsService: QuestionsService) {
   );
   ipcMain.handle(
     "question:findGroupedQuestions",
-    async (_event): Promise<GroupedQuestions> => {
+    async (_event): Promise<IGroupedQuestionCategory[]> => {
       return questionsService.findGroupedQuestions();
+    },
+  );
+  ipcMain.handle(
+    "question:findByCategoryId",
+    async (_event, categoryId: number): Promise<IQuestions[]> => {
+      return questionsService.findByCategory(categoryId);
     },
   );
   ipcMain.handle(

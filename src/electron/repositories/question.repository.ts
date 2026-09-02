@@ -1,9 +1,11 @@
 import type Database from "better-sqlite3";
 import type { QuestionRow } from "../interfaces/index.js";
 import {
+  ICategory,
   ICreateEssayQuestion,
   ICreateMcqQuestion,
   IEssayQuestion,
+  IGroupedQuestionCategory,
   IMcqQuestion,
   IQuestionCountByCategory,
   IQuestions,
@@ -96,32 +98,106 @@ export class QuestionsRepository {
     return this.attachDetails(question);
   }
 
-  /**
-   * Returns every question grouped as { [categoryName]: { [subcategoryName]: Question[] } },
-   * matching exactly what the "view questions grouped by specialization" screen needs.
-   */
-  findAllGrouped(): GroupedQuestions {
+  findAllGrouped(): IGroupedQuestionCategory[] {
+    interface Row extends QuestionRow {
+      category_id_ref: number;
+      category_name: string;
+      category_description: string | null;
+      subcategory_id_ref: number;
+      subcategory_name: string;
+    }
+
     const rows = this.db
-      .prepare<
-        [],
-        QuestionRow & { category_name: string; subcategory_name: string }
-      >(
-        `SELECT q.*, c.name AS category_name, s.name AS subcategory_name
-         FROM questions q
-         JOIN categories c ON c._id = q.category_id
-         JOIN subcategories s ON s._id = q.subcategory_id
-         ORDER BY c.name, s.name, q._id`,
+      .prepare<[], Row>(
+        `SELECT
+         q.*,
+         c._id AS category_id_ref,
+         c.name AS category_name,
+         c.description AS category_description,
+         s._id AS subcategory_id_ref,
+         s.name AS subcategory_name
+       FROM questions q
+       JOIN categories c ON c._id = q.category_id
+       JOIN subcategories s ON s._id = q.subcategory_id
+       ORDER BY c.name, s.name, q._id`,
       )
       .all();
 
-    const grouped: GroupedQuestions = {};
+    // categoryId -> { category, subcategories: Map<subcategoryId, {...}> }
+    const categoryMap = new Map<
+      number,
+      {
+        category: ICategory;
+        subcategories: Map<
+          number,
+          {
+            subcategory: { name: string; _id: number };
+            questions: IQuestions[];
+          }
+        >;
+      }
+    >();
+
     for (const row of rows) {
-      const withDetails = this.attachDetails(row);
-      grouped[row.category_name] ??= {};
-      grouped[row.category_name][row.subcategory_name] ??= [];
-      grouped[row.category_name][row.subcategory_name].push(withDetails);
+      const question = this.attachDetails(row);
+
+      let categoryEntry = categoryMap.get(row.category_id_ref);
+      if (!categoryEntry) {
+        categoryEntry = {
+          category: {
+            _id: row.category_id_ref,
+            name: row.category_name,
+          },
+          subcategories: new Map(),
+        };
+        categoryMap.set(row.category_id_ref, categoryEntry);
+      }
+
+      let subcategoryEntry = categoryEntry?.subcategories.get(
+        row.subcategory_id_ref,
+      );
+      if (!subcategoryEntry) {
+        subcategoryEntry = {
+          subcategory: {
+            _id: row.subcategory_id_ref,
+            name: row.subcategory_name,
+          },
+          questions: [],
+        };
+        categoryEntry?.subcategories.set(
+          row.subcategory_id_ref,
+          subcategoryEntry,
+        );
+      }
+
+      subcategoryEntry.questions.push(question);
     }
-    return grouped;
+
+    const result: IGroupedQuestionCategory[] = [];
+    for (const { category, subcategories } of categoryMap.values()) {
+      result.push({
+        category,
+        grouped: Array.from(subcategories.values()),
+      });
+    }
+
+    return result;
+  }
+
+  findByCategory(categoryId: number) {
+    const rows = this.db
+      .prepare<
+        [number],
+        QuestionRow
+      >("SELECT * FROM questions WHERE category_id = ?")
+      .all(categoryId);
+
+    const result: IQuestions[] = [];
+    if (rows)
+      for (const row of rows) {
+        result.push(this.attachDetails(row));
+      }
+    return result;
   }
 
   /** Used internally by the exam generator: raw matches for one (category, subcategory, difficulty) cell. */
@@ -193,6 +269,7 @@ export class QuestionsRepository {
 
   /** Cascades to mcq_key/mcq_distractors/essay_details automatically via ON DELETE CASCADE. */
   delete(id: number): void {
+    console.log(id);
     const result = this.db
       .prepare("DELETE FROM questions WHERE _id = ?")
       .run(id);

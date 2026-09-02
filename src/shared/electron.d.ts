@@ -1,8 +1,9 @@
-import type { IGroupedQuestions } from "@/ui/interfaces";
 import type {
   ICategory,
+  ICategoryDetails,
   ICreateEssayQuestion,
   IEssayQuestion,
+  IGroupedQuestionCategory,
   IQuestionCountByCategory,
   IQuestions,
   ISubCategory,
@@ -18,7 +19,7 @@ declare global {
         createMcq(input: ICreateMcqQuestion): Promise<IMcqQuestion>;
         createEssay(input: ICreateEssayQuestion): Promise<IEssayQuestion>;
         findQuestionById(id: number): Promise<IQuestions>;
-        findGroupedQuestions(): Promise<IGroupedQuestions[]>;
+        findGroupedQuestions(): Promise<IGroupedQuestionCategory[]>;
         filterQuestions(
           categoryId: number,
           subcategoryId: number,
@@ -31,6 +32,7 @@ declare global {
         getTotalQuestionsPerCategory(): Promise<
           IQuestionCountByCategory[] | undefined
         >;
+        findByCategoryId(categoryId: number): Promise<IQuestions[]>;
       };
       category: {
         createCategory(name: string): Promise<ICategory>;
@@ -38,6 +40,8 @@ declare global {
         deleteCategory(id: number): void;
         getAllCategories(): Promise<ICategory[]>;
         getCategoryById(id: number): Promise<ICategory | undefined>;
+        findCategoryByName(name: string): Promise<ICategory | undefined>;
+        findAllCategoriesDetails(): Promise<ICategoryDetails[] | undefined>;
       };
       subcategory: {
         findSubcategoryByName(name: string): Promise<ISubCategory | undefined>;

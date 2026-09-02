@@ -20,7 +20,6 @@ export interface ICreateEssayQuestion extends ICreateQuestionBase {
 export interface ICategory {
   _id: number;
   name: string;
-  // subCategories: string[];
 }
 
 export interface ISubCategory {
@@ -64,4 +63,19 @@ export interface ICriteria {
 export interface IQuestionCountByCategory {
   categoryId: number;
   total: number;
+}
+
+export interface ICategoryDetails {
+  totalQuestions: number;
+  categoryName: string;
+  categoryId: number;
+  subcategories: string[];
+}
+
+export interface IGroupedQuestionCategory {
+  category: ICategory;
+  grouped: {
+    subcategory: { name: string; _id: number };
+    questions: IQuestions[];
+  }[];
 }

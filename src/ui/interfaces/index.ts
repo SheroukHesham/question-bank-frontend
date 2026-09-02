@@ -22,17 +22,6 @@ export interface IRadioGroupItem {
   >;
 }
 
-export interface IGroupedQuestions {
-  categories: IQuestionCategory[];
-}
-
-export interface IQuestionCategory {
-  _id: string;
-  name: string;
-  description: string;
-  subcategories: IQuestionSubcategory[];
-}
-
 export interface IQuestionSubcategory {
   _id: string;
   name: string;

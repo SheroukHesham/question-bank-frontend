@@ -44,4 +44,7 @@ export class CategoryService {
   findCategoryById(id: number) {
     return this.categoryRepository.findById(id);
   }
+  findAllCategoriesDetails() {
+    return this.categoryRepository.findAllCategoriesDetails();
+  }
 }

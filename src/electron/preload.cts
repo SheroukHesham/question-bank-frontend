@@ -23,6 +23,9 @@ contextBridge.exposeInMainWorld("electron", {
     findGroupedQuestions: () => {
       return ipcRenderer.invoke("question:findGroupedQuestions");
     },
+    findByCategoryId: (categoryId: number) => {
+      return ipcRenderer.invoke("question:findByCategoryId", categoryId);
+    },
     filterQuestions: (
       categoryId: number,
       subcategoryId: number,
@@ -67,6 +70,12 @@ contextBridge.exposeInMainWorld("electron", {
     },
     getCategoryById: (id: number) => {
       return ipcRenderer.invoke("category:findById", id);
+    },
+    findCategoryByName: (name: string) => {
+      return ipcRenderer.invoke("category:findByName", name);
+    },
+    findAllCategoriesDetails: () => {
+      return ipcRenderer.invoke("category:findAllCategoriesDetails");
     },
   },
 

@@ -38,7 +38,7 @@ export function Alert({
   buttonSize = "default",
   description,
   onCancel,
-  onSubmit,
+  onSubmit: onSubmit,
   submitText,
   title,
   variant,

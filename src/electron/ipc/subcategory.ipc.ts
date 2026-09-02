@@ -24,7 +24,6 @@ export function registerSubcategoryIPC(subcategoryService: SubCategoryService) {
   ipcMain.handle(
     "subcategory:findByCategory",
     async (_event, categoryId: number) => {
-      console.log(" subcategoryipc");
       return subcategoryService.getSubcategoryByCategory(categoryId);
     },
   );

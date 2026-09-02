@@ -8,26 +8,27 @@ import { useFetch } from "../hooks/custom";
 import ErrorHandler from "../errors/ErrorHandler";
 import { Spinner } from "../components/ui/spinner";
 
+//TODO: ADD LOADING AND ERROR STATES
+
 const Questions = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(changeActiveTab("all-questions"));
   }, [dispatch]);
 
-  const { data, isLoading, isError } = useFetch({
+  const { data: categoriesDetails } = useFetch({
+    queryKey: ["categories", "findAllDetails"],
+    queryFn: () => window.electron.category.findAllCategoriesDetails(),
+  });
+
+  const {
+    data: totalQuestions,
+    isLoading,
+    isError,
+  } = useFetch({
     queryKey: ["questions", "total"],
     queryFn: () => window.electron.question.getTotalQuestions(),
   });
-  const {
-    data: groupedQuestions,
-    isLoading: isGroupLoading,
-    isError: isGroupError,
-  } = useFetch({
-    queryKey: ["categories", "total"],
-    queryFn: () => window.electron.question.findGroupedQuestions(),
-  });
-
-  console.log(groupedQuestions[0]);
 
   if (isError) {
     return <ErrorHandler />;
@@ -47,7 +48,7 @@ const Questions = () => {
           <div className="flex flex-col sm:items-center md:items-start">
             <span className="text-muted font-semibold  ">Total Questions</span>
             <span className="font-semibold text-2xl text-black ">
-              {isLoading ? <Spinner /> : data?.total}
+              {isLoading ? <Spinner /> : totalQuestions?.total}
             </span>
           </div>
         </div>
@@ -58,12 +59,14 @@ const Questions = () => {
           </span>
           <div className="flex flex-col  sm:items-center md:items-start">
             <span className="text-muted font-semibold  ">Total Topics</span>
-            <span className="font-semibold text-2xl text-black ">6</span>
+            <span className="font-semibold text-2xl text-black ">
+              {categoriesDetails?.length}
+            </span>
           </div>
         </div>
       </div>
       <div className="mt-5 grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        <CategoryCards />
+        <CategoryCards categoriesDetails={categoriesDetails} />
       </div>
     </div>
   );

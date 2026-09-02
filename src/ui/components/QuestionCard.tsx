@@ -1,11 +1,14 @@
 import type { IQuestions } from "@/shared/interfaces";
 import { Badge } from "./reui/badge";
-import { findSubCategory, isMcqQuestion } from "@/ui/functions";
+import { isMcqQuestion } from "@/ui/functions";
 import { KeyRound, Trash2, X } from "lucide-react";
 import { Alert } from "./Alert";
 import QuestionForm from "./QuestionForm";
 import { useState } from "react";
 import { Button } from "./ui/button";
+import { useFetch } from "../hooks/custom";
+import { toast } from "sonner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface IProps {
   idx: number;
@@ -26,10 +29,36 @@ const QuestionCard = ({
 }: IProps) => {
   const { header, difficulty, subcategoryId } = question;
   const [questionToEdit, setQuestionToEdit] = useState(question);
+  const queryClient = useQueryClient();
+
+  const { data: subcategory } = useFetch({
+    queryKey: ["subcategory", "findById"],
+    queryFn: () =>
+      window.electron.subcategory.findSubcategoryById(subcategoryId),
+  });
+
+  const deleteQuestionMutation = useMutation({
+    mutationKey: ["question", "delete"],
+    mutationFn: (questionId: number) =>
+      window.electron.question.deleteQuestion(questionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["questions", "byCategory"] });
+      toast.success("Question Deleted Successfully", {
+        position: "top-center",
+        style: { justifyContent: "center", color: "green", fontSize: "16px" },
+      });
+    },
+    onError: () => {
+      toast.error("Error Deleting Question", {
+        position: "top-center",
+        style: { justifyContent: "center", color: "crimson", fontSize: "16px" },
+      });
+    },
+  });
 
   //todo: replace by api call to delete question
-  const onDelete = () => {
-    console.log("Delete: ", question);
+  const OnDelete = () => {
+    deleteQuestionMutation.mutate(question._id);
   };
 
   const renderAnswer = () => {
@@ -142,10 +171,10 @@ const QuestionCard = ({
       )}
 
       <div className="w-full flex justify-between pl-10">
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <span className="text-sm font-semibold">Specialization:</span>
           <Badge variant={"primary-light"} radius={"full"} size={"xl"}>
-            {findSubCategory(subcategoryId)}
+            {subcategory?.name}
           </Badge>
         </div>
 
@@ -162,7 +191,7 @@ const QuestionCard = ({
               buttonChildren={<Trash2 />}
               variant="destructive"
               submitText="Yes, Delete"
-              onSubmit={onDelete}
+              onSubmit={OnDelete}
               buttonSize="icon"
             />
           </div>

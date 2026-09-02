@@ -2,16 +2,14 @@ import type {
   ICreateEssayQuestion,
   ICreateMcqQuestion,
   IEssayQuestion,
+  IGroupedQuestionCategory,
   IMcqQuestion,
   IQuestionCountByCategory,
   IQuestions,
 } from "../../shared/interfaces/index.js";
 import { QuestionRow } from "../interfaces/index.js";
 
-import {
-  GroupedQuestions,
-  QuestionsRepository,
-} from "../repositories/question.repository.js";
+import { QuestionsRepository } from "../repositories/question.repository.js";
 import {
   validateBaseQuestion,
   validateChoices,
@@ -48,8 +46,12 @@ export class QuestionsService {
     return this.questionsRepository.findById(id);
   }
 
-  findGroupedQuestions(): GroupedQuestions {
+  findGroupedQuestions(): IGroupedQuestionCategory[] {
     return this.questionsRepository.findAllGrouped();
+  }
+
+  findByCategory(categoryId: number): IQuestions[] {
+    return this.questionsRepository.findByCategory(categoryId);
   }
 
   findByFilter(

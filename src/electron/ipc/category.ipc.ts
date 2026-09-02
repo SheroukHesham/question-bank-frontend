@@ -18,4 +18,10 @@ export function registerCategoryIPC(categoryService: CategoryService) {
   ipcMain.handle("category:findById", (_event, id: number) => {
     return categoryService.getCategoryById(id);
   });
+  ipcMain.handle("category:findByName", (_event, name: string) => {
+    return categoryService.findCategoryByName(name);
+  });
+  ipcMain.handle("category:findAllCategoriesDetails", (_event) => {
+    return categoryService.findAllCategoriesDetails();
+  });
 }

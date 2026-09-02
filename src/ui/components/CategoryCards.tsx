@@ -1,21 +1,25 @@
-import { MOCK_CATEGORIES } from "@/ui/mock";
 import { ClickCard } from "./ClickCard";
 import { useNavigate } from "react-router-dom";
 import { Separator } from "./ui/separator";
 import { Badge } from "./reui/badge";
-import { findSubCategory } from "@/ui/functions";
+import type { ICategoryDetails } from "@/shared/interfaces";
 
-const CategoryCards = () => {
+interface IProps {
+  categoriesDetails: ICategoryDetails[] | undefined;
+}
+
+const CategoryCards = ({ categoriesDetails }: IProps) => {
   const navigate = useNavigate();
+
   return (
     <>
-      {MOCK_CATEGORIES.map((category) => {
+      {categoriesDetails?.map((category, idx) => {
         return (
           <ClickCard
-            key={category._id}
-            title={category.name}
+            key={idx}
+            title={category.categoryName}
             onClick={() => {
-              navigate(`/category/${category._id}`);
+              navigate(`/category/${category.categoryId}`);
             }}
           >
             <div className="w-full flex flex-col justify-around h-full">
@@ -24,7 +28,7 @@ const CategoryCards = () => {
                   Total Questions
                 </span>
                 <div className="size-8 rounded-full bg-primary text-primary-foreground flex justify-center items-center">
-                  05
+                  {category.totalQuestions}
                 </div>
               </div>
               <Separator />
@@ -32,7 +36,7 @@ const CategoryCards = () => {
                 <span className="font-semibold text-[15px]">Types</span>
 
                 <div className="flex w-full  flex-wrap gap-2">
-                  {category.subCategories.map((subcategory) => {
+                  {category.subcategories.map((subcategory) => {
                     return (
                       <Badge
                         key={subcategory}
@@ -40,7 +44,7 @@ const CategoryCards = () => {
                         variant={"primary-light"}
                         radius={"full"}
                       >
-                        {findSubCategory(subcategory)}
+                        {subcategory}
                       </Badge>
                     );
                   })}

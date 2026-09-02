@@ -1,10 +1,14 @@
 import {
+  useMutation,
   useQuery,
+  useQueryClient,
+  type MutationFunction,
+  type MutationKey,
   type QueryFunction,
   type QueryKey,
 } from "@tanstack/react-query";
 
-interface IProps<TData, TQueryKey extends QueryKey = QueryKey> {
+interface IFetchProps<TData, TQueryKey extends QueryKey = QueryKey> {
   queryKey: TQueryKey;
   queryFn: QueryFunction<TData, TQueryKey>;
 }
@@ -12,9 +16,38 @@ interface IProps<TData, TQueryKey extends QueryKey = QueryKey> {
 export function useFetch<TData, TQueryKey extends QueryKey = QueryKey>({
   queryKey,
   queryFn,
-}: IProps<TData, TQueryKey>) {
+}: IFetchProps<TData, TQueryKey>) {
   return useQuery<TData, Error, TData, TQueryKey>({
     queryKey,
     queryFn,
+  });
+}
+
+interface IMutationProps<
+  TData,
+  TMutationKey extends MutationKey = MutationKey,
+  TQueryKey extends QueryKey = QueryKey,
+> {
+  mutationKey: TMutationKey;
+  mutationFn: MutationFunction<TData, TMutationKey>;
+  invalidateKey: TQueryKey;
+}
+
+export function useMutate<
+  TData,
+  TMutationKey extends MutationKey = MutationKey,
+  TQueryKey extends QueryKey = QueryKey,
+>({
+  mutationFn,
+  mutationKey,
+  invalidateKey,
+}: IMutationProps<TData, TMutationKey, TQueryKey>) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn,
+    mutationKey,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: invalidateKey });
+    },
   });
 }

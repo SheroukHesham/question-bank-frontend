@@ -5,24 +5,31 @@ import { SingleSelect } from "@/ui/components/SingleSelect";
 import SubcategoryAddForm from "@/ui/components/SubcategoryAddForm";
 import { Button } from "@/ui/components/ui/button";
 import { SelectItem } from "@/ui/components/ui/select";
-import { findCategory, findSubCategory } from "@/ui/functions";
-import { MOCK_QUESTIONS } from "@/ui/mock";
 import type { TQuestionTypeFilter } from "@/ui/types";
 import type { SubcategoryFormValues } from "@/ui/validation";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useFetch } from "../hooks/custom";
 
 const CategoryQuestions = () => {
   const params = useParams();
-  const categoryId = params.id;
-  const category = findCategory(params.id as string);
+  const categoryId = Number(params.id);
   const [isAddingSubcategory, setIsAddingSubcategory] = useState(false);
 
-  //todo:replace by api call
-  const allQuestions = MOCK_QUESTIONS.filter(
-    (items) => items.categoryId === categoryId,
-  );
+  const { data: category } = useFetch({
+    queryKey: ["category", "findById"],
+    queryFn: () => window.electron.category.getCategoryById(categoryId),
+  });
+  const { data: subcategories } = useFetch({
+    queryKey: ["subcategory", "findByCategoryId"],
+    queryFn: () =>
+      window.electron.subcategory.findSubcategoryByCategoryId(categoryId),
+  });
+  const { data: allQuestions } = useFetch({
+    queryKey: ["questions", "byCategory"],
+    queryFn: () => window.electron.question.findByCategoryId(categoryId),
+  });
 
   const [typeFilter, setTypeFilter] = useState<TQuestionTypeFilter>("all");
   const [specializationFilter, setSpecializationFilter] = useState<
@@ -33,7 +40,8 @@ const CategoryQuestions = () => {
     return (allQuestions ?? []).filter((item) => {
       const matchesType = typeFilter === "all" || item.type === typeFilter;
       const matchesSpecialization =
-        !specializationFilter || item.subcategoryId === specializationFilter;
+        !specializationFilter ||
+        item.subcategoryId === Number(specializationFilter);
       return matchesType && matchesSpecialization;
     });
   }, [allQuestions, typeFilter, specializationFilter]);
@@ -53,20 +61,20 @@ const CategoryQuestions = () => {
       <div className="flex  items-center gap-2">
         <h1 className="text-4xl font-semibold ">{category?.name}</h1>
         <span className="text-muted/50 text-3xl font-semibold">
-          ({allQuestions.length})
+          ({allQuestions?.length})
         </span>
       </div>
       <div className=" w-xl justify-between items-center mt-5">
         <div className="flex gap-3 items-center ">
-          {category?.subCategories.map((subCat) => {
+          {subcategories?.map((subcategory) => {
             return (
               <Badge
-                key={subCat}
+                key={subcategory._id}
                 variant={"primary-light"}
                 radius={"full"}
                 size={"xl"}
               >
-                {findSubCategory(subCat)}
+                {subcategory.name}
               </Badge>
             );
           })}
@@ -112,10 +120,13 @@ const CategoryQuestions = () => {
           }
         >
           <SelectItem value="all">All</SelectItem>
-          {category?.subCategories.map((sub) => {
+          {subcategories?.map((subcategory) => {
             return (
-              <SelectItem key={sub} value={sub}>
-                {findSubCategory(sub)}
+              <SelectItem
+                key={subcategory._id}
+                value={subcategory._id.toString()}
+              >
+                {subcategory.name}
               </SelectItem>
             );
           })}
