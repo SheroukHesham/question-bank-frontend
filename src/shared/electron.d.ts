@@ -3,6 +3,7 @@ import type {
   ICategoryDetails,
   ICreateEssayQuestion,
   IEssayQuestion,
+  IGroupedCategorySubcategory,
   IGroupedQuestionCategory,
   IQuestionCountByCategory,
   IQuestions,
@@ -42,6 +43,7 @@ declare global {
         getCategoryById(id: number): Promise<ICategory | undefined>;
         findCategoryByName(name: string): Promise<ICategory | undefined>;
         findAllCategoriesDetails(): Promise<ICategoryDetails[] | undefined>;
+        getGroupedCategorySubcategory(): Promise<IGroupedCategorySubcategory[]>;
       };
       subcategory: {
         findSubcategoryByName(name: string): Promise<ISubCategory | undefined>;

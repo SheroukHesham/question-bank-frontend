@@ -47,4 +47,7 @@ export class CategoryService {
   findAllCategoriesDetails() {
     return this.categoryRepository.findAllCategoriesDetails();
   }
+  getGroupCategorySubcategory() {
+    return this.categoryRepository.getGroupCategorySubcategory();
+  }
 }

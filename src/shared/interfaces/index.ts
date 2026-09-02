@@ -79,3 +79,10 @@ export interface IGroupedQuestionCategory {
     questions: IQuestions[];
   }[];
 }
+
+export interface IGroupedCategorySubcategory {
+  categoryName: string;
+  categoryId: number;
+  subcategoryId: number;
+  subcategoryName: string;
+}

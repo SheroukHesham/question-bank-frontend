@@ -24,4 +24,7 @@ export function registerCategoryIPC(categoryService: CategoryService) {
   ipcMain.handle("category:findAllCategoriesDetails", (_event) => {
     return categoryService.findAllCategoriesDetails();
   });
+  ipcMain.handle("category:getGroupedCategorySubcategory", (_event) => {
+    return categoryService.getGroupCategorySubcategory();
+  });
 }

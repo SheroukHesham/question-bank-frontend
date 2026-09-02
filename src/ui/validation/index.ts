@@ -12,7 +12,7 @@ export const loginSchema = yup.object({
 export type LoginFormValues = yup.InferType<typeof loginSchema>;
 
 const choiceSchema = yup.object({
-  choice: yup.string().required("DThis Field is Required"),
+  choice: yup.string().required("This Field is Required"),
   isCorrect: yup.boolean().required(),
 });
 
@@ -24,8 +24,14 @@ export const questionSchema = yup.object({
     .oneOf(["easy", "moderate", "difficult"], "Difficulty is required")
     .required("Difficulty level is required"),
   header: yup.string().required("Question header is required"),
-  categoryId: yup.string().required("Topic is required"),
-  subcategoryId: yup.string().required("Type is required"),
+  categoryId: yup
+    .number()
+    .positive("Topic is required")
+    .required("Topic is required"),
+  subcategoryId: yup
+    .number()
+    .positive("Type is required")
+    .required("Type is required"),
   modelAnswer: yup.string().when("type", {
     is: "essay",
     then: (schema) => schema.required("Model Answer is required"),

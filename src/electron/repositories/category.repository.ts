@@ -1,6 +1,10 @@
 import type Database from "better-sqlite3";
 import type { CategoryRow } from "../interfaces/index.js";
-import { ICategory, ICategoryDetails } from "@/shared/interfaces/index.js";
+import {
+  ICategory,
+  ICategoryDetails,
+  IGroupedCategorySubcategory,
+} from "@/shared/interfaces/index.js";
 
 export class CategoriesRepository {
   constructor(private readonly db: Database.Database) {}
@@ -100,5 +104,14 @@ export class CategoriesRepository {
     }
 
     return result;
+  }
+
+  getGroupCategorySubcategory() {
+    return this.db
+      .prepare<
+        [],
+        IGroupedCategorySubcategory
+      >("SELECT categories._id as categoryId, categories.name as categoryName, subcategories._id as subcategoryId, subcategories.name as subcategoryName FROM subcategories JOIN categories ON subcategories.category_id= categories._id ORDER BY categories.name, subcategories.name;")
+      .all();
   }
 }

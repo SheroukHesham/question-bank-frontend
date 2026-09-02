@@ -77,6 +77,9 @@ contextBridge.exposeInMainWorld("electron", {
     findAllCategoriesDetails: () => {
       return ipcRenderer.invoke("category:findAllCategoriesDetails");
     },
+    getGroupedCategorySubcategory: () => {
+      return ipcRenderer.invoke("category:getGroupedCategorySubcategory");
+    },
   },
 
   subcategory: {

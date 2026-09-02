@@ -60,23 +60,23 @@ export const RadioQuestionGroup: IRadioGroupItem[] = [
 ];
 
 export const defaultQuestion: IEssayQuestion = {
-  _id: "",
+  _id: -1,
   header: "",
   difficulty: "" as TQuestionDifficulty,
-  categoryId: "",
-  subcategoryId: "",
-  createdBy: "",
+  categoryId: -1,
+  subcategoryId: -1,
+
   type: "essay",
   modelAnswer: "",
 };
 
 export const defaultMcqQuestion: IMcqQuestion = {
-  _id: "",
+  _id: -1,
   header: "",
   difficulty: "" as TQuestionDifficulty,
-  categoryId: "",
-  subcategoryId: "",
-  createdBy: "",
+  categoryId: -1,
+  subcategoryId: -1,
+
   type: "mcq",
   choices: [],
 };
@@ -85,8 +85,9 @@ export const defaultEssayFormValues: QuestionFormValues = {
   type: "essay",
   header: "",
   difficulty: "" as TQuestionDifficulty,
-  categoryId: "",
-  subcategoryId: "",
+  categoryId: -1,
+  subcategoryId: -1,
+  headerImageUrl: "",
   modelAnswer: "",
 };
 
@@ -94,7 +95,8 @@ export const defaultMcqFormValues: QuestionFormValues = {
   type: "mcq",
   header: "",
   difficulty: "" as TQuestionDifficulty,
-  categoryId: "",
-  subcategoryId: "",
+  categoryId: -1,
+  subcategoryId: -1,
+  headerImageUrl: "",
   choices: Array.from({ length: 5 }, () => ({ choice: "", isCorrect: false })),
 };

@@ -92,9 +92,10 @@ export function Modal({
         </Button>
       </DialogTrigger>
       <DialogContent
+        setOpen={setOpen}
         showCloseButton={showCloseButton}
         ref={dialogContentRef}
-        className={`overflow-scroll ${size === "sm" ? "max-w-5xl" : ""}`}
+        className={`overflow-auto ${size === "sm" ? "max-w-5xl" : ""}`}
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
@@ -112,7 +113,7 @@ export function Modal({
               )}
             </DialogHeader>
             <FieldGroup>{children}</FieldGroup>
-            <DialogFooter className=" mt-15">
+            <DialogFooter className=" mt-15 pb-2">
               <DialogClose asChild>
                 <Button
                   variant="ghost"

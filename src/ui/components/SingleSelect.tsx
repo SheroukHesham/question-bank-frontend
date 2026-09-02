@@ -32,7 +32,12 @@ export function SingleSelect({
 }: IProps) {
   return (
     <Field className="w-full max-w-3xs gap-2 ">
-      {label && <FieldLabel>{label}</FieldLabel>}
+      {label && (
+        <FieldLabel>
+          {label}
+          <span className="text-destructive font-bold">*</span>
+        </FieldLabel>
+      )}
       <Select
         defaultValue={defaultValue}
         onValueChange={onValueChange}
