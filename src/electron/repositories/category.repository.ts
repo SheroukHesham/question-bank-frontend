@@ -73,7 +73,7 @@ export class CategoriesRepository {
           subcategoryName: string;
         }
       >(
-        "SELECT Count (q._id) as totalQuestions, c.name AS categoryName, c._id as categoryId, s.name AS subcategoryName FROM questions q JOIN categories c ON c._id = q.category_id JOIN subcategories s ON s._id = q.subcategory_id GROUP BY c.name,s.name ORDER BY c.name, s.name, q._id;",
+        "SELECT c._id AS categoryId,c.name AS categoryName,s._id AS subcategoryId,s.name AS subcategoryName,COUNT(q._id) AS totalQuestions FROM categories c LEFT JOIN subcategories s ON s.category_id = c._id LEFT JOIN questions q ON q.subcategory_id = s._id GROUP BY c._id,  c.name,  s._id,  s.name ORDER BY c.name, s.name;",
       )
       .all();
 
@@ -111,7 +111,7 @@ export class CategoriesRepository {
       .prepare<
         [],
         IGroupedCategorySubcategory
-      >("SELECT categories._id as categoryId, categories.name as categoryName, subcategories._id as subcategoryId, subcategories.name as subcategoryName FROM subcategories JOIN categories ON subcategories.category_id= categories._id ORDER BY categories.name, subcategories.name;")
+      >("SELECT categories._id as categoryId, categories.name as categoryName, subcategories._id as subcategoryId, subcategories.name as subcategoryName FROM categories LEFT JOIN subcategories ON subcategories.category_id= categories._id ORDER BY categories.name, subcategories.name;")
       .all();
   }
 }

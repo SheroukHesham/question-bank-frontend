@@ -28,18 +28,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useFetch } from "../hooks/custom";
 import { Textarea } from "./ui/textarea";
 
-//TODO: add difficulty and API calls
-
 interface IProps {
   type?: "create" | "edit";
   questionToEdit?: IQuestions;
   setQuestionToEdit?: Dispatch<SetStateAction<IEssayQuestion | IMcqQuestion>>;
+  defaultCategoryName?: string;
 }
 
 const QuestionForm = ({
   type = "create",
   questionToEdit,
   setQuestionToEdit,
+  defaultCategoryName,
 }: IProps) => {
   const [mcq, setMcq] = useState(true);
   const [open, setOpen] = useState(false);
@@ -66,6 +66,12 @@ const QuestionForm = ({
     queryKey: ["categories", "getGroupedSubCat"],
     queryFn: () => window.electron.category.getGroupedCategorySubcategory(),
   });
+
+  const defaultCategory =
+    defaultCategoryName &&
+    groupedCategories?.find(
+      (item) => item.categoryName === defaultCategoryName,
+    );
 
   const onSelectTopicValueChange = (v: string) => {
     if (!v) return;
@@ -135,7 +141,6 @@ const QuestionForm = ({
         ? ({ ...data, modelAnswer: data.modelAnswer! } as IEssayQuestion)
         : ({ ...data, choices: data.choices! } as IMcqQuestion);
 
-    // TODO: API call with payload to create question or edit question
     if (type === "create") {
       if (data.type === "mcq") {
         addMcq.mutate(payload as ICreateMcqQuestion);
@@ -266,7 +271,9 @@ const QuestionForm = ({
               defaultValue={
                 type === "edit"
                   ? `${questionToEdit?.categoryId}-${questionToEdit?.subcategoryId}`
-                  : undefined
+                  : defaultCategory
+                    ? `${defaultCategory?.categoryId}-${defaultCategory?.subcategoryId}`
+                    : undefined
               }
             >
               {groupedCategories?.map(
@@ -276,15 +283,16 @@ const QuestionForm = ({
                   subcategoryId,
                   subcategoryName,
                 }) => {
-                  return (
-                    <SelectItem
-                      key={`${categoryId}-${subcategoryId}`}
-                      value={`${categoryId}-${subcategoryId}`}
-                      className="capitalize"
-                    >
-                      {categoryName}, {subcategoryName}
-                    </SelectItem>
-                  );
+                  if (subcategoryName !== null)
+                    return (
+                      <SelectItem
+                        key={`${categoryId}-${subcategoryId}`}
+                        value={`${categoryId}-${subcategoryId}`}
+                        className="capitalize"
+                      >
+                        {categoryName}, {subcategoryName}
+                      </SelectItem>
+                    );
                 },
               )}
             </SingleSelect>

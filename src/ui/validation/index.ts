@@ -80,14 +80,6 @@ export const categorySchema = yup.object({
       "Topic name cannot be only numbers",
       (value) => !/^\d+$/.test(value ?? ""),
     ),
-
-  subCategories: yup
-    .array()
-    .of(yup.string())
-    .test("unique", "Types must have unique names", (values) => {
-      const set = new Set(values);
-      if (values?.length !== set.size) return false;
-    }),
 });
 
 export type CategoryFormValues = yup.InferType<typeof categorySchema>;

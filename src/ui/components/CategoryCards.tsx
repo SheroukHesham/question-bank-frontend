@@ -10,6 +10,7 @@ interface IProps {
 
 const CategoryCards = ({ categoriesDetails }: IProps) => {
   const navigate = useNavigate();
+  console.log(categoriesDetails);
 
   return (
     <>
@@ -35,20 +36,24 @@ const CategoryCards = ({ categoriesDetails }: IProps) => {
               <div className="flex flex-col gap-3 ">
                 <span className="font-semibold text-[15px]">Types</span>
 
-                <div className="flex w-full  flex-wrap gap-2">
-                  {category.subcategories.map((subcategory) => {
-                    return (
-                      <Badge
-                        key={subcategory}
-                        size={"xl"}
-                        variant={"primary-light"}
-                        radius={"full"}
-                      >
-                        {subcategory}
-                      </Badge>
-                    );
-                  })}
-                </div>
+                {category.subcategories[0] !== null ? (
+                  <div className="flex w-full  flex-wrap gap-2">
+                    {category.subcategories.map((subcategory) => {
+                      return (
+                        <Badge
+                          key={subcategory}
+                          size={"xl"}
+                          variant={"primary-light"}
+                          radius={"full"}
+                        >
+                          {subcategory}
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <span className="italic">No Types Yet!</span>
+                )}
               </div>
             </div>
           </ClickCard>
