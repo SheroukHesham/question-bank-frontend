@@ -53,7 +53,7 @@ declare global {
           categoryId: number,
         ): Promise<ISubCategory>;
         updateSubcategory(subcategory: ISubCategory): Promise<ISubCategory>;
-        deleteSubcategory(id: number): void;
+        deleteSubcategory(id: number): Promise<void>;
         findAllSubcategories(): Promise<ISubCategory[]>;
         findSubcategoryByCategoryId(
           categoryId: number,

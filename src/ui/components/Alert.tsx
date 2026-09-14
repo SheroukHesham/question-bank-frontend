@@ -31,6 +31,7 @@ interface IProps {
   submitText: string;
   onSubmit: () => void;
   onCancel?: () => void;
+  disabled?: boolean;
 }
 
 export function Alert({
@@ -43,11 +44,12 @@ export function Alert({
   title,
   variant,
   icon,
+  disabled,
 }: IProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={variant} size={buttonSize}>
+        <Button variant={variant} size={buttonSize} disabled={disabled}>
           {buttonChildren}
         </Button>
       </AlertDialogTrigger>

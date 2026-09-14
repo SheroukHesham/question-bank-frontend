@@ -2,7 +2,7 @@ import { Modal } from "./Modal";
 import { PenBoxIcon, Plus } from "lucide-react";
 import { RadioGroupChoiceCard } from "./ChoiceCard";
 import { Field, FieldLabel } from "./ui/field";
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { questionSchema, type QuestionFormValues } from "@/ui/validation";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -32,14 +32,19 @@ interface IProps {
   type?: "create" | "edit";
   questionToEdit?: IQuestions;
   setQuestionToEdit?: Dispatch<SetStateAction<IEssayQuestion | IMcqQuestion>>;
-  defaultCategoryName?: string;
+  defaultCategory?: {
+    categoryName: string;
+    categoryId: number;
+    subcategoryName: string;
+    subcategoryId: number;
+  };
 }
 
 const QuestionForm = ({
   type = "create",
   questionToEdit,
   setQuestionToEdit,
-  defaultCategoryName,
+  defaultCategory,
 }: IProps) => {
   const [mcq, setMcq] = useState(true);
   const [open, setOpen] = useState(false);
@@ -62,16 +67,21 @@ const QuestionForm = ({
         : questionToEdit,
   });
 
+  useEffect(() => {
+    if (defaultCategory) {
+      setValue("categoryId", defaultCategory.categoryId, {
+        shouldValidate: true,
+      });
+      setValue("subcategoryId", defaultCategory.subcategoryId, {
+        shouldValidate: true,
+      });
+    }
+  }, [defaultCategory, setValue]);
+
   const { data: groupedCategories } = useFetch({
     queryKey: ["categories", "getGroupedSubCat"],
     queryFn: () => window.electron.category.getGroupedCategorySubcategory(),
   });
-
-  const defaultCategory =
-    defaultCategoryName &&
-    groupedCategories?.find(
-      (item) => item.categoryName === defaultCategoryName,
-    );
 
   const onSelectTopicValueChange = (v: string) => {
     if (!v) return;

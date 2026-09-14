@@ -11,13 +11,10 @@ const Categories = () => {
     dispatch(changeActiveTab("questions-categories"));
   }, [dispatch]);
 
-  //todo: replace by api call or stored number of categories
-
   const { data: categoriesDetails } = useFetch({
     queryKey: ["categories", "findAllDetails"],
     queryFn: () => window.electron.category.findAllCategoriesDetails(),
   });
-  console.log(categoriesDetails);
 
   return (
     <div className="w-full p-10 ">
