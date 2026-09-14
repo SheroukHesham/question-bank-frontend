@@ -99,9 +99,7 @@ const QuestionCard = ({
         </div>
       );
     } else {
-      return (
-        <span className="font-semibold text-lg">{question.modelAnswer}</span>
-      );
+      return <span className="font-semibold ">{question.modelAnswer}</span>;
     }
   };
 
@@ -113,12 +111,19 @@ const QuestionCard = ({
       }}
     >
       <div className="flex w-full justify-between">
-        <div className="flex w-full gap-3 items-center">
-          <div className="size-8 text-xl text-center flex items-center justify-center rounded-md bg-muted/10 font-semibold text-card-foreground pb-0.5">
-            {idx + 1}
+        <div className="flex w-full justify-between">
+          <div className="flex w-full gap-3 items-center">
+            <div className="size-8 text-xl text-center flex items-center justify-center rounded-md bg-muted/10 font-semibold text-card-foreground pb-0.5">
+              {idx + 1}
+            </div>
+            <span className="text-xl font-semibold text-card-foreground">
+              {header}
+            </span>
           </div>
-          <span className="text-xl font-semibold text-card-foreground">
-            {header}
+          <span
+            className={`text-lg rounded-full  font-semibold flex items-center justify-center px-5 py-2 capitalize ${difficulty === "difficult" ? "bg-destructive/10 text-destructive" : difficulty === "moderate" ? "bg-warning/10 text-warning-foreground" : "bg-success/10 text-success-foreground"}`}
+          >
+            {difficulty}
           </span>
         </div>
 
@@ -133,16 +138,10 @@ const QuestionCard = ({
           </Button>
         )}
       </div>
-      <div className="flex w-full justify-end">
-        <span
-          className={`text-lg rounded-full  font-semibold flex items-center justify-center px-5 py-2 capitalize ${difficulty === "difficult" ? "bg-destructive/10 text-destructive" : difficulty === "moderate" ? "bg-warning/10 text-warning-foreground" : "bg-success/10 text-success-foreground"}`}
-        >
-          {difficulty}
-        </span>
-      </div>
 
       {size === "default" ? (
         <>
+          {/* //todo:fix header image storage and display pipeline */}
           {question.headerImageUrl && (
             <div className="w-full flex  justify-center  ">
               <img

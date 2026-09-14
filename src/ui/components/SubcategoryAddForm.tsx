@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { subcategorySchema, type SubcategoryFormValues } from "@/ui/validation";
+import { CheckIcon, X } from "lucide-react";
 
 interface IProps {
   onSaved: (data: SubcategoryFormValues) => void;
@@ -24,17 +25,21 @@ const SubcategoryAddForm = ({ onSaved, onCancel }: IProps) => {
   };
 
   return (
-    <div className="flex gap-5">
+    <div className="flex gap-3">
       <div className="flex flex-col w-full gap-3">
-        <Input placeholder="Enter type name" {...register("name")} />
+        <Input
+          placeholder="Enter subtopic name"
+          {...register("name")}
+          autoFocus
+        />
         {errors.name && (
           <p className="text-destructive text-sm font-semibold">
             {errors.name.message}
           </p>
         )}
       </div>
-      <Button variant="outline" type="button" onClick={handleSubmit(onSubmit)}>
-        Save
+      <Button variant="default" onClick={handleSubmit(onSubmit)}>
+        <CheckIcon />
       </Button>
       <Button
         variant="ghost"
@@ -44,7 +49,7 @@ const SubcategoryAddForm = ({ onSaved, onCancel }: IProps) => {
           onCancel();
         }}
       >
-        Cancel
+        <X />
       </Button>
     </div>
   );

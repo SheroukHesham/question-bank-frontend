@@ -323,6 +323,7 @@ const QuestionForm = ({
             <div className="h-50">
               <Textarea
                 {...register("header")}
+                autoFocus
                 defaultValue={
                   questionToEdit && isEssayQuestion(questionToEdit)
                     ? questionToEdit.header

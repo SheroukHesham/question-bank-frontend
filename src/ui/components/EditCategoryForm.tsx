@@ -1,36 +1,54 @@
 import type { ICategory, ISubCategory } from "@/shared/interfaces";
 import { Button } from "./ui/button";
-import { CheckIcon, Pen, X } from "lucide-react";
+import { CheckIcon, Pen, Plus, X } from "lucide-react";
 import { Input } from "./ui/input";
-import { useState } from "react";
+import { useEffect, useState, type Dispatch } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { categorySchema, type CategoryFormValues } from "../validation";
+import {
+  categorySchema,
+  type CategoryFormValues,
+  type SubcategoryFormValues,
+} from "../validation";
 import { Label } from "./ui/label";
 import UpdateSubcategoryEntry from "./UpdateSubcategoryEntry";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import SubcategoryAddForm from "./SubcategoryAddForm";
+import { Alert } from "./Alert";
+import { useNavigate } from "react-router-dom";
 
 //todo:fix on error message in toast
+//todo: exclude self from findByName
 
 interface IProps {
   category: ICategory;
   subcategories: ISubCategory[];
+  setEditMode: Dispatch<React.SetStateAction<boolean>>;
 }
 
-const EditCategoryForm = ({ category, subcategories }: IProps) => {
+const EditCategoryForm = ({ category, subcategories, setEditMode }: IProps) => {
   const [editCategoryName, setEditCategoryName] = useState(false);
+  const [addNewSub, setAddNewSub] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const {
     register,
     reset,
     handleSubmit,
+    setFocus,
     formState: { errors },
   } = useForm<CategoryFormValues>({
     resolver: yupResolver(categorySchema),
     defaultValues: { name: category.name as string },
   });
+
+  useEffect(() => {
+    if (editCategoryName) {
+      setFocus("name");
+    }
+  }, [editCategoryName, setFocus]);
 
   const updateCategory = useMutation({
     mutationFn: (category: ICategory) =>
@@ -71,6 +89,70 @@ const EditCategoryForm = ({ category, subcategories }: IProps) => {
     console.log(data);
   };
 
+  const addSubcategory = useMutation({
+    mutationFn: ({ name, categoryId }: { name: string; categoryId: number }) =>
+      window.electron.subcategory.createSubcategory(name, categoryId),
+    onSuccess: () => {
+      toast.success("Subtopic Added Successfully", {
+        position: "top-center",
+        style: {
+          justifyContent: "center",
+          color: "green",
+          fontSize: "16px",
+        },
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["subcategory", "findByCategoryId"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["categories", "getGroupedSubCat"],
+      });
+
+      setAddNewSub(false);
+    },
+  });
+
+  const onAddSubmit = (data: SubcategoryFormValues) => {
+    addSubcategory.mutate({ name: data.name, categoryId: category._id });
+    console.log(data);
+  };
+
+  const deleteCategory = useMutation({
+    mutationFn: ({ id }: { id: number }) =>
+      window.electron.category.deleteCategory(id),
+    onSuccess: () => {
+      toast.success("Topic Deleted Successfully", {
+        position: "top-center",
+        style: {
+          justifyContent: "center",
+          color: "green",
+          fontSize: "16px",
+        },
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["subcategory", "findByCategoryId"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["categories", "getGroupedSubCat"],
+      });
+      navigate(-1);
+    },
+    onError: () => {
+      toast.error("Error Deleting Topic", {
+        position: "top-center",
+        style: {
+          justifyContent: "center",
+          color: "crimson",
+          fontSize: "16px",
+        },
+      });
+    },
+  });
+
+  const onDeleteCategory = () => {
+    deleteCategory.mutate({ id: category._id });
+  };
+
   const renderSubcategories = subcategories.map((subcategory) => {
     return (
       <div className="flex gap-5" key={subcategory._id}>
@@ -81,8 +163,14 @@ const EditCategoryForm = ({ category, subcategories }: IProps) => {
 
   return (
     <div className="w-full">
-      <div className="w-full flex justify-end ">
-        <Button onClick={() => {}}>Done</Button>
+      <div className="w-full flex justify-end mb-5">
+        <Button
+          onClick={() => {
+            setEditMode(false);
+          }}
+        >
+          Done
+        </Button>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="w-full mb-10 ">
         <div className="flex w-full justify-between">
@@ -92,7 +180,7 @@ const EditCategoryForm = ({ category, subcategories }: IProps) => {
               <div className="flex flex-col w-full gap-y-3">
                 <Input
                   {...register("name")}
-                  className="text-lg font-semibold"
+                  className="text-xl font-semibold"
                   disabled={!editCategoryName}
                 />
                 {errors.name && (
@@ -133,11 +221,39 @@ const EditCategoryForm = ({ category, subcategories }: IProps) => {
         </div>
       </form>
 
-      <div className="flex flex-col gap-5">
-        <div className="flex w-full justify-between">
+      <div className="flex flex-col gap-10">
+        <div className="flex w-full justify-between ">
           <h1 className="text-4xl font-semibold">Subtopics</h1>
+          <Button
+            variant={"secondary"}
+            onClick={() => {
+              setAddNewSub(true);
+            }}
+          >
+            <Plus /> Create New Subtopic
+          </Button>
         </div>
-        <div className="flex flex-col gap-5">{renderSubcategories}</div>
+        <div className="flex flex-col gap-5">
+          {addNewSub && (
+            <SubcategoryAddForm
+              onSaved={onAddSubmit}
+              onCancel={() => {
+                setAddNewSub(false);
+              }}
+            />
+          )}
+          {renderSubcategories}
+        </div>
+        <div className="flex w-full justify-center items-baseline my-5">
+          <Alert
+            title="Are You Sure You Want to Delete Topic?"
+            description="Deleting this topic will permanently remove it from the system. You will not be able to delete this topic if it has questions assigned to it in order to avoid accidentally losing questions."
+            variant="destructive"
+            buttonChildren={<span>Delete Topic</span>}
+            submitText="Delete"
+            onSubmit={() => onDeleteCategory()}
+          />
+        </div>
       </div>
     </div>
   );

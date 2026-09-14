@@ -94,15 +94,15 @@
 }
 
 @layer base {
-  @layer base {
-    html {
-      scrollbar-color: rgba(73, 80, 113, 0.641) #e5ecfe;
-      scroll-behavior: smooth;
-      scroll-padding-block-start: 10px;
-      overflow: auto;
-    }
-    body {
-      @apply bg-background text-foreground;
-    }
+  html {
+    scrollbar-color: rgba(73, 80, 113, 0.641) #e5ecfe;
+    scroll-behavior: smooth;
+    scroll-padding-block-start: 10px;
+    overflow-x: auto;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }

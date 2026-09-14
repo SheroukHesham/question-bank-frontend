@@ -1,8 +1,4 @@
-import {
-  IChoice,
-  IQuestionBase,
-  ISubCategory,
-} from "@/shared/interfaces/index.js";
+import { IChoice, IQuestionBase } from "@/shared/interfaces/index.js";
 import { SubCategoryService } from "../services/subcategory.service.js";
 import { CategoryService } from "../services/category.service.js";
 
@@ -54,11 +50,10 @@ export const validateModelAnswer = (modelAnswer: string) => {
 export const validateSubcategory = async (
   name: string,
   categoryId: number,
-  findSubcategoryByName: (name: string) => ISubCategory | undefined,
   categoriesService: CategoryService,
 ) => {
   if (!name.trim()) throw new Error("Name is required.");
-  if (findSubcategoryByName(name)) throw new Error("This type already exists.");
+
   if (!categoryId) throw new Error("category is required");
   if (!categoriesService.findCategoryById(categoryId))
     throw new Error("The category you are assigning does not exist.");

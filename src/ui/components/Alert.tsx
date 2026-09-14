@@ -49,7 +49,12 @@ export function Alert({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={variant} size={buttonSize} disabled={disabled}>
+        <Button
+          variant={variant}
+          size={buttonSize}
+          disabled={disabled}
+          type="button"
+        >
           {buttonChildren}
         </Button>
       </AlertDialogTrigger>
@@ -62,7 +67,7 @@ export function Alert({
               {icon}
             </AlertDialogMedia>
           )}
-          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogTitle className="text-center">{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

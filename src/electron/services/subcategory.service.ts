@@ -30,37 +30,30 @@ export class SubCategoryService {
   }
 
   createSubcategory(name: string, categoryId: number): ISubCategory {
-    validateSubcategory(
-      name,
-      categoryId,
-      () => this.findSubcategoryByName(name),
-      this.categoriesService,
-    );
+    if (this.findSubcategoryByName(name))
+      throw new Error("This Subtopic name already exists");
+    validateSubcategory(name, categoryId, this.categoriesService);
     return this.SubcategoriesRepository.create(name, categoryId);
   }
 
   updateSubcategory(subcategory: ISubCategory): ISubCategory {
     const { _id, categoryId, name } = subcategory;
     if (!this.findSubcategoryById(_id))
-      throw new Error("This type does not exist");
+      throw new Error("This Subtopic does not exist");
+    if (this.findSubcategoryByName(name))
+      throw new Error("This Subtopic name already exists");
 
     try {
-      validateSubcategory(
-        name,
-        categoryId,
-        () => this.findSubcategoryByNameAndCategory(name, categoryId, _id),
-        this.categoriesService,
-      );
+      validateSubcategory(name, categoryId, this.categoriesService);
+      return this.SubcategoriesRepository.update(_id, name, categoryId);
     } catch (error) {
-      throw new Error("Failed to validate subcategory", { cause: error });
+      throw new Error("Failed to validate Subtopic", { cause: error });
     }
-
-    return this.SubcategoriesRepository.update(_id, name, categoryId);
   }
 
   deleteSubcategory(id: number): void {
     if (!this.findSubcategoryById(id))
-      throw new Error("This type does not exist");
+      throw new Error("This Subtopic does not exist");
 
     return this.SubcategoriesRepository.delete(id);
   }

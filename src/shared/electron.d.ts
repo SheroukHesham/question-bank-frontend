@@ -38,7 +38,7 @@ declare global {
       category: {
         createCategory(name: string): Promise<ICategory>;
         updateCategory(category: ICategory): Promise<ICategory>;
-        deleteCategory(id: number): void;
+        deleteCategory(id: number): Promise<void>;
         getAllCategories(): Promise<ICategory[]>;
         getCategoryById(id: number): Promise<ICategory | undefined>;
         findCategoryByName(name: string): Promise<ICategory | undefined>;
