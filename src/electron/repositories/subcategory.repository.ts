@@ -81,6 +81,34 @@ export class SubcategoryRepository {
     else return undefined;
   }
 
+  findByNameAndCategory(
+    name: string,
+    categoryId: number,
+    excludeId?: number,
+  ): ISubCategory | undefined {
+    const subcategory = excludeId
+      ? this.db
+          .prepare<
+            [string, number, number],
+            SubcategoryRow
+          >("SELECT * FROM subcategories WHERE name = ? AND category_id = ? AND _id != ?")
+          .get(name, categoryId, excludeId)
+      : this.db
+          .prepare<
+            [string, number],
+            SubcategoryRow
+          >("SELECT * FROM subcategories WHERE name = ? AND category_id = ?")
+          .get(name, categoryId);
+
+    if (!subcategory) return undefined;
+
+    return {
+      _id: subcategory._id,
+      name: subcategory.name,
+      categoryId: subcategory.category_id,
+    };
+  }
+
   findById(id: number): ISubCategory | undefined {
     const subcategory = this.db
       .prepare<

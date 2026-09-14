@@ -13,6 +13,18 @@ export class SubCategoryService {
     return this.SubcategoriesRepository.findByName(name);
   }
 
+  findSubcategoryByNameAndCategory(
+    name: string,
+    categoryId: number,
+    excludeId?: number,
+  ): ISubCategory | undefined {
+    return this.SubcategoriesRepository.findByNameAndCategory(
+      name,
+      categoryId,
+      excludeId,
+    );
+  }
+
   findSubcategoryById(id: number): ISubCategory | undefined {
     return this.SubcategoriesRepository.findById(id);
   }
@@ -31,12 +43,17 @@ export class SubCategoryService {
     const { _id, categoryId, name } = subcategory;
     if (!this.findSubcategoryById(_id))
       throw new Error("This type does not exist");
-    validateSubcategory(
-      name,
-      categoryId,
-      () => this.findSubcategoryByName(name),
-      this.categoriesService,
-    );
+
+    try {
+      validateSubcategory(
+        name,
+        categoryId,
+        () => this.findSubcategoryByNameAndCategory(name, categoryId, _id),
+        this.categoriesService,
+      );
+    } catch (error) {
+      throw new Error("Failed to validate subcategory", { cause: error });
+    }
 
     return this.SubcategoriesRepository.update(_id, name, categoryId);
   }

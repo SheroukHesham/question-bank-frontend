@@ -61,10 +61,10 @@ export type QuestionFormValues = yup.InferType<typeof questionSchema>;
 export const subcategorySchema = yup.object({
   name: yup
     .string()
-    .required("Type name is required")
+    .required("Subtopic name is required")
     .test(
       "not-purely-numeric",
-      "Type name cannot be only numbers",
+      "Subtopic name cannot be only numbers",
       (value) => !/^\d+$/.test(value ?? ""),
     ),
 });

@@ -7,7 +7,11 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { categorySchema, type CategoryFormValues } from "../validation";
 import { Label } from "./ui/label";
-import EditSubcategoryForm from "./EditSubcategoryForm";
+import UpdateSubcategoryEntry from "./UpdateSubcategoryEntry";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+//todo:fix on error message in toast
 
 interface IProps {
   category: ICategory;
@@ -16,6 +20,7 @@ interface IProps {
 
 const EditCategoryForm = ({ category, subcategories }: IProps) => {
   const [editCategoryName, setEditCategoryName] = useState(false);
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -27,11 +32,52 @@ const EditCategoryForm = ({ category, subcategories }: IProps) => {
     defaultValues: { name: category.name as string },
   });
 
+  const updateCategory = useMutation({
+    mutationFn: (category: ICategory) =>
+      window.electron.category.updateCategory(category),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["categories", "getGroupedSubCat"],
+      });
+      toast.success("Topic Name Updated Successfully", {
+        position: "top-center",
+        style: {
+          justifyContent: "center",
+          color: "green",
+          fontSize: "16px",
+        },
+      });
+    },
+    onError: (error) => {
+      reset();
+      toast.error("Error Updating Topic Name", {
+        description: error.message,
+        position: "top-center",
+        style: {
+          justifyContent: "center",
+          color: "crimson",
+          fontSize: "16px",
+        },
+      });
+      console.log(error.message);
+    },
+  });
+
   //todo:api call to update
   const onSubmit = (data: CategoryFormValues) => {
     setEditCategoryName(false);
+    updateCategory.mutate({ ...category, name: data.name });
+
     console.log(data);
   };
+
+  const renderSubcategories = subcategories.map((subcategory) => {
+    return (
+      <div className="flex gap-5" key={subcategory._id}>
+        <UpdateSubcategoryEntry subcategory={subcategory} />
+      </div>
+    );
+  });
 
   return (
     <div className="w-full">
@@ -42,19 +88,25 @@ const EditCategoryForm = ({ category, subcategories }: IProps) => {
         <div className="flex w-full justify-between">
           <div className="flex  flex-col gap-5">
             <Label className="text-5xl">Topic</Label>
-            <div className="flex gap-5 items-center ">
-              <Input
-                {...register("name")}
-                className="text-4xl font-semibold"
-                disabled={!editCategoryName}
-              />
+            <div className="flex gap-5 ">
+              <div className="flex flex-col w-full gap-y-3">
+                <Input
+                  {...register("name")}
+                  className="text-lg font-semibold"
+                  disabled={!editCategoryName}
+                />
+                {errors.name && (
+                  <p className="text-destructive text-sm font-semibold">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
               {editCategoryName ? (
                 <div className="flex gap-5">
-                  <Button size={"icon-lg"} type="submit">
+                  <Button type="submit">
                     <CheckIcon size={"20px"} />
                   </Button>
                   <Button
-                    size={"icon-lg"}
                     variant={"secondary"}
                     type="button"
                     onClick={() => {
@@ -67,7 +119,6 @@ const EditCategoryForm = ({ category, subcategories }: IProps) => {
                 </div>
               ) : (
                 <Button
-                  size={"icon-lg"}
                   variant={"outline"}
                   type="button"
                   onClick={() => {
@@ -81,7 +132,13 @@ const EditCategoryForm = ({ category, subcategories }: IProps) => {
           </div>
         </div>
       </form>
-      <EditSubcategoryForm subcategories={subcategories} />
+
+      <div className="flex flex-col gap-5">
+        <div className="flex w-full justify-between">
+          <h1 className="text-4xl font-semibold">Subtopics</h1>
+        </div>
+        <div className="flex flex-col gap-5">{renderSubcategories}</div>
+      </div>
     </div>
   );
 };

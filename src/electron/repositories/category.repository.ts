@@ -45,7 +45,7 @@ export class CategoriesRepository {
 
   update(id: number, name: string): ICategory {
     const result = this.db
-      .prepare("UPDATE categories SET name = ? WHERE id = ?")
+      .prepare("UPDATE categories SET name = ? WHERE _id = ?")
       .run(name, id);
     if (result.changes === 0) {
       throw new Error(`Category ${id} not found`);
