@@ -35,6 +35,9 @@ declare global {
         >;
         findByCategoryId(categoryId: number): Promise<IQuestions[]>;
       };
+      image: {
+        getPathForFile(file: File): Promise<string>;
+      };
       category: {
         createCategory(name: string): Promise<ICategory>;
         updateCategory(category: ICategory): Promise<ICategory>;

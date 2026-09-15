@@ -16,6 +16,7 @@ import {
   validateModelAnswer,
 } from "../validation/index.js";
 import { CategoryService } from "./category.service.js";
+import { ImageStorageService } from "./image-storage.service.js";
 import { SubCategoryService } from "./subcategory.service.js";
 
 export class QuestionsService {
@@ -23,23 +24,37 @@ export class QuestionsService {
     private readonly questionsRepository: QuestionsRepository,
     private readonly categoryService: CategoryService,
     private readonly subcategoryService: SubCategoryService,
+    private readonly imageStorage: ImageStorageService,
   ) {}
 
   createMcq(input: ICreateMcqQuestion): IMcqQuestion | undefined {
-    console.log("in service");
+    const imageURL = input.headerImageUrl
+      ? this.imageStorage.saveImage(input.headerImageUrl)
+      : undefined;
+
     const { choices, ...base } = input;
     validateChoices(choices);
     validateBaseQuestion(base, this.categoryService, this.subcategoryService);
 
-    return this.questionsRepository.createMcq(input);
+    return this.questionsRepository.createMcq({
+      ...input,
+      headerImageUrl: imageURL,
+    });
   }
 
   createEssay(input: ICreateEssayQuestion): IEssayQuestion {
+    const imageURL = input.headerImageUrl
+      ? this.imageStorage.saveImage(input.headerImageUrl)
+      : undefined;
+
     const { modelAnswer, ...base } = input;
     validateModelAnswer(modelAnswer);
     validateBaseQuestion(base, this.categoryService, this.subcategoryService);
 
-    return this.questionsRepository.createEssay(input);
+    return this.questionsRepository.createEssay({
+      ...input,
+      headerImageUrl: imageURL,
+    });
   }
 
   findById(id: number): IQuestions | undefined {
@@ -67,14 +82,45 @@ export class QuestionsService {
   }
 
   updateMcq(updatedQuestion: IMcqQuestion): IMcqQuestion {
-    return this.questionsRepository.updateMcq(updatedQuestion);
+    const imageURL = updatedQuestion.headerImageUrl
+      ? this.imageStorage.saveImage(updatedQuestion.headerImageUrl)
+      : undefined;
+    return this.questionsRepository.updateMcq({
+      ...updatedQuestion,
+      headerImageUrl: imageURL,
+    });
   }
 
   updateEssay(updatedQuestion: IEssayQuestion): IEssayQuestion {
-    return this.questionsRepository.updateEssay(updatedQuestion);
+    const existing = this.questionsRepository.findById(updatedQuestion._id);
+    if (!existing) throw new Error(`Question not found`);
+    let headerImageUrl = existing.headerImageUrl;
+
+    // if updated header image
+    if (
+      updatedQuestion.headerImageUrl &&
+      updatedQuestion.headerImageUrl !== headerImageUrl
+    ) {
+      this.imageStorage.deleteImage(existing.headerImageUrl);
+      headerImageUrl = this.imageStorage.saveImage(
+        updatedQuestion.headerImageUrl,
+      );
+    } else if (!updatedQuestion.headerImageUrl && headerImageUrl) {
+      this.imageStorage.deleteImage(existing.headerImageUrl);
+      headerImageUrl = undefined;
+    }
+
+    return this.questionsRepository.updateEssay({
+      ...updatedQuestion,
+      headerImageUrl: headerImageUrl,
+    });
   }
 
   delete(id: number): void {
+    const existing = this.questionsRepository.findById(id);
+    if (existing) {
+      this.imageStorage.deleteImage(existing.headerImageUrl);
+    }
     return this.questionsRepository.delete(id);
   }
 

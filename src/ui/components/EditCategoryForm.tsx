@@ -77,7 +77,6 @@ const EditCategoryForm = ({ category, subcategories, setEditMode }: IProps) => {
           fontSize: "16px",
         },
       });
-      console.log(error.message);
     },
   });
 
@@ -85,8 +84,6 @@ const EditCategoryForm = ({ category, subcategories, setEditMode }: IProps) => {
   const onSubmit = (data: CategoryFormValues) => {
     setEditCategoryName(false);
     updateCategory.mutate({ ...category, name: data.name });
-
-    console.log(data);
   };
 
   const addSubcategory = useMutation({
@@ -114,7 +111,6 @@ const EditCategoryForm = ({ category, subcategories, setEditMode }: IProps) => {
 
   const onAddSubmit = (data: SubcategoryFormValues) => {
     addSubcategory.mutate({ name: data.name, categoryId: category._id });
-    console.log(data);
   };
 
   const deleteCategory = useMutation({

@@ -6,6 +6,7 @@ import {
   IMcqQuestion,
   ISubCategory,
 } from "@/shared/interfaces";
+import { webUtils } from "electron";
 
 const { contextBridge, ipcRenderer } = require("electron");
 
@@ -53,6 +54,9 @@ contextBridge.exposeInMainWorld("electron", {
     getTotalQuestionsPerCategory: () => {
       return ipcRenderer.invoke("question:findTotalQuestionsPerCategory");
     },
+  },
+  image: {
+    getPathForFile: (file: File): string => webUtils.getPathForFile(file),
   },
 
   category: {

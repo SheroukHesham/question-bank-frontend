@@ -9,6 +9,7 @@ import { Button } from "./ui/button";
 import { useFetch } from "../hooks/custom";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { getQuestionImageSrc } from "../lib/image-url";
 
 interface IProps {
   idx: number;
@@ -102,7 +103,6 @@ const QuestionCard = ({
       return <span className="font-semibold ">{question.modelAnswer}</span>;
     }
   };
-
   return (
     <div
       className="flex flex-col gap-y-7 bg-card text-card-foreground p-5 rounded-md"
@@ -141,12 +141,12 @@ const QuestionCard = ({
 
       {size === "default" ? (
         <>
-          {/* //todo:fix header image storage and display pipeline */}
-          {question.headerImageUrl && (
-            <div className="w-full flex  justify-center  ">
+          {getQuestionImageSrc(question.headerImageUrl) && (
+            <div className="w-full flex  max-h-52 justify-center  ">
               <img
-                src={question.headerImageUrl}
-                className="object-cover aspect-auto"
+                src={getQuestionImageSrc(question.headerImageUrl)}
+                className="object-contain aspect-auto"
+                alt={question.header}
               />
             </div>
           )}

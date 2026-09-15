@@ -189,7 +189,7 @@ export class QuestionsRepository {
       .prepare<
         [number],
         QuestionRow
-      >("SELECT * FROM questions WHERE category_id = ?")
+      >("SELECT * FROM questions WHERE category_id = ? ORDER BY created_at DESC;")
       .all(categoryId);
 
     const result: IQuestions[] = [];
@@ -269,7 +269,6 @@ export class QuestionsRepository {
 
   /** Cascades to mcq_key/mcq_distractors/essay_details automatically via ON DELETE CASCADE. */
   delete(id: number): void {
-    console.log(id);
     const result = this.db
       .prepare("DELETE FROM questions WHERE _id = ?")
       .run(id);

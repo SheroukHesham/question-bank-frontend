@@ -10,7 +10,6 @@ interface IProps {
 
 const CategoryCards = ({ categoriesDetails }: IProps) => {
   const navigate = useNavigate();
-  console.log(categoriesDetails);
 
   return (
     <>

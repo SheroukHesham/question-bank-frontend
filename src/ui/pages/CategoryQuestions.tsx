@@ -30,7 +30,6 @@ const CategoryQuestions = () => {
     queryFn: () =>
       window.electron.subcategory.findSubcategoryByCategoryId(categoryId),
   });
-  console.log(subcategories);
   const { data: allQuestions } = useFetch({
     queryKey: ["questions", "byCategory"],
     queryFn: () => window.electron.question.findByCategoryId(categoryId),

@@ -1,5 +1,6 @@
-import { app, BrowserWindow, screen } from "electron";
+import { app, BrowserWindow, protocol, screen } from "electron";
 import path from "path";
+import fs from "fs";
 import { isDev } from "./utils.js";
 import { getPreloadPath } from "./pathResolver.js";
 import { getDb } from "./database/connection.js";
@@ -12,6 +13,8 @@ import { registerCategoryIPC } from "./ipc/category.ipc.js";
 import { SubcategoryRepository } from "./repositories/subcategory.repository.js";
 import { SubCategoryService } from "./services/subcategory.service.js";
 import { registerSubcategoryIPC } from "./ipc/subcategory.ipc.js";
+import { ImageStorageService } from "./services/image-storage.service.js";
+import { registerImageIPC } from "./ipc/image.ipc.js";
 
 app.whenReady().then(() => {
   const db = getDb();
@@ -27,16 +30,30 @@ app.whenReady().then(() => {
     subcategoryRepository,
     categoryService,
   );
+  const imageStorageService = new ImageStorageService();
   const questionsService = new QuestionsService(
     questionsRepository,
     categoryService,
     subcategoryService,
+    imageStorageService,
   );
 
   // 4. Register IPC handlers
   registerQuestionIPC(questionsService);
   registerCategoryIPC(categoryService);
   registerSubcategoryIPC(subcategoryService);
+  registerImageIPC(imageStorageService);
+
+  // image handler protocol
+  protocol.handle("app-image", (request) => {
+    const filename = request.url.replace("app-image://", "");
+    const filePath = imageStorageService.resolveImagePath(filename);
+    if (!fs.existsSync(filePath)) {
+      return new Response("Not found", { status: 404 });
+    }
+    const buffer = fs.readFileSync(filePath);
+    return new Response(buffer);
+  });
 
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
   const mainWindow = new BrowserWindow({

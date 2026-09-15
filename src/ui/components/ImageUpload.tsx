@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Input } from "./ui/input";
 import { Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
@@ -6,40 +6,23 @@ import { Button } from "./ui/button";
 interface IProps {
   onFileSelected: (file: File) => void;
   onClear: () => void;
-  image?: string;
+  previewURL?: string | null;
 }
 
 export default function ImageUpload({
   onFileSelected,
   onClear,
-  image,
+  previewURL,
 }: IProps) {
-  const [localPreview, setLocalPreview] = useState<string | null>(null);
-  const [cleared, setCleared] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Derived, not synced: a locally picked file always wins; otherwise fall back
-  // to the existing image, unless the user explicitly cleared it.
-  const preview = localPreview ?? (cleared ? null : (image ?? null));
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    setLocalPreview((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return URL.createObjectURL(file);
-    });
-    setCleared(false);
     onFileSelected(file);
   };
 
   const handleDelete = () => {
-    setLocalPreview((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return null;
-    });
-    setCleared(true);
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -47,22 +30,22 @@ export default function ImageUpload({
   };
 
   return (
-    <div className="flex gap-5 items-center">
+    <div className="flex gap-5 items-center justify-between">
       <Input
         ref={inputRef}
         type="file"
         accept="image/*"
-        className="h-22 text-muted w-xl"
+        className="h-22 text-muted max-w-sm"
         onChange={handleChange}
       />
-      {preview ? (
-        <div className="flex flex-col gap-y-2">
+      {previewURL && (
+        <div className="flex gap-5 w-auto items-center">
           <img
-            src={preview}
+            src={previewURL}
             alt="Header preview"
-            className="h-52 w-auto rounded-md object-cover"
+            className="rounded-md min-w-sm max-w-lg object-contain h-fit max-h-52 shadow-lg"
           />
-          <div className="flex justify-end">
+          <div className="">
             <Button
               variant="destructive"
               size="icon-lg"
@@ -72,10 +55,6 @@ export default function ImageUpload({
               <Trash2 />
             </Button>
           </div>
-        </div>
-      ) : (
-        <div className="size-52 flex items-center justify-center text-muted/50 border rounded-md bg-white">
-          No image selected
         </div>
       )}
     </div>

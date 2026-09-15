@@ -37,7 +37,7 @@ export const questionSchema = yup.object({
     then: (schema) => schema.required("Model Answer is required"),
     otherwise: (schema) => schema.strip(),
   }),
-  headerImageUrl: yup.string(),
+  headerImageFile: yup.mixed(),
   choices: yup
     .array()
     .of(choiceSchema)

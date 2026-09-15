@@ -27,6 +27,7 @@ import type { TQuestionDifficulty, TQuestionTypes } from "@/shared/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useFetch } from "../hooks/custom";
 import { Textarea } from "./ui/textarea";
+import { getQuestionImageSrc } from "../lib/image-url";
 
 interface IProps {
   type?: "create" | "edit";
@@ -48,12 +49,18 @@ const QuestionForm = ({
 }: IProps) => {
   const [mcq, setMcq] = useState(true);
   const [open, setOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    type === "edit" && questionToEdit?.headerImageUrl
+      ? (getQuestionImageSrc(questionToEdit.headerImageUrl) as string)
+      : null,
+  );
 
   const queryClient = useQueryClient();
 
   const {
     setValue,
     register,
+    unregister,
     handleSubmit,
     reset,
     formState: { errors },
@@ -77,6 +84,12 @@ const QuestionForm = ({
       });
     }
   }, [defaultCategory, setValue]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   const { data: groupedCategories } = useFetch({
     queryKey: ["categories", "getGroupedSubCat"],
@@ -146,10 +159,22 @@ const QuestionForm = ({
   });
 
   const onSubmit = (data: QuestionFormValues) => {
+    const imageSourcePath = data.headerImageFile
+      ? window.electron.image.getPathForFile(data.headerImageFile)
+      : undefined;
+
     const payload: IQuestions =
       data.type === "essay"
-        ? ({ ...data, modelAnswer: data.modelAnswer! } as IEssayQuestion)
-        : ({ ...data, choices: data.choices! } as IMcqQuestion);
+        ? ({
+            ...data,
+            modelAnswer: data.modelAnswer!,
+            headerImageUrl: imageSourcePath,
+          } as IEssayQuestion)
+        : ({
+            ...data,
+            choices: data.choices!,
+            headerImageUrl: imageSourcePath,
+          } as IMcqQuestion);
 
     if (type === "create") {
       if (data.type === "mcq") {
@@ -217,7 +242,6 @@ const QuestionForm = ({
       );
     }
   };
-
   return (
     <Modal
       open={open}
@@ -342,21 +366,26 @@ const QuestionForm = ({
           <FieldLabel>Header Image (Optional)</FieldLabel>
           {type === "create" ? (
             <ImageUpload
+              previewURL={previewUrl}
               onFileSelected={(file) => {
-                setValue("headerImageUrl", file.name);
+                setValue("headerImageFile", file);
+                setPreviewUrl(URL.createObjectURL(file));
               }}
               onClear={() => {
-                setValue("headerImageUrl", "", { shouldValidate: true });
+                unregister("headerImageFile");
+                setPreviewUrl(null);
               }}
             />
           ) : (
             <ImageUpload
-              image={questionToEdit?.headerImageUrl}
+              previewURL={previewUrl}
               onFileSelected={(file) => {
-                setValue("headerImageUrl", file.name);
+                setValue("headerImageFile", file);
+                setPreviewUrl(URL.createObjectURL(file));
               }}
               onClear={() => {
-                setValue("headerImageUrl", "", { shouldValidate: true });
+                unregister("headerImageFile");
+                setPreviewUrl(null);
               }}
             />
           )}
