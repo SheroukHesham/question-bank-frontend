@@ -13,9 +13,9 @@ import {
 import { NumberSelectorInput } from "./NumberSelectorInput";
 import { v4 as uuid } from "uuid";
 import { SingleSelect } from "./SingleSelect";
-import { MOCK_CATEGORIES, MOCK_SUB_CATEGORIES } from "@/ui/mock";
 import { SelectItem } from "./ui/select";
 import type { IQuestions } from "@/shared/interfaces";
+import { useFetch } from "../hooks/custom";
 
 const defaultCriteria: ICriteria = {
   _id: "",
@@ -44,6 +44,15 @@ const GenerateExamModal = ({ addedQuestions, totalQuestions }: IProps) => {
     resolver: yupResolver(generateQuestionsSchema),
   });
 
+  const { data: categories } = useFetch({
+    queryKey: ["categories", "findAllDetails"],
+    queryFn: () => window.electron.category.findAllCategoriesDetails(),
+  });
+  const { data: subcategories } = useFetch({
+    queryKey: ["subcategories", "findAllDetails"],
+    queryFn: () => window.electron.subcategory.findAllSubcategories(),
+  });
+
   const onValueChange = (
     criteria: ICriteria,
     value: string | number,
@@ -70,17 +79,18 @@ const GenerateExamModal = ({ addedQuestions, totalQuestions }: IProps) => {
 
   const renderSubFilters = (categoryId: string | undefined) => {
     if (categoryId) {
-      const filteredSub = MOCK_SUB_CATEGORIES.filter(
-        (item) => item.categoryId === categoryId,
+      const filteredSub = subcategories?.filter(
+        (item) => item.categoryId,
+        toString() === categoryId,
       );
-      return filteredSub.map((sub) => (
-        <SelectItem key={sub._id} value={sub._id}>
+      return filteredSub?.map((sub) => (
+        <SelectItem key={sub._id} value={sub._id.toString()}>
           {sub.name}
         </SelectItem>
       ));
     }
-    return MOCK_SUB_CATEGORIES.map((sub) => (
-      <SelectItem key={sub._id} value={sub._id}>
+    return subcategories?.map((sub) => (
+      <SelectItem key={sub._id} value={sub._id.toString()}>
         {sub.name}
       </SelectItem>
     ));
@@ -116,14 +126,14 @@ const GenerateExamModal = ({ addedQuestions, totalQuestions }: IProps) => {
               onValueChange(criteria, value, "categoryId");
             }}
           >
-            {MOCK_CATEGORIES.map((category) => {
+            {categories?.map((category) => {
               return (
                 <SelectItem
-                  key={category._id}
+                  key={category.categoryId}
                   className="capitalize"
-                  value={category._id}
+                  value={category.categoryId.toString()}
                 >
-                  {category.name}
+                  {category.categoryName}
                 </SelectItem>
               );
             })}

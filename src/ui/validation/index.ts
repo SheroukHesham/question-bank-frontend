@@ -85,6 +85,7 @@ export const categorySchema = yup.object({
 export type CategoryFormValues = yup.InferType<typeof categorySchema>;
 
 export const examSchema = yup.object({
+  title: yup.string().required("Exam title is required"),
   totalQuestions: yup
     .number()
     .min(1, "Exam must have at least 1 question.")
@@ -92,6 +93,7 @@ export const examSchema = yup.object({
 
   addedQuestions: yup
     .number()
+    .min(1, "You must add at least one question")
     .required()
     .test(
       "matches-total",

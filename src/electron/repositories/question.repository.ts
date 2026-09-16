@@ -1,15 +1,17 @@
 import type Database from "better-sqlite3";
-import type { QuestionRow } from "../interfaces/index.js";
+import type { FilteredQuestionRow, QuestionRow } from "../interfaces/index.js";
 import {
   ICategory,
   ICreateEssayQuestion,
   ICreateMcqQuestion,
   IEssayQuestion,
+  IFilteredQuestion,
   IGroupedQuestionCategory,
   IMcqQuestion,
   IQuestionCountByCategory,
   IQuestions,
 } from "@/shared/interfaces/index.js";
+import { TQuestionTypes } from "@/shared/types/index.js";
 
 export type GroupedQuestions = Record<string, Record<string, IQuestions[]>>;
 
@@ -200,18 +202,62 @@ export class QuestionsRepository {
     return result;
   }
 
-  /** Used internally by the exam generator: raw matches for one (category, subcategory, difficulty) cell. */
   findByFilter(
-    categoryId: number,
-    subcategoryId: number,
-    difficulty: number,
-  ): QuestionRow[] {
-    return this.db
-      .prepare<[number, number, number], QuestionRow>(
-        `SELECT * FROM questions
-         WHERE category_id = ? AND subcategory_id = ? AND difficulty = ?`,
-      )
-      .all(categoryId, subcategoryId, difficulty);
+    questionType?: TQuestionTypes,
+    categoryId?: number,
+    subcategoryId?: number,
+    difficulty?: number,
+  ): IFilteredQuestion[] {
+    let baseSQL = `
+    SELECT
+      q.*,
+      c.name AS category_name,
+      s.name AS subcategory_name
+    FROM questions q
+    JOIN categories c
+      ON q.category_id = c._id
+    JOIN subcategories s
+      ON q.subcategory_id = s._id
+  `;
+
+    const conditions: string[] = [];
+    const params: (TQuestionTypes | number)[] = [];
+
+    if (questionType) {
+      conditions.push("q.type = ?");
+      params.push(questionType);
+    }
+
+    if (categoryId) {
+      conditions.push("q.category_id = ?");
+      params.push(categoryId);
+    }
+
+    if (subcategoryId) {
+      conditions.push("q.subcategory_id = ?");
+      params.push(subcategoryId);
+    }
+
+    if (difficulty) {
+      conditions.push("q.difficulty = ?");
+      params.push(difficulty);
+    }
+
+    if (conditions.length > 0) {
+      baseSQL += ` WHERE ${conditions.join(" AND ")}`;
+    }
+
+    baseSQL += " ORDER BY q.created_at DESC";
+
+    const rows = this.db
+      .prepare<unknown[], FilteredQuestionRow>(baseSQL)
+      .all(...params);
+
+    return rows.map((row) => ({
+      ...this.attachDetails(row),
+      categoryName: row.category_name,
+      subcategoryName: row.subcategory_name,
+    }));
   }
 
   updateMcq(updatedQuestion: IMcqQuestion): IMcqQuestion {

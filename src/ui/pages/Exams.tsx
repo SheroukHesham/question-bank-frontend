@@ -44,6 +44,7 @@ const Exams = () => {
             </div>
           </HoverCardContent>
         </HoverCard>
+        {/* //todo: display the exams in DB */}
       </div>
     </div>
   );

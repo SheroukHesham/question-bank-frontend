@@ -4,7 +4,7 @@ import { isMcqQuestion } from "@/ui/functions";
 import { KeyRound, Trash2, X } from "lucide-react";
 import { Alert } from "./Alert";
 import QuestionForm from "./QuestionForm";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Button } from "./ui/button";
 import { useFetch } from "../hooks/custom";
 import { toast } from "sonner";
@@ -18,6 +18,7 @@ interface IProps {
   size?: "default" | "sm";
   onClick?: (question?: IQuestions) => void;
   onClose?: () => void;
+  closeButton?: ReactNode;
 }
 
 const QuestionCard = ({
@@ -27,6 +28,7 @@ const QuestionCard = ({
   size = "default",
   onClick,
   onClose,
+  closeButton,
 }: IProps) => {
   const { header, difficulty, subcategoryId } = question;
   const [questionToEdit, setQuestionToEdit] = useState(question);
@@ -57,7 +59,6 @@ const QuestionCard = ({
     },
   });
 
-  //todo: replace by api call to delete question
   const OnDelete = () => {
     deleteQuestionMutation.mutate(question._id);
   };
@@ -100,12 +101,16 @@ const QuestionCard = ({
         </div>
       );
     } else {
-      return <span className="font-semibold ">{question.modelAnswer}</span>;
+      return (
+        <span className="font-semibold line-clamp-3">
+          {question.modelAnswer}
+        </span>
+      );
     }
   };
   return (
     <div
-      className="flex flex-col gap-y-7 bg-card text-card-foreground p-5 rounded-md"
+      className="flex flex-col gap-y-7 bg-card text-card-foreground p-5 rounded-md h-full"
       onClick={() => {
         if (onClick) onClick();
       }}
@@ -121,7 +126,7 @@ const QuestionCard = ({
             </span>
           </div>
           <span
-            className={`text-lg rounded-full  font-semibold flex items-center justify-center px-5 py-2 capitalize ${difficulty === "difficult" ? "bg-destructive/10 text-destructive" : difficulty === "moderate" ? "bg-warning/10 text-warning-foreground" : "bg-success/10 text-success-foreground"}`}
+            className={`text-lg rounded-full  font-semibold flex items-center justify-center px-5 py-2  mr-2 capitalize ${difficulty === "difficult" ? "bg-destructive/10 text-destructive" : difficulty === "moderate" ? "bg-warning/10 text-warning-foreground" : "bg-success/10 text-success-foreground"}`}
           >
             {difficulty}
           </span>
@@ -129,12 +134,12 @@ const QuestionCard = ({
 
         {onClose && (
           <Button
-            variant={"ghost"}
+            variant={closeButton ? "destructive" : "ghost"}
             size={"icon"}
             className=" flex justify-center"
             onClick={onClose}
           >
-            <X />
+            {closeButton ?? <X />}
           </Button>
         )}
       </div>
@@ -154,22 +159,22 @@ const QuestionCard = ({
           <div className="mx-10">{renderAnswer()}</div>
         </>
       ) : (
-        <div className="flex w-full justify-between gap-2">
-          <div className={`${question.headerImageUrl ? "w-[50%]" : "w-full"}`}>
-            {renderAnswer()}
-          </div>
-          {question.headerImageUrl && (
-            <div className="w-[50%] object-contain flex  justify-center  ">
+        <div className="flex flex-col w-full justify-between gap-2 -mt-5">
+          {getQuestionImageSrc(question.headerImageUrl) && (
+            <div className="w-full object-contain flex  justify-center max-h-42 ">
               <img
-                src={question.headerImageUrl}
-                className="object-contain aspect-auto"
+                src={getQuestionImageSrc(question.headerImageUrl)}
+                className="object-contain aspect-auto rounded-md shadow"
               />
             </div>
           )}
+          <div className={`${question.headerImageUrl ? "w-[50%]" : "w-full"}`}>
+            {renderAnswer()}
+          </div>
         </div>
       )}
 
-      <div className="w-full flex justify-between pl-10">
+      <div className="w-full flex justify-between h-full items-end  ">
         <div className="flex gap-2 items-center">
           <span className="text-sm font-semibold">Specialization:</span>
           <Badge variant={"primary-light"} radius={"full"} size={"xl"}>

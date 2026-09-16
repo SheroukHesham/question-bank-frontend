@@ -1,18 +1,14 @@
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { Modal } from "./Modal";
 import { Button } from "./ui/button";
 import type { IQuestions } from "@/shared/interfaces";
 import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import QuestionCard from "./QuestionCard";
-import {
-  MOCK_CATEGORIES,
-  MOCK_QUESTIONS,
-  MOCK_SUB_CATEGORIES,
-} from "@/ui/mock";
-import { DialogClose } from "./ui/dialog";
 import type { TQuestionDifficulty, TQuestionTypes } from "@/shared/types";
 import { SingleSelect } from "./SingleSelect";
 import { SelectItem } from "./ui/select";
+import { useFetch } from "../hooks/custom";
+import { Input } from "./ui/input";
 
 interface IProps {
   examType: TQuestionTypes;
@@ -20,11 +16,15 @@ interface IProps {
   setAddedQuestions: Dispatch<SetStateAction<IQuestions[]>>;
 }
 
+//todo: all fetch statements in redux and components select values
+
 const ExamAddFromBankModal = ({
   addedQuestions,
   setAddedQuestions,
   examType,
 }: IProps) => {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const [selectedQuestions, setSelectedQuestions] = useState<IQuestions[]>([]);
   const [difficultyFilter, setDifficultyFilter] =
     useState<TQuestionDifficulty | null>(null);
@@ -33,22 +33,31 @@ const ExamAddFromBankModal = ({
   >(null);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
 
-  //todo: questions from store
-  const mcqQuestions = MOCK_QUESTIONS.filter(
-    (question) => question.type === examType,
-  );
+  const { data: questions } = useFetch({
+    queryKey: ["questions", "filtered"],
+    queryFn: () => window.electron.question.filterQuestions(examType),
+  });
+  const { data: categories } = useFetch({
+    queryKey: ["categories", "findAllDetails"],
+    queryFn: () => window.electron.category.findAllCategoriesDetails(),
+  });
+  const { data: subcategories } = useFetch({
+    queryKey: ["subcategories", "findAllDetails"],
+    queryFn: () => window.electron.subcategory.findAllSubcategories(),
+  });
 
   const filteredQuestions = useMemo(() => {
-    return (mcqQuestions ?? []).filter((item) => {
+    return (questions ?? []).filter((item) => {
       const matchesDifficulty =
         difficultyFilter === null || item.difficulty === difficultyFilter;
       const matchesSpecialization =
-        !specializationFilter || item.subcategoryId === specializationFilter;
+        !specializationFilter ||
+        item.subcategoryId.toString() === specializationFilter;
       const matchesCategory =
-        !categoryFilter || item.categoryId === categoryFilter;
+        !categoryFilter || item.categoryId.toString() === categoryFilter;
       return matchesDifficulty && matchesSpecialization && matchesCategory;
     });
-  }, [mcqQuestions, difficultyFilter, specializationFilter, categoryFilter]);
+  }, [questions, difficultyFilter, specializationFilter, categoryFilter]);
 
   const toggleSelected = (question: IQuestions) => {
     if (selectedQuestions.includes(question)) {
@@ -64,6 +73,8 @@ const ExamAddFromBankModal = ({
   };
 
   const onAddFromBankSubmit = () => {
+    setOpen(false);
+    onClose();
     selectedQuestions.map((question) => {
       if (addedQuestions.includes(question)) return;
       else {
@@ -74,21 +85,21 @@ const ExamAddFromBankModal = ({
 
   const renderSubFilters = () => {
     if (categoryFilter) {
-      const filteredSub = MOCK_SUB_CATEGORIES.filter(
-        (item) => item.categoryId === categoryFilter,
+      const filteredSub = subcategories?.filter(
+        (item) => item.categoryId.toString() === categoryFilter,
       );
 
-      return filteredSub.map((sub) => {
+      return filteredSub?.map((sub) => {
         return (
-          <SelectItem key={sub._id} value={sub._id}>
+          <SelectItem key={sub._id} value={sub._id.toString()}>
             {sub.name}
           </SelectItem>
         );
       });
     } else {
-      return MOCK_SUB_CATEGORIES.map((sub) => {
+      return subcategories?.map((sub) => {
         return (
-          <SelectItem key={sub._id} value={sub._id}>
+          <SelectItem key={sub._id} value={sub._id.toString()}>
             {sub.name}
           </SelectItem>
         );
@@ -96,52 +107,100 @@ const ExamAddFromBankModal = ({
     }
   };
 
-  const renderQuestions = filteredQuestions.map((question, idx) => {
-    const isSelected = selectedQuestions.includes(question);
-    return (
-      <div
-        key={idx}
-        className={`rounded-md ${isSelected ? "border-2 border-primary" : ""}`}
-      >
-        <QuestionCard
-          idx={idx}
-          question={question}
-          editable={false}
-          size="sm"
-          onClick={() => toggleSelected(question)}
-        />
-      </div>
-    );
-  });
+  const renderQuestions = filteredQuestions
+    ?.filter((question) => {
+      return search === ""
+        ? question
+        : question.header.toLowerCase().includes(search.toLowerCase());
+    })
+    .map((question, idx) => {
+      const isSelected = selectedQuestions.includes(question);
+      return (
+        <div
+          key={idx}
+          className={`rounded-md ${isSelected ? "border-2 border-primary" : ""}`}
+        >
+          <QuestionCard
+            idx={idx}
+            question={question}
+            editable={false}
+            size="sm"
+            onClick={() => toggleSelected(question)}
+          />
+        </div>
+      );
+    });
 
   return (
     <Modal
-      title="Add Question"
+      title="Add From Question Bank"
       triggerText={"Add From Question Bank"}
       triggerIcon={<Plus />}
       saveButton={false}
       onClose={onClose}
       buttonVariant={"default"}
+      open={open}
+      setOpen={setOpen}
     >
-      <DialogClose asChild>
-        <div className=" sticky top-0 w-full flex justify-end  ">
-          <div className="bg-popover ">
-            <Button
-              type="button"
-              onClick={onAddFromBankSubmit}
-              disabled={selectedQuestions?.length === 0}
-              className="w-lg"
-            >
-              Add
-              {selectedQuestions?.length > 0
-                ? ` (${selectedQuestions.length})`
-                : ""}
-            </Button>
-          </div>
+      <div className=" sticky top-0 w-full flex justify-end  ">
+        <div className="bg-popover ">
+          <Button
+            type="button"
+            onClick={onAddFromBankSubmit}
+            disabled={selectedQuestions?.length === 0}
+            className="sm:w-lg disabled:pointer-events-none"
+          >
+            Add
+            {selectedQuestions?.length > 0 && ` (${selectedQuestions.length})`}
+          </Button>
         </div>
-      </DialogClose>
+      </div>
 
-      <div className="w-full flex ">
+      <div className="max-w-3xl flex items-center border-popover-border rounded-lg bg-white shadow-lg in-focus:shadow">
+        <Input
+          className="bg-transparent border-none shadow-none focus-visible:shadow-none"
+          autoFocus={false!}
+          placeholder="Search Question Bank"
+          value={search}
+          onChange={({ target }) => {
+            setSearch(target.value);
+          }}
+        />
+        <div className="pr-3">
+          <Search color="gray" />
+        </div>
+      </div>
+
+      <div className="w-full flex md:flex-row flex-col gap-y-2">
+        <SingleSelect
+          placeholder="Topic"
+          onValueChange={(value) =>
+            setCategoryFilter(value === "all" ? null : value)
+          }
+        >
+          <SelectItem value="all">All</SelectItem>
+          {categories?.map((category) => {
+            return (
+              <SelectItem
+                key={category.categoryId}
+                value={category.categoryId.toString()}
+              >
+                {category.categoryName}
+              </SelectItem>
+            );
+          })}
+        </SingleSelect>
+
+        <SingleSelect
+          placeholder="Subtopic"
+          onValueChange={(value) =>
+            setSpecializationFilter(value === "all" ? null : value)
+          }
+        >
+          <SelectItem value="all">All</SelectItem>
+          {renderSubFilters()}
+        </SingleSelect>
+
         <SingleSelect
           placeholder="Question Difficulty"
           onValueChange={(value) =>
@@ -155,34 +214,11 @@ const ExamAddFromBankModal = ({
           <SelectItem value="moderate">Moderate</SelectItem>
           <SelectItem value="difficult">Difficult</SelectItem>
         </SingleSelect>
-
-        <SingleSelect
-          placeholder="Topic"
-          onValueChange={(value) =>
-            setCategoryFilter(value === "all" ? null : value)
-          }
-        >
-          <SelectItem value="all">All</SelectItem>
-          {MOCK_CATEGORIES.map((category) => {
-            return (
-              <SelectItem key={category._id} value={category._id}>
-                {category.name}
-              </SelectItem>
-            );
-          })}
-        </SingleSelect>
-        <SingleSelect
-          placeholder="Specialization"
-          onValueChange={(value) =>
-            setSpecializationFilter(value === "all" ? null : value)
-          }
-        >
-          <SelectItem value="all">All</SelectItem>
-          {renderSubFilters()}
-        </SingleSelect>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">{renderQuestions}</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {renderQuestions}
+      </div>
     </Modal>
   );
 };

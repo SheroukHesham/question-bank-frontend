@@ -6,6 +6,7 @@ import {
   IMcqQuestion,
   ISubCategory,
 } from "@/shared/interfaces";
+import { TQuestionTypes } from "@/shared/types";
 import { webUtils } from "electron";
 
 const { contextBridge, ipcRenderer } = require("electron");
@@ -28,12 +29,14 @@ contextBridge.exposeInMainWorld("electron", {
       return ipcRenderer.invoke("question:findByCategoryId", categoryId);
     },
     filterQuestions: (
-      categoryId: number,
-      subcategoryId: number,
-      difficulty: number,
+      questionType?: TQuestionTypes,
+      categoryId?: number,
+      subcategoryId?: number,
+      difficulty?: number,
     ) => {
       return ipcRenderer.invoke(
         "question:findByFilter",
+        questionType,
         categoryId,
         subcategoryId,
         difficulty,

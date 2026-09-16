@@ -3,13 +3,14 @@ import type {
   ICreateEssayQuestion,
   ICreateMcqQuestion,
   IEssayQuestion,
+  IFilteredQuestion,
   IGroupedQuestionCategory,
   IMcqQuestion,
   IQuestionCountByCategory,
   IQuestions,
 } from "../../shared/interfaces/index.js";
 import { QuestionsService } from "../services/question.service.js";
-import { QuestionRow } from "../interfaces/index.js";
+import { TQuestionTypes } from "@/shared/types/index.js";
 
 export function registerQuestionIPC(questionsService: QuestionsService) {
   ipcMain.handle(
@@ -49,11 +50,13 @@ export function registerQuestionIPC(questionsService: QuestionsService) {
     "question:findByFilter",
     async (
       _event,
-      categoryId: number,
-      subcategoryId: number,
-      difficulty: number,
-    ): Promise<QuestionRow[]> => {
+      questionType?: TQuestionTypes,
+      categoryId?: number,
+      subcategoryId?: number,
+      difficulty?: number,
+    ): Promise<IFilteredQuestion[]> => {
       return questionsService.findByFilter(
+        questionType,
         categoryId,
         subcategoryId,
         difficulty,

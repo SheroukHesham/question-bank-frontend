@@ -1,14 +1,14 @@
+import { TQuestionTypes } from "@/shared/types/index.js";
 import type {
   ICreateEssayQuestion,
   ICreateMcqQuestion,
   IEssayQuestion,
+  IFilteredQuestion,
   IGroupedQuestionCategory,
   IMcqQuestion,
   IQuestionCountByCategory,
   IQuestions,
 } from "../../shared/interfaces/index.js";
-import { QuestionRow } from "../interfaces/index.js";
-
 import { QuestionsRepository } from "../repositories/question.repository.js";
 import {
   validateBaseQuestion,
@@ -70,11 +70,13 @@ export class QuestionsService {
   }
 
   findByFilter(
-    categoryId: number,
-    subcategoryId: number,
-    difficulty: number,
-  ): QuestionRow[] {
+    questionType?: TQuestionTypes,
+    categoryId?: number,
+    subcategoryId?: number,
+    difficulty?: number,
+  ): IFilteredQuestion[] {
     return this.questionsRepository.findByFilter(
+      questionType,
       categoryId,
       subcategoryId,
       difficulty,

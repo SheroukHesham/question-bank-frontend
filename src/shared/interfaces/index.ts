@@ -53,6 +53,15 @@ export interface IMcqQuestion extends IQuestionBase {
 
 export type IQuestions = IEssayQuestion | IMcqQuestion;
 
+export interface IFilteredQuestionBase {
+  categoryName: string;
+  subcategoryName: string;
+}
+
+export type IFilteredQuestion =
+  | (IEssayQuestion & IFilteredQuestionBase)
+  | (IMcqQuestion & IFilteredQuestionBase);
+
 export interface ICriteria {
   _id: string;
   numberOfQuestions: number;
@@ -85,4 +94,13 @@ export interface IGroupedCategorySubcategory {
   categoryId: number;
   subcategoryId: number;
   subcategoryName: string;
+}
+
+export interface IExam {
+  _id: number;
+  title: string;
+  totalNumberOfQuestions: number;
+  numberOfQuestionsAdded: number;
+  type: TQuestionTypes;
+  examQuestionsIds: string[];
 }

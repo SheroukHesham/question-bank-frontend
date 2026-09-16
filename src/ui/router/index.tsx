@@ -11,7 +11,7 @@ import {
 } from "react-router-dom";
 import Questions from "@/ui/pages/Questions";
 import CategoryQuestions from "@/ui/pages/CategoryQuestions";
-import CreateExam from "@/ui/pages/CreateExam";
+import ExamForm from "@/ui/pages/CreateExam";
 
 const router = createHashRouter(
   createRoutesFromElements(
@@ -23,7 +23,7 @@ const router = createHashRouter(
         <Route path="categories" element={<Categories />} />
         <Route path="category/:id" element={<CategoryQuestions />} />
         <Route path="exams" element={<Exams />} />
-        <Route path="exams/new/:type" element={<CreateExam />} />
+        <Route path="exams/new/:type" element={<ExamForm />} />
       </Route>
 
       <Route path="*" element={<PageNotFound />} />

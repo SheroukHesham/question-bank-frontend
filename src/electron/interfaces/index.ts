@@ -27,6 +27,11 @@ export interface QuestionRow {
   updated_at: string;
 }
 
+export interface FilteredQuestionRow extends QuestionRow {
+  category_name: string;
+  subcategory_name: string;
+}
+
 export interface McqKeyRow {
   question_id: number;
   correct_answer: string;

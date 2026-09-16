@@ -3,26 +3,45 @@ import GenerateExamModal from "@/ui/components/GenerateExamModal";
 import { NumberSelectorInput } from "@/ui/components/NumberSelectorInput";
 import QuestionCard from "@/ui/components/QuestionCard";
 import { Button } from "@/ui/components/ui/button";
-import type { IQuestions } from "@/shared/interfaces";
+import type { IExam, IQuestions } from "@/shared/interfaces";
 import type { TQuestionTypes } from "@/shared/types";
 import { examSchema, type ExamFormValues } from "@/ui/validation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
+import { Label } from "../components/ui/label";
+import { Input } from "../components/ui/input";
+import { Trash2 } from "lucide-react";
 
-const CreateExam = () => {
+interface IProps {
+  _formType?: "create" | "edit";
+  exam?: IExam;
+}
+
+const ExamForm = ({ _formType, exam }: IProps) => {
   const params = useParams();
   const examType = params.type as TQuestionTypes;
-  const [totalQuestions, setTotalQuestions] = useState<number>(0);
+  const [totalQuestions, setTotalQuestions] = useState<number>(
+    exam ? exam.totalNumberOfQuestions : 0,
+  );
+  //todo: if exam is passed, addedQuestions are the questions of the prop
   const [addedQuestions, setAddedQuestions] = useState<IQuestions[]>([]);
 
   const {
     setValue,
+    register,
     handleSubmit,
     formState: { errors },
   } = useForm<ExamFormValues>({
     resolver: yupResolver(examSchema),
+    defaultValues: exam
+      ? {
+          title: exam?.title,
+          addedQuestions: exam?.numberOfQuestionsAdded,
+          totalQuestions: exam?.totalNumberOfQuestions,
+        }
+      : undefined,
   });
 
   setValue("addedQuestions", addedQuestions.length);
@@ -47,7 +66,7 @@ const CreateExam = () => {
 
   return (
     <div className="w-full p-10 ">
-      <h1 className="text-4xl font-semibold capitalize">
+      <h1 className="text-4xl font-semibold capitalize ">
         {examType === "essay" ? examType : examType?.toUpperCase()} Exam
       </h1>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -68,6 +87,20 @@ const CreateExam = () => {
                   </p>
                 )}
               </div>
+            </div>
+            <div className="flex flex-col gap-y-3 mb-5">
+              <Label className="text-2xl ">Exam Title</Label>
+              <Input
+                type="text"
+                {...register("title")}
+                className="first-letter:uppercase"
+                autoFocus
+              />
+              {errors.title && (
+                <p className="text-destructive text-sm font-semibold">
+                  {errors.title.message}
+                </p>
+              )}
             </div>
             <div className="flex w-full items-center gap-5">
               <div className="flex flex-col w-full  gap-3">
@@ -114,6 +147,7 @@ const CreateExam = () => {
                   onClose={() => {
                     toggleSelected(question);
                   }}
+                  closeButton={<Trash2 />}
                 />
               );
             })}
@@ -128,4 +162,4 @@ const CreateExam = () => {
   );
 };
 
-export default CreateExam;
+export default ExamForm;

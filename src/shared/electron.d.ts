@@ -3,6 +3,7 @@ import type {
   ICategoryDetails,
   ICreateEssayQuestion,
   IEssayQuestion,
+  IFilteredQuestion,
   IGroupedCategorySubcategory,
   IGroupedQuestionCategory,
   IQuestionCountByCategory,
@@ -10,6 +11,7 @@ import type {
   ISubCategory,
 } from "./interfaces";
 import type { ICreateMcqQuestion, IMcqQuestion } from "./question";
+import type { TQuestionTypes } from "./types";
 
 export {};
 
@@ -22,10 +24,11 @@ declare global {
         findQuestionById(id: number): Promise<IQuestions>;
         findGroupedQuestions(): Promise<IGroupedQuestionCategory[]>;
         filterQuestions(
-          categoryId: number,
-          subcategoryId: number,
-          difficulty: number,
-        ): Promise<IQuestions[]>;
+          questionType?: TQuestionTypes,
+          categoryId?: number,
+          subcategoryId?: number,
+          difficulty?: number,
+        ): Promise<IFilteredQuestion[]>;
         updateMcq(updatedQuestion: IMcqQuestion): Promise<IMcqQuestion>;
         updateEssay(updatedQuestion: IEssayQuestion): Promise<IEssayQuestion>;
         deleteQuestion(id: number): Promise<void>;

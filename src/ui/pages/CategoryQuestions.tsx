@@ -96,7 +96,7 @@ const CategoryQuestions = () => {
               </Button>
             )}
           </div>
-          <div className=" w-xl justify-between items-center mt-5">
+          <div className=" w-xl justify-between items-center mt-5 mb-5">
             <div className="flex  w-lg justify-between items-center">
               <div className="flex gap-3 items-center ">
                 {subcategories && subcategories?.length > 0 ? (
