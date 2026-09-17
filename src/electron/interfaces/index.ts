@@ -51,16 +51,19 @@ export interface EssayDetailRow {
 export type ExamStatus = "draft" | "final";
 
 export interface ExamRow {
-  id: number;
+  _id: number;
   title: string;
-  target_question_count: number;
+  totalNumberOfQuestions: number;
+  numberOfQuestionsAdded: number;
+  type: TQuestionTypes;
   status: ExamStatus;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ExamQuestionRow {
   id: number;
-  exam_id: number;
-  question_id: number;
+  examId: number;
+  questionId: number;
+  position: number;
 }

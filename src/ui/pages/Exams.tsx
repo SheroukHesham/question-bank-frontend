@@ -9,6 +9,7 @@ import { Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useFetch } from "../hooks/custom";
 
 const Exams = () => {
   const navigate = useNavigate();
@@ -16,6 +17,30 @@ const Exams = () => {
   useEffect(() => {
     dispatch(changeActiveTab("exams"));
   }, [dispatch]);
+
+  const { data: exams } = useFetch({
+    queryKey: ["exam", "getAll"],
+    queryFn: () => window.electron.exam.findAllExams(),
+  });
+  console.log(exams);
+  const renderExams = exams?.map((exam) => {
+    return (
+      <div
+        className="flex flex-col w-full bg-card cursor-pointer px-5 py-3 rounded-md shadow hover:shadow-lg gap-y-2"
+        onClick={() => {
+          navigate(`/exams/${exam._id}`);
+        }}
+      >
+        <span className="capitalize font-bold text-lg">[{exam.type} Exam]</span>
+        <div className="flex items-center">
+          <span className="font-bold text-xl ">{exam.title}: </span>
+          <span className="font-bold text-xl pl-1">
+            {exam.createdAt.split(" ")[0]}
+          </span>
+        </div>
+      </div>
+    );
+  });
 
   return (
     <div className="w-full p-10 ">
@@ -44,8 +69,8 @@ const Exams = () => {
             </div>
           </HoverCardContent>
         </HoverCard>
-        {/* //todo: display the exams in DB */}
       </div>
+      <div className="flex flex-col w-full mt-10 gap-5">{renderExams}</div>
     </div>
   );
 };

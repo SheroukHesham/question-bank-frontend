@@ -3,6 +3,8 @@ import {
   ICreateEssayQuestion,
   ICreateMcqQuestion,
   IEssayQuestion,
+  IExam,
+  IExamBase,
   IMcqQuestion,
   ISubCategory,
 } from "@/shared/interfaces";
@@ -114,8 +116,20 @@ contextBridge.exposeInMainWorld("electron", {
     },
   },
   exam: {
-    generateExamQuestions: (criteria: IGenerateExamInput) => {
-      return ipcRenderer.invoke("exam:generate", criteria);
+    createExam: (exam: IExamBase) => {
+      return ipcRenderer.invoke("exam:createExam", exam);
+    },
+    updateExam: (examId: number, updates: Partial<IExam>) => {
+      return ipcRenderer.invoke("exam:updateExam", examId, updates);
+    },
+    deleteExam: (examId: number) => {
+      return ipcRenderer.invoke("exam:deleteExam", examId);
+    },
+    findExamById: (examId: number) => {
+      return ipcRenderer.invoke("exam:findExamById", examId);
+    },
+    findAllExams: () => {
+      return ipcRenderer.invoke("exam:findAllExams");
     },
   },
 });

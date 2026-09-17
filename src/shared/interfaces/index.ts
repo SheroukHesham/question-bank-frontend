@@ -89,13 +89,19 @@ export interface IGroupedCategorySubcategory {
   subcategoryName: string;
 }
 
-export interface IExam {
-  _id: number;
+export interface IExamBase {
   title: string;
   totalNumberOfQuestions: number;
   numberOfQuestionsAdded: number;
   type: TQuestionTypes;
-  examQuestionsIds: number[];
+  examQuestions: { questionId: number; position: number }[];
+  status: "final" | "draft";
+}
+
+export interface IExam extends IExamBase {
+  _id: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IExamCriteria {

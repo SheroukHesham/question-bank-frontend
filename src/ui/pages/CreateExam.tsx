@@ -3,16 +3,18 @@ import GenerateExamModal from "@/ui/components/GenerateExamModal";
 import { NumberSelectorInput } from "@/ui/components/NumberSelectorInput";
 import QuestionCard from "@/ui/components/QuestionCard";
 import { Button } from "@/ui/components/ui/button";
-import type { IExam, IQuestions } from "@/shared/interfaces";
+import type { IExam, IExamBase, IQuestions } from "@/shared/interfaces";
 import type { TQuestionTypes } from "@/shared/types";
 import { examSchema, type ExamFormValues } from "@/ui/validation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import { Trash2 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 interface IProps {
   _formType?: "create" | "edit";
@@ -20,6 +22,7 @@ interface IProps {
 }
 
 const ExamForm = ({ _formType, exam }: IProps) => {
+  const navigate = useNavigate();
   const params = useParams();
   const examType = params.type as TQuestionTypes;
   const [totalQuestions, setTotalQuestions] = useState<number>(
@@ -60,15 +63,43 @@ const ExamForm = ({ _formType, exam }: IProps) => {
     setValue("totalNumberOfQuestions", value);
   };
 
+  const createExam = useMutation({
+    mutationFn: ({ exam }: { exam: IExamBase }) =>
+      window.electron.exam.createExam(exam),
+    onSuccess: () => {
+      toast.success("Exam is Created Successfully", {
+        position: "top-center",
+        style: {
+          justifyContent: "center",
+          color: "green",
+          fontSize: "16px",
+        },
+      });
+      navigate(-1);
+    },
+    onError: () => {
+      toast.error("An Error Occurred While Saving The Exam! ", {
+        position: "top-center",
+        style: {
+          justifyContent: "center",
+          color: "crimson",
+          fontSize: "16px",
+        },
+      });
+    },
+  });
+
   const onSubmit = (data: ExamFormValues) => {
-    const addedQuestionsIds = addedQuestions.map((question) => {
-      return question._id;
+    const examQuestions = addedQuestions.map((question, idx) => {
+      return { questionId: question._id, position: idx };
     });
-    const payload: Partial<IExam> = {
+    const payload: IExamBase = {
       ...data,
-      examQuestionsIds: addedQuestionsIds,
+      examQuestions: examQuestions,
       type: examType,
+      status: "final",
     };
+    createExam.mutate({ exam: payload });
     console.log(payload);
   };
 

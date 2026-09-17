@@ -10,6 +10,8 @@ import type {
   IQuestions,
   ISubCategory,
   IGenerateExamInput,
+  IExamBase,
+  IExam,
 } from "./interfaces";
 import type { IpcResult } from "./ipc-result";
 import type { ICreateMcqQuestion, IMcqQuestion } from "./question";
@@ -70,7 +72,13 @@ declare global {
           categoryId: number,
         ): Promise<ISubCategory[]>;
       };
-      // exam: {};
+      exam: {
+        createExam(exam: IExamBase): Promise<void>;
+        updateExam(examId: number, updates: Partial<IExam>): Promise<void>;
+        deleteExam(examId: number): Promise<void>;
+        findExamById(examId: number): Promise<IExam>;
+        findAllExams(): Promise<IExam[]>;
+      };
     };
   }
 }

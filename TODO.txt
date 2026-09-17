@@ -1,8 +1,15 @@
-//TODO: allow to copy header image.
-//TODO: export exam to word.
-//TODO: export all questions to excel.
-//TODO: all fetch through redux then useSelector to access
-//TODO: memorize (optimize) fetch data
-//TODO: exam generation do not add questions from exams
-//TODO: render questions on scroll to avoid lagging
+--General--
+TODO: allow to copy header image.
+TODO: export all questions to excel.
+TODO: all fetch through redux then useSelector to access
+TODO: memorize (optimize) fetch data
 
+--Exam--
+TODO: export exam to word.
+TODO: Add from question bank form : render questions on scroll to avoid lagging 
+!!TODO: exam generation do not add questions from exams!!
+TODO: Exam Page exam filter by type (essay/mcq) (draft/final)
+TODO: router add exam/id page to display exam
+TODO: Exam Display page: display exam and allow to edit
+TODO: save as draft option with different display in All Exams Page
+TODO: delete exam from question bank

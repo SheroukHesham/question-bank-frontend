@@ -26,7 +26,7 @@ export function ClickCard({
   return (
     <Card
       size="default"
-      className="mx-auto w-full cursor-pointer p-5 gap-5 justify-around min-h-64"
+      className="mx-auto w-full cursor-pointer p-5 gap-5 justify-around min-h-64 hover:shadow-lg"
       onClick={onClick}
     >
       <CardHeader>

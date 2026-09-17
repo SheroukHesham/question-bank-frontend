@@ -1,9 +1,23 @@
+import { IExam, IExamBase } from "@/shared/interfaces/index.js";
 import { ExamRepository } from "../repositories/exam.repository.js";
-import { QuestionsService } from "./question.service.js";
 
 export class ExamService {
-  constructor(
-    private readonly examRepository: ExamRepository,
-    private readonly questionService: QuestionsService,
-  ) {}
+  constructor(private readonly examRepository: ExamRepository) {}
+
+  createExam(exam: IExamBase) {
+    return this.examRepository.createExam(exam);
+  }
+  findExamById(examId: number) {
+    return this.examRepository.findExamById(examId);
+  }
+  findAllExams() {
+    return this.examRepository.findAllExams();
+  }
+  updateExam(examId: number, updates: Partial<IExam>) {
+    return this.examRepository.updateExam(examId, updates);
+  }
+
+  deleteExam(examId: number) {
+    return this.examRepository.deleteExam(examId);
+  }
 }

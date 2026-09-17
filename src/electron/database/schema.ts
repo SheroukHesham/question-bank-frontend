@@ -77,6 +77,25 @@ const migrations: string[] = [
   CREATE INDEX idx_exam_questions_exam
     ON exam_questions (exam_id);
   `,
+  `
+  ALTER TABLE exams
+  DROP target_question_count ;
+
+  ALTER TABLE exams
+  DROP selection_criteria;
+
+  ALTER TABLE exams 
+  ADD type TEXT NOT NULL CHECK (type IN ('mcq', 'essay'));
+
+  ALTER TABLE exams 
+  ADD total_number_of_questions INTEGER NOT NULL;
+
+  ALTER TABLE exams 
+  ADD number_of_questions_added INTEGER NOT NULL; 
+  
+  ALTER TABLE exam_questions
+  DROP mark_awarded;
+  `,
 ];
 
 export function runMigrations(db: Database.Database): void {
