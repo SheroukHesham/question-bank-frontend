@@ -6,53 +6,96 @@ import { Button } from "@/ui/components/ui/button";
 import { SelectItem } from "@/ui/components/ui/select";
 import type { TQuestionTypeFilter } from "@/ui/types";
 import { Check, Pen } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useFetch } from "../hooks/custom";
 import Back from "../components/Back";
 import type { ICategory, ISubCategory } from "@/shared/interfaces";
 import EditCategoryForm from "../components/EditCategoryForm";
-
-//TODO: DELETE SUBCATEGORY FEATURE
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 const CategoryQuestions = () => {
   const params = useParams();
   const categoryId = Number(params.id);
+
   const [editMode, setEditMode] = useState(false);
   const [deleteSub, setDeleteSub] = useState<ISubCategory>();
 
   const { data: category } = useFetch({
-    queryKey: ["category", "findById"],
+    queryKey: ["category", "findById", categoryId],
     queryFn: () => window.electron.category.getCategoryById(categoryId),
   });
+
   const { data: subcategories } = useFetch({
-    queryKey: ["subcategory", "findByCategoryId"],
+    queryKey: ["subcategory", "findByCategoryId", categoryId],
     queryFn: () =>
       window.electron.subcategory.findSubcategoryByCategoryId(categoryId),
   });
-  const { data: allQuestions } = useFetch({
-    queryKey: ["questions", "byCategory"],
+
+  const { data: allQuestions = [] } = useFetch({
+    queryKey: ["questions", "byCategory", categoryId],
     queryFn: () => window.electron.question.findByCategoryId(categoryId),
   });
 
   const [typeFilter, setTypeFilter] = useState<TQuestionTypeFilter>("all");
+
   const [specializationFilter, setSpecializationFilter] = useState<
     string | null
   >(null);
 
   const filteredQuestions = useMemo(() => {
-    return (allQuestions ?? []).filter((item) => {
+    return allQuestions.filter((item) => {
       const matchesType = typeFilter === "all" || item.type === typeFilter;
+
       const matchesSpecialization =
         !specializationFilter ||
         item.subcategoryId === Number(specializationFilter);
+
       return matchesType && matchesSpecialization;
     });
   }, [allQuestions, typeFilter, specializationFilter]);
 
-  const renderQuestions = filteredQuestions.map((question, idx) => {
-    return <QuestionCard key={question._id} idx={idx} question={question} />;
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const rowVirtualizer = useVirtualizer({
+    count: filteredQuestions.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 200,
+    overscan: 5,
+    measureElement:
+      typeof window !== "undefined"
+        ? (element) => element.getBoundingClientRect().height
+        : undefined,
   });
+
+  const renderQuestions = () => {
+    return (
+      <div
+        className="relative w-full "
+        style={{
+          height: `${rowVirtualizer.getTotalSize()}px`,
+        }}
+      >
+        {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+          const question = filteredQuestions[virtualItem.index];
+
+          return (
+            <div
+              key={question._id}
+              ref={rowVirtualizer.measureElement}
+              data-index={virtualItem.index}
+              className="absolute top-0 left-0 w-full "
+              style={{
+                transform: `translateY(${virtualItem.start}px)`,
+              }}
+            >
+              <QuestionCard idx={virtualItem.index} question={question} />
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div className="w-full p-10 scrollbar-gutter-stable">
@@ -173,8 +216,11 @@ const CategoryQuestions = () => {
             </SingleSelect>
           </div>
 
-          <div className="w-full flex flex-col gap-5 pt-5">
-            {renderQuestions}
+          <div
+            ref={parentRef}
+            className="w-full flex flex-col mt-5 h-[calc(100vh-250px)] overflow-y-auto scrollbar-none"
+          >
+            {renderQuestions()}
           </div>
         </div>
       )}

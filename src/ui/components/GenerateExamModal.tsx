@@ -1,7 +1,6 @@
 import { Plus, Sparkles, X } from "lucide-react";
 import { Modal } from "./Modal";
-import { type ICriteria } from "@/shared/interfaces";
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import type { TQuestionDifficulty, TQuestionTypes } from "@/shared/types";
 import { Button } from "./ui/button";
 import { useForm } from "react-hook-form";
@@ -14,26 +13,45 @@ import { NumberSelectorInput } from "./NumberSelectorInput";
 import { v4 as uuid } from "uuid";
 import { SingleSelect } from "./SingleSelect";
 import { SelectItem } from "./ui/select";
-import type { IQuestions } from "@/shared/interfaces";
+import type { IGenerateExamInput, IQuestions } from "@/shared/interfaces";
 import { useFetch } from "../hooks/custom";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { unwrapIpcResult } from "../lib/utils";
 
-const defaultCriteria: ICriteria = {
+interface IRawCriteria {
+  _id: string;
+  categoryId: string;
+  subcategoryId: string;
+  difficulty: TQuestionDifficulty;
+  numberOfQuestions: number;
+  examType: TQuestionTypes;
+}
+
+const defaultCriteria: IRawCriteria = {
   _id: "",
   categoryId: "",
-  subId: "",
+  subcategoryId: "",
   difficulty: "" as TQuestionDifficulty,
   numberOfQuestions: 0,
+  examType: "" as TQuestionTypes,
 };
 
 interface IProps {
   addedQuestions: IQuestions[];
+  setAddedQuestions: Dispatch<SetStateAction<IQuestions[]>>;
   totalQuestions: number;
   examType: TQuestionTypes;
 }
 
-const GenerateExamModal = ({ addedQuestions, totalQuestions }: IProps) => {
+const GenerateExamModal = ({
+  addedQuestions,
+  totalQuestions,
+  examType,
+  setAddedQuestions,
+}: IProps) => {
   const [open, setOpen] = useState(false);
-  const [criteria, setCriteria] = useState<ICriteria[]>([]);
+  const [criteria, setCriteria] = useState<IRawCriteria[]>([]);
 
   const {
     setValue,
@@ -54,13 +72,17 @@ const GenerateExamModal = ({ addedQuestions, totalQuestions }: IProps) => {
   });
 
   const onValueChange = (
-    criteria: ICriteria,
+    criteria: IRawCriteria,
     value: string | number,
-    name: keyof ICriteria,
+    name: keyof IRawCriteria,
   ) => {
     setCriteria((prev) =>
       prev.map((item) =>
-        item._id === criteria._id ? { ...item, [name]: value } : item,
+        item._id === criteria._id
+          ? name === "categoryId"
+            ? { ...item, [name]: String(value), subcategoryId: "" }
+            : { ...item, [name]: value }
+          : item,
       ),
     );
   };
@@ -70,8 +92,46 @@ const GenerateExamModal = ({ addedQuestions, totalQuestions }: IProps) => {
     setCriteria(filteredCriteria);
   };
 
+  const generateExamQuestions = useMutation({
+    mutationFn: (criteria: IGenerateExamInput) =>
+      unwrapIpcResult(window.electron.question.generateExamQuestions(criteria)),
+    onSuccess: (data) => {
+      if (data) setAddedQuestions((prev) => [...prev, ...data]);
+      reset();
+      setCriteria([]);
+      setOpen(false);
+      toast.success("Questions Generated Successfully", {
+        position: "top-center",
+        style: {
+          justifyContent: "center",
+          color: "green",
+          fontSize: "16px",
+        },
+      });
+    },
+    onError: (error) => {
+      console.log(error);
+      const errorIdx = criteria.findIndex((item) => item._id === error.cause);
+      toast.error(`Criteria ${errorIdx + 1}: ${error.message}`, {
+        position: "top-center",
+        style: {
+          justifyContent: "center",
+          color: "crimson",
+          fontSize: "16px",
+        },
+      });
+    },
+  });
+
   const onSubmit = (data: GenerateQuestionFormValues) => {
-    console.log("Data", data.criteria);
+    const payload = data.criteria.map((item) => {
+      return {
+        ...item,
+        categoryId: Number(item.categoryId),
+        subcategoryId: Number(item.subcategoryId),
+      };
+    });
+    generateExamQuestions.mutate({ criteria: payload, excludeExamIds: [] });
     //todo: send to api to generate questions
 
     //todo:add generated questions to addedQuestions (add setter to props)
@@ -80,47 +140,35 @@ const GenerateExamModal = ({ addedQuestions, totalQuestions }: IProps) => {
   const renderSubFilters = (categoryId: string | undefined) => {
     if (categoryId) {
       const filteredSub = subcategories?.filter(
-        (item) => item.categoryId,
-        toString() === categoryId,
+        (item) => item.categoryId.toString() === categoryId,
       );
       return filteredSub?.map((sub) => (
         <SelectItem key={sub._id} value={sub._id.toString()}>
           {sub.name}
         </SelectItem>
       ));
+    } else {
+      return subcategories?.map((sub) => (
+        <SelectItem key={sub._id} value={sub._id.toString()}>
+          {sub.name}
+        </SelectItem>
+      ));
     }
-    return subcategories?.map((sub) => (
-      <SelectItem key={sub._id} value={sub._id.toString()}>
-        {sub.name}
-      </SelectItem>
-    ));
   };
 
-  // todo:add error msg to inputs
+  // todo:make error disappear on entering new value
   const renderCriteria = criteria.map((criteria, idx) => {
     return (
       <div
         key={criteria._id}
-        className="flex w-full justify-between py-2 px-2 rounded-md hover:bg-muted/10"
+        className="flex w-full justify-between items-center py-2 px-2 rounded-md hover:bg-muted/10"
       >
-        <div className="flex flex-col gap-2 max-w-56">
-          <NumberSelectorInput
-            name="numberOfQuestions"
-            value={criteria.numberOfQuestions}
-            onValueChange={(value) => {
-              onValueChange(criteria, value as number, "numberOfQuestions");
-            }}
-          />
-          {errors.criteria?.[idx] && (
-            <p className="text-destructive text-sm font-semibold">
-              {errors.criteria?.[idx]?.numberOfQuestions?.message}
-            </p>
-          )}
+        <div className="size-8 text-xl text-center flex items-center justify-center rounded-md bg-muted/10 font-semibold text-card-foreground pb-0.5">
+          {idx + 1}
         </div>
-
         <div className="flex flex-col gap-2 max-w-56">
           <SingleSelect
-            value={criteria?.categoryId}
+            value={criteria?.categoryId.toString()}
             placeholder="Choose Topic"
             onValueChange={(value) => {
               onValueChange(criteria, value, "categoryId");
@@ -147,17 +195,32 @@ const GenerateExamModal = ({ addedQuestions, totalQuestions }: IProps) => {
 
         <div className="flex flex-col gap-2 max-w-56">
           <SingleSelect
-            value={criteria.subId}
+            value={criteria.subcategoryId.toString()}
             placeholder="Choose Specialization"
             onValueChange={(value) => {
-              onValueChange(criteria, value, "subId");
+              onValueChange(criteria, value, "subcategoryId");
             }}
           >
-            {renderSubFilters(criteria.categoryId)}
+            {renderSubFilters(criteria.categoryId.toString())}
           </SingleSelect>
           {errors.criteria?.[idx] && (
             <p className="text-destructive text-sm font-semibold">
-              {errors.criteria?.[idx]?.subId?.message}
+              {errors.criteria?.[idx]?.subcategoryId?.message}
+            </p>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-2 max-w-56">
+          <NumberSelectorInput
+            name="numberOfQuestions"
+            value={criteria.numberOfQuestions}
+            onValueChange={(value) => {
+              onValueChange(criteria, value as number, "numberOfQuestions");
+            }}
+          />
+          {errors.criteria?.[idx] && (
+            <p className="text-destructive text-sm font-semibold">
+              {errors.criteria?.[idx]?.numberOfQuestions?.message}
             </p>
           )}
         </div>
@@ -165,7 +228,7 @@ const GenerateExamModal = ({ addedQuestions, totalQuestions }: IProps) => {
         <div className="flex flex-col gap-2 max-w-56">
           <SingleSelect
             value={criteria.difficulty as TQuestionDifficulty}
-            placeholder="Choose Topic"
+            placeholder="Choose Difficulty"
             onValueChange={(value) => {
               onValueChange(criteria, value, "difficulty");
             }}
@@ -192,7 +255,7 @@ const GenerateExamModal = ({ addedQuestions, totalQuestions }: IProps) => {
             size={"icon"}
             type="button"
             onClick={() => {
-              onRemoveCriteria(criteria._id);
+              onRemoveCriteria(criteria._id as string);
             }}
           >
             <X />
@@ -236,7 +299,7 @@ const GenerateExamModal = ({ addedQuestions, totalQuestions }: IProps) => {
             onClick={() => {
               setCriteria((prev) => [
                 ...prev,
-                { ...defaultCriteria, _id: uuid() },
+                { ...defaultCriteria, _id: uuid(), examType: examType },
               ]);
             }}
           >
@@ -244,11 +307,12 @@ const GenerateExamModal = ({ addedQuestions, totalQuestions }: IProps) => {
           </Button>
           <div className="flex flex-col w-full gap-y-3">
             <div className="flex w-full items-center justify-between font-semibold text-lg px-2">
+              <span className="size-8 text-center">#</span>
+              <span className="w-56">Topic</span>
+              <span className="w-56">Specialization</span>
               <span className="max-w-56 sm:w-32 lg:w-56  min-w-8">
                 Number of Questions
               </span>
-              <span className="w-56">Topic</span>
-              <span className="w-56">Specialization</span>
               <span className="w-56">Difficulty</span>
               <span className="fill-transparent">
                 <X className="text-transparent " />
@@ -276,8 +340,9 @@ const GenerateExamModal = ({ addedQuestions, totalQuestions }: IProps) => {
               variant={"secondary"}
               onClick={() => {
                 const strippedCriteria = criteria.map((item) => {
-                  const { _id, ...rest } = item;
-                  return rest;
+                  return {
+                    ...item,
+                  };
                 });
                 setValue("criteria", strippedCriteria);
                 handleSubmit(onSubmit)();

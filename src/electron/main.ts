@@ -15,6 +15,9 @@ import { SubCategoryService } from "./services/subcategory.service.js";
 import { registerSubcategoryIPC } from "./ipc/subcategory.ipc.js";
 import { ImageStorageService } from "./services/image-storage.service.js";
 import { registerImageIPC } from "./ipc/image.ipc.js";
+// import { ExamRepository } from "./repositories/exam.repository.js";
+// import { ExamService } from "./services/exam.service.js";
+// import { registerExamIPC } from "./ipc/exam.ipc.js";
 
 app.whenReady().then(() => {
   const db = getDb();
@@ -23,6 +26,7 @@ app.whenReady().then(() => {
   const questionsRepository = new QuestionsRepository(db);
   const categoryRepository = new CategoriesRepository(db);
   const subcategoryRepository = new SubcategoryRepository(db);
+  // const examRepository = new ExamRepository(db);
 
   // 3. Create service
   const categoryService = new CategoryService(categoryRepository);
@@ -37,12 +41,14 @@ app.whenReady().then(() => {
     subcategoryService,
     imageStorageService,
   );
+  // const examService = new ExamService(examRepository, questionsService);
 
   // 4. Register IPC handlers
   registerQuestionIPC(questionsService);
   registerCategoryIPC(categoryService);
   registerSubcategoryIPC(subcategoryService);
   registerImageIPC(imageStorageService);
+  // registerExamIPC(examService);
 
   // image handler protocol
   protocol.handle("app-image", (request) => {

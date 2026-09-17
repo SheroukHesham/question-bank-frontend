@@ -9,7 +9,9 @@ import type {
   IQuestionCountByCategory,
   IQuestions,
   ISubCategory,
+  IGenerateExamInput,
 } from "./interfaces";
+import type { IpcResult } from "./ipc-result";
 import type { ICreateMcqQuestion, IMcqQuestion } from "./question";
 import type { TQuestionTypes } from "./types";
 
@@ -37,6 +39,9 @@ declare global {
           IQuestionCountByCategory[] | undefined
         >;
         findByCategoryId(categoryId: number): Promise<IQuestions[]>;
+        generateExamQuestions(
+          criteria: IGenerateExamInput,
+        ): Promise<IpcResult<IQuestions[]>>;
       };
       image: {
         getPathForFile(file: File): Promise<string>;
@@ -65,6 +70,7 @@ declare global {
           categoryId: number,
         ): Promise<ISubCategory[]>;
       };
+      // exam: {};
     };
   }
 }

@@ -4,6 +4,7 @@ import type {
   ICreateMcqQuestion,
   IEssayQuestion,
   IFilteredQuestion,
+  IGenerateExamInput,
   IGroupedQuestionCategory,
   IMcqQuestion,
   IQuestionCountByCategory,
@@ -11,6 +12,7 @@ import type {
 } from "../../shared/interfaces/index.js";
 import { QuestionsService } from "../services/question.service.js";
 import { TQuestionTypes } from "@/shared/types/index.js";
+import { safeHandle } from "./safeHandle.js";
 
 export function registerQuestionIPC(questionsService: QuestionsService) {
   ipcMain.handle(
@@ -99,6 +101,15 @@ export function registerQuestionIPC(questionsService: QuestionsService) {
     "question:findTotalQuestionsPerCategory",
     async (_event): Promise<IQuestionCountByCategory[] | undefined> => {
       return questionsService.getTotalQuestionsPerCategory();
+    },
+  );
+  safeHandle(
+    "question:generateQuestions",
+    async (
+      _event,
+      inputCriteria: IGenerateExamInput,
+    ): Promise<IQuestions[]> => {
+      return questionsService.generateExamQuestions(inputCriteria);
     },
   );
 }

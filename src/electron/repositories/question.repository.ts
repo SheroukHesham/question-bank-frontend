@@ -5,6 +5,7 @@ import {
   ICreateEssayQuestion,
   ICreateMcqQuestion,
   IEssayQuestion,
+  IExamCriteria,
   IFilteredQuestion,
   IGroupedQuestionCategory,
   IMcqQuestion,
@@ -376,6 +377,46 @@ export class QuestionsRepository {
     this.db
       .prepare(`UPDATE questions SET ${fields.join(", ")} WHERE _id = ?`)
       .run(...values);
+  }
+
+  generateQuestionsFromCriteria(
+    criterion: IExamCriteria,
+    excludeExamIds: number[],
+  ): IQuestions[] {
+    const placeholders = excludeExamIds.map(() => "?").join(",") || "NULL";
+
+    const rows = this.db
+      .prepare<unknown[], QuestionRow>(
+        `SELECT * FROM questions
+         WHERE type = ? AND category_id = ? AND subcategory_id = ? AND difficulty = ?
+         AND _id NOT IN (
+           SELECT question_id FROM exam_questions WHERE exam_id IN (${placeholders})
+         )
+         ORDER BY RANDOM()
+         LIMIT ?`,
+      )
+      .all(
+        criterion.examType,
+        criterion.categoryId,
+        criterion.subcategoryId,
+        criterion.difficulty,
+        ...excludeExamIds,
+        criterion.numberOfQuestions,
+      );
+
+    if (rows.length === 0) {
+      throw new Error(`No available questions for criteria.`, {
+        cause: `${criterion._id}`,
+      });
+    }
+    if (rows.length < criterion.numberOfQuestions) {
+      throw new Error(
+        `Not enough questions for this criteria, only ${rows.length} available.`,
+        { cause: `${criterion._id}` },
+      );
+    }
+
+    return rows.map((r) => this.attachDetails(r));
   }
 
   private attachDetails(question: QuestionRow): IQuestions {

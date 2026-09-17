@@ -38,13 +38,13 @@ const ExamForm = ({ _formType, exam }: IProps) => {
     defaultValues: exam
       ? {
           title: exam?.title,
-          addedQuestions: exam?.numberOfQuestionsAdded,
-          totalQuestions: exam?.totalNumberOfQuestions,
+          numberOfQuestionsAdded: exam?.numberOfQuestionsAdded,
+          totalNumberOfQuestions: exam?.totalNumberOfQuestions,
         }
       : undefined,
   });
 
-  setValue("addedQuestions", addedQuestions.length);
+  setValue("numberOfQuestionsAdded", addedQuestions.length);
 
   const toggleSelected = (question: IQuestions) => {
     if (addedQuestions.includes(question)) {
@@ -57,11 +57,19 @@ const ExamForm = ({ _formType, exam }: IProps) => {
 
   const onTotalQuestionsChange = (value: number) => {
     setTotalQuestions(value);
-    setValue("totalQuestions", value);
+    setValue("totalNumberOfQuestions", value);
   };
 
   const onSubmit = (data: ExamFormValues) => {
-    console.log(data);
+    const addedQuestionsIds = addedQuestions.map((question) => {
+      return question._id;
+    });
+    const payload: Partial<IExam> = {
+      ...data,
+      examQuestionsIds: addedQuestionsIds,
+      type: examType,
+    };
+    console.log(payload);
   };
 
   return (
@@ -81,9 +89,9 @@ const ExamForm = ({ _formType, exam }: IProps) => {
                     onTotalQuestionsChange(value as number)
                   }
                 />
-                {errors.totalQuestions && (
+                {errors.totalNumberOfQuestions && (
                   <p className="text-destructive text-sm font-semibold">
-                    {errors.totalQuestions.message}
+                    {errors.totalNumberOfQuestions.message}
                   </p>
                 )}
               </div>
@@ -115,9 +123,9 @@ const ExamForm = ({ _formType, exam }: IProps) => {
                   </span>
                   <span className="font-semibold">/{totalQuestions}</span>
                 </div>
-                {errors.addedQuestions && (
+                {errors.numberOfQuestionsAdded && (
                   <p className="text-destructive text-sm font-semibold">
-                    {errors.addedQuestions.message}
+                    {errors.numberOfQuestionsAdded.message}
                   </p>
                 )}
               </div>
@@ -126,6 +134,7 @@ const ExamForm = ({ _formType, exam }: IProps) => {
                   examType={examType}
                   addedQuestions={addedQuestions}
                   totalQuestions={totalQuestions}
+                  setAddedQuestions={setAddedQuestions}
                 />
                 <ExamAddFromBankModal
                   examType={examType}
@@ -136,7 +145,7 @@ const ExamForm = ({ _formType, exam }: IProps) => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-5 ">
+          <div className="flex flex-col ">
             {addedQuestions.map((question, idx) => {
               return (
                 <QuestionCard

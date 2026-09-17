@@ -110,7 +110,7 @@ const QuestionCard = ({
   };
   return (
     <div
-      className="flex flex-col gap-y-7 bg-card text-card-foreground p-5 rounded-md h-full"
+      className="flex flex-col gap-y-7 bg-card text-card-foreground p-5 rounded-md h-full mb-5"
       onClick={() => {
         if (onClick) onClick();
       }}

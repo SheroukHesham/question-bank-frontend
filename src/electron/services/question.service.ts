@@ -4,6 +4,7 @@ import type {
   ICreateMcqQuestion,
   IEssayQuestion,
   IFilteredQuestion,
+  IGenerateExamInput,
   IGroupedQuestionCategory,
   IMcqQuestion,
   IQuestionCountByCategory,
@@ -132,5 +133,15 @@ export class QuestionsService {
 
   getTotalQuestionsPerCategory(): IQuestionCountByCategory[] | undefined {
     return this.questionsRepository.totalQuestionsOfCategory();
+  }
+
+  generateExamQuestions(inputCriteria: IGenerateExamInput) {
+    const excludeExamIds = inputCriteria.excludeExamIds ?? [];
+    return inputCriteria.criteria.flatMap((criterion) =>
+      this.questionsRepository.generateQuestionsFromCriteria(
+        criterion,
+        excludeExamIds,
+      ),
+    );
   }
 }

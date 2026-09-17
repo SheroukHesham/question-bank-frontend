@@ -20,6 +20,8 @@ export function useFetch<TData, TQueryKey extends QueryKey = QueryKey>({
   return useQuery<TData, Error, TData, TQueryKey>({
     queryKey,
     queryFn,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 30 * 60 * 1000, // keep unused cache for 30 minutes
   });
 }
 

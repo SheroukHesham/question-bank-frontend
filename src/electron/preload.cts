@@ -8,6 +8,7 @@ import {
 } from "@/shared/interfaces";
 import { TQuestionTypes } from "@/shared/types";
 import { webUtils } from "electron";
+import { IGenerateExamInput } from "@/shared/interfaces";
 
 const { contextBridge, ipcRenderer } = require("electron");
 
@@ -56,6 +57,9 @@ contextBridge.exposeInMainWorld("electron", {
     },
     getTotalQuestionsPerCategory: () => {
       return ipcRenderer.invoke("question:findTotalQuestionsPerCategory");
+    },
+    generateExamQuestions: (inputCriteria: IGenerateExamInput) => {
+      return ipcRenderer.invoke("question:generateQuestions", inputCriteria);
     },
   },
   image: {
@@ -107,6 +111,11 @@ contextBridge.exposeInMainWorld("electron", {
     },
     findSubcategoryByCategoryId: (categoryId: number) => {
       return ipcRenderer.invoke("subcategory:findByCategory", categoryId);
+    },
+  },
+  exam: {
+    generateExamQuestions: (criteria: IGenerateExamInput) => {
+      return ipcRenderer.invoke("exam:generate", criteria);
     },
   },
 });

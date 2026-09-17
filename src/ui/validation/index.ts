@@ -86,39 +86,37 @@ export type CategoryFormValues = yup.InferType<typeof categorySchema>;
 
 export const examSchema = yup.object({
   title: yup.string().required("Exam title is required"),
-  totalQuestions: yup
+  totalNumberOfQuestions: yup
     .number()
     .min(1, "Exam must have at least 1 question.")
     .required("Total number of questions is required"),
 
-  addedQuestions: yup
+  numberOfQuestionsAdded: yup
     .number()
     .min(1, "You must add at least one question")
     .required()
     .test(
       "matches-total",
       "Added questions must equal the total number of questions",
-      (value, context) => value === context.parent.totalQuestions,
+      (value, context) => value === context.parent.totalNumberOfQuestions,
     ),
 });
 
 export type ExamFormValues = yup.InferType<typeof examSchema>;
 
 export const criteriaSchema = yup.object({
+  _id: yup.string().required("criteria id is required"),
   numberOfQuestions: yup
     .number()
-    .min(1, "Each criteria should have at least 1 question.")
+    .min(1, "Number of Questions is Required")
     .required("Number of questions is required for each criteria"),
   difficulty: yup
     .mixed<TQuestionDifficulty>()
-    .oneOf(["difficult", "easy", "moderate"], "Choose difficulty from options")
-    .required("Difficulty is required for each criteria"),
-  categoryId: yup
-    .string()
-    .required("You must choose a topic for each criteria"),
-  subId: yup
-    .string()
-    .required("You must choose a specialization for each criteria"),
+    .oneOf(["difficult", "easy", "moderate"], "Difficulty is required")
+    .required("Difficulty is required"),
+  categoryId: yup.string().required("Topic is required"),
+  subcategoryId: yup.string().required("Subtopic is required"),
+  examType: yup.mixed<TQuestionTypes>().oneOf(["essay", "mcq"]).required(),
 });
 
 export const generateQuestionsSchema = yup.object({

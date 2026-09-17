@@ -62,13 +62,6 @@ export type IFilteredQuestion =
   | (IEssayQuestion & IFilteredQuestionBase)
   | (IMcqQuestion & IFilteredQuestionBase);
 
-export interface ICriteria {
-  _id: string;
-  numberOfQuestions: number;
-  difficulty: TQuestionDifficulty;
-  categoryId: string;
-  subId: string;
-}
 export interface IQuestionCountByCategory {
   categoryId: number;
   total: number;
@@ -102,5 +95,18 @@ export interface IExam {
   totalNumberOfQuestions: number;
   numberOfQuestionsAdded: number;
   type: TQuestionTypes;
-  examQuestionsIds: string[];
+  examQuestionsIds: number[];
+}
+
+export interface IExamCriteria {
+  _id: string;
+  numberOfQuestions: number;
+  difficulty: TQuestionDifficulty;
+  categoryId: number;
+  subcategoryId: number;
+  examType: TQuestionTypes;
+}
+export interface IGenerateExamInput {
+  criteria: IExamCriteria[];
+  excludeExamIds?: number[];
 }
