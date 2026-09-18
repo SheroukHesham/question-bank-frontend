@@ -37,6 +37,7 @@ const ExamAddFromBankModal = ({
     queryKey: ["questions", "filtered"],
     queryFn: () => window.electron.question.filterQuestions(examType),
   });
+  console.log(examType);
   const { data: categories } = useFetch({
     queryKey: ["categories", "findAllDetails"],
     queryFn: () => window.electron.category.findAllCategoriesDetails(),

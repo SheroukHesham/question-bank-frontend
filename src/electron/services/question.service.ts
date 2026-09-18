@@ -144,4 +144,8 @@ export class QuestionsService {
       ),
     );
   }
+
+  findQuestionsForExam(examId: number): IQuestions[] {
+    return this.questionsRepository.findQuestionsForExam(examId);
+  }
 }

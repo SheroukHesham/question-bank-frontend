@@ -44,6 +44,7 @@ declare global {
         generateExamQuestions(
           criteria: IGenerateExamInput,
         ): Promise<IpcResult<IQuestions[]>>;
+        findQuestionsForExam(examId: number): Promise<IQuestions[]>;
       };
       image: {
         getPathForFile(file: File): Promise<string>;
@@ -74,7 +75,7 @@ declare global {
       };
       exam: {
         createExam(exam: IExamBase): Promise<void>;
-        updateExam(examId: number, updates: Partial<IExam>): Promise<void>;
+        updateExam(examId: number, updates: Partial<IExam>): Promise<IExam>;
         deleteExam(examId: number): Promise<void>;
         findExamById(examId: number): Promise<IExam>;
         findAllExams(): Promise<IExam[]>;

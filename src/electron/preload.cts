@@ -63,6 +63,9 @@ contextBridge.exposeInMainWorld("electron", {
     generateExamQuestions: (inputCriteria: IGenerateExamInput) => {
       return ipcRenderer.invoke("question:generateQuestions", inputCriteria);
     },
+    findQuestionsForExam: (examId: number) => {
+      return ipcRenderer.invoke("question:findQuestionsForExam", examId);
+    },
   },
   image: {
     getPathForFile: (file: File): string => webUtils.getPathForFile(file),

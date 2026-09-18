@@ -44,7 +44,7 @@ export class ExamRepository {
       .prepare<
         number,
         ExamRow
-      >("SELECT _id, title, status, total_number_of_questions AS totalNumberOfQuestions, number_of_questions_added AS numberOfQuestionsAdded, created_at AS createdAt, updated_at AS updatedAt FROM exams WHERE _id = ?")
+      >("SELECT _id, title, status, type, total_number_of_questions AS totalNumberOfQuestions, number_of_questions_added AS numberOfQuestionsAdded, strftime('%d/%m/%Y', created_at) AS createdAt, strftime('%d/%m/%Y', updated_at) AS updatedAt FROM exams WHERE _id = ?")
       .get(examId);
 
     if (examInfo)
@@ -80,54 +80,59 @@ export class ExamRepository {
       .all(examId);
   }
 
-  updateExam(examId: number, updates: Partial<IExam>) {
-    const {
-      title,
-      type,
-      status,
-      examQuestions,
-      numberOfQuestionsAdded,
-      totalNumberOfQuestions,
-    } = updates;
-    const fields: string[] = [];
-    const values: unknown[] = [];
-    if (title) {
-      fields.push("title = ?");
-      values.push(title);
-    }
-    if (type) {
-      fields.push("type = ?");
-      values.push(type);
-    }
-    if (status) {
-      fields.push("status = ?");
-      values.push(status);
-    }
-    if (numberOfQuestionsAdded) {
-      fields.push("numberOfQuestionsAdded = ?");
-      values.push(numberOfQuestionsAdded);
-    }
-    if (totalNumberOfQuestions) {
-      fields.push("totalNumberOfQuestions = ?");
-      values.push(totalNumberOfQuestions);
-    }
-    if (examQuestions) {
+  updateExam(examId: number, updates: Partial<IExamBase>): IExam {
+    const runUpdate = this.db.transaction(() => {
+      const {
+        title,
+        type,
+        status,
+        examQuestions,
+        numberOfQuestionsAdded,
+        totalNumberOfQuestions,
+      } = updates;
+      const fields: string[] = [];
+      const values: unknown[] = [];
+
+      if (title) {
+        fields.push("title = ?");
+        values.push(title);
+      }
+      if (type) {
+        fields.push("type = ?");
+        values.push(type);
+      }
+      if (status) {
+        fields.push("status = ?");
+        values.push(status);
+      }
+      if (numberOfQuestionsAdded) {
+        fields.push("number_of_questions_added = ?");
+        values.push(numberOfQuestionsAdded);
+      }
+      if (totalNumberOfQuestions) {
+        fields.push("total_number_of_questions = ?");
+        values.push(totalNumberOfQuestions);
+      }
+
+      if (examQuestions) {
+        this.db
+          .prepare("DELETE FROM exam_questions WHERE exam_id = ?")
+          .run(examId);
+        this.createExamQuestions(examId, examQuestions);
+      }
+
+      if (fields.length === 0) return;
+
+      fields.push("updated_at = datetime('now')");
+      values.push(examId);
+
       this.db
-        .prepare<
-          number,
-          { questionId: number; position: number }
-        >("DELETE * FROM exam_questions WHERE exam_id = ?")
-        .all(examId);
-      this.createExamQuestions(examId, examQuestions);
-    }
+        .prepare(`UPDATE exams SET ${fields.join(", ")} WHERE _id = ?`)
+        .run(...values);
+    });
 
-    if (fields.length === 0) return;
-    fields.push("updated_at = datetime('now')");
-    values.push(examId);
-
-    this.db
-      .prepare(`UPDATE exams SET ${fields.join(", ")} WHERE _id = ?`)
-      .run(...values);
+    runUpdate();
+    return this.findExamById(examId);
   }
 
   deleteExam(examId: number) {

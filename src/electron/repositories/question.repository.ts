@@ -314,6 +314,19 @@ export class QuestionsRepository {
     return updated as IEssayQuestion;
   }
 
+  findQuestionsForExam(examId: number): IQuestions[] {
+    const rows = this.db
+      .prepare<[number], QuestionRow>(
+        `SELECT q.* FROM questions q
+       JOIN exam_questions eq ON eq.question_id = q._id
+       WHERE eq.exam_id = ?
+       ORDER BY eq.position ASC`,
+      )
+      .all(examId);
+
+    return rows.map((row) => this.attachDetails(row));
+  }
+
   /** Cascades to mcq_key/mcq_distractors/essay_details automatically via ON DELETE CASCADE. */
   delete(id: number): void {
     const result = this.db

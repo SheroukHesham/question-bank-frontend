@@ -1,4 +1,4 @@
-import { IExam, IExamBase } from "@/shared/interfaces/index.js";
+import { IExamBase } from "@/shared/interfaces/index.js";
 import { ExamRepository } from "../repositories/exam.repository.js";
 
 export class ExamService {
@@ -13,7 +13,7 @@ export class ExamService {
   findAllExams() {
     return this.examRepository.findAllExams();
   }
-  updateExam(examId: number, updates: Partial<IExam>) {
+  updateExam(examId: number, updates: Partial<IExamBase>) {
     return this.examRepository.updateExam(examId, updates);
   }
 

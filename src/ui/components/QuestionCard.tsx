@@ -78,7 +78,9 @@ const QuestionCard = ({
               </div>
               <span className="font-semibold text-primary text-lg">Key:</span>
             </div>
-            <span className="capitalize font-semibold">{key?.choice}</span>
+            <span className="first-letter:uppercase font-semibold">
+              {key?.choice}
+            </span>
           </div>
 
           <div className="rounded-md flex flex-col gap-3 p-3 border transition-colors border-destructive/40 bg-destructive/5">
@@ -92,7 +94,10 @@ const QuestionCard = ({
             </div>
             {distractors.map((choice) => {
               return (
-                <span key={choice.choice} className="capitalize font-semibold">
+                <span
+                  key={choice.choice}
+                  className="first-letter:uppercase font-semibold"
+                >
                   {choice.choice}
                 </span>
               );
@@ -102,7 +107,7 @@ const QuestionCard = ({
       );
     } else {
       return (
-        <span className="font-semibold line-clamp-3">
+        <span className="font-semibold line-clamp-3 first-letter:uppercase">
           {question.modelAnswer}
         </span>
       );
@@ -110,7 +115,7 @@ const QuestionCard = ({
   };
   return (
     <div
-      className="flex flex-col gap-y-7 bg-card text-card-foreground p-5 rounded-md h-full mb-5"
+      className="flex flex-col gap-y-7 bg-card text-card-foreground p-5 rounded-md max-h-full mb-5 shadow"
       onClick={() => {
         if (onClick) onClick();
       }}
@@ -121,7 +126,7 @@ const QuestionCard = ({
             <div className="size-8 text-xl text-center flex items-center justify-center rounded-md bg-muted/10 font-semibold text-card-foreground pb-0.5">
               {idx + 1}
             </div>
-            <span className="text-xl font-semibold text-card-foreground">
+            <span className="text-xl font-semibold text-card-foreground h-8 first-letter:uppercase">
               {header}
             </span>
           </div>

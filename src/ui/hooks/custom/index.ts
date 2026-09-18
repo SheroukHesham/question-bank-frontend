@@ -4,6 +4,7 @@ import {
   useQueryClient,
   type MutationFunction,
   type MutationKey,
+  type QueryBooleanOption,
   type QueryFunction,
   type QueryKey,
 } from "@tanstack/react-query";
@@ -11,15 +12,18 @@ import {
 interface IFetchProps<TData, TQueryKey extends QueryKey = QueryKey> {
   queryKey: TQueryKey;
   queryFn: QueryFunction<TData, TQueryKey>;
+  enabled?: QueryBooleanOption<TData, Error, TData, TQueryKey> | undefined;
 }
 
 export function useFetch<TData, TQueryKey extends QueryKey = QueryKey>({
   queryKey,
   queryFn,
+  enabled,
 }: IFetchProps<TData, TQueryKey>) {
   return useQuery<TData, Error, TData, TQueryKey>({
     queryKey,
     queryFn,
+    enabled,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // keep unused cache for 30 minutes
   });

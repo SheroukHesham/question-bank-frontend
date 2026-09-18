@@ -103,6 +103,12 @@ export function registerQuestionIPC(questionsService: QuestionsService) {
       return questionsService.getTotalQuestionsPerCategory();
     },
   );
+  ipcMain.handle(
+    "question:findQuestionsForExam",
+    async (_event, examId: number): Promise<IQuestions[]> => {
+      return questionsService.findQuestionsForExam(examId);
+    },
+  );
   safeHandle(
     "question:generateQuestions",
     async (

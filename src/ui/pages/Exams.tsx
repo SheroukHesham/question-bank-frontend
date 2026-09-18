@@ -28,7 +28,7 @@ const Exams = () => {
       <div
         className="flex flex-col w-full bg-card cursor-pointer px-5 py-3 rounded-md shadow hover:shadow-lg gap-y-2"
         onClick={() => {
-          navigate(`/exams/${exam._id}`);
+          navigate(`/exams/${exam._id}`, { state: { exam: exam } });
         }}
       >
         <span className="capitalize font-bold text-lg">[{exam.type} Exam]</span>
@@ -56,13 +56,19 @@ const Exams = () => {
             <div className="flex flex-col gap-1">
               <span
                 className="font-semibold text-[16px] text-primary hover:bg-primary/10 px-3 py-2 rounded-md cursor-pointer"
-                onClick={() => navigate("/exams/new/mcq")}
+                onClick={() =>
+                  navigate("/exams/form/mcq", { state: { formType: "create" } })
+                }
               >
                 MCQ Exam
               </span>
               <span
                 className="font-semibold text-[16px] text-primary hover:bg-primary/10 px-3 py-2 rounded-md cursor-pointer"
-                onClick={() => navigate("/exams/new/essay")}
+                onClick={() =>
+                  navigate("/exams/form/essay", {
+                    state: { formType: "create" },
+                  })
+                }
               >
                 Essay Exam
               </span>

@@ -9,27 +9,51 @@ import { examSchema, type ExamFormValues } from "@/ui/validation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  type Location,
+} from "react-router-dom";
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import { Trash2 } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useFetch } from "../hooks/custom";
 
-interface IProps {
-  _formType?: "create" | "edit";
+interface IState {
+  formType: "edit" | "create";
   exam?: IExam;
 }
 
-const ExamForm = ({ _formType, exam }: IProps) => {
+const ExamForm = () => {
+  const location: Location<IState | null> = useLocation();
+  const formType = location.state?.formType ?? "create";
+  const exam = location.state?.exam;
   const navigate = useNavigate();
   const params = useParams();
+  const queryClient = useQueryClient();
   const examType = params.type as TQuestionTypes;
   const [totalQuestions, setTotalQuestions] = useState<number>(
-    exam ? exam.totalNumberOfQuestions : 0,
+    formType === "edit" && exam ? exam.totalNumberOfQuestions : 0,
   );
+
+  const { data: questions } = useFetch({
+    queryKey: ["questions", "findByExam", exam?._id],
+    queryFn: () => window.electron.question.findQuestionsForExam(exam!._id),
+    enabled: !!exam,
+  });
+
   //todo: if exam is passed, addedQuestions are the questions of the prop
   const [addedQuestions, setAddedQuestions] = useState<IQuestions[]>([]);
+
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  if (questions && !isHydrated) {
+    setIsHydrated(true);
+    setAddedQuestions(questions);
+  }
 
   const {
     setValue,
@@ -63,11 +87,45 @@ const ExamForm = ({ _formType, exam }: IProps) => {
     setValue("totalNumberOfQuestions", value);
   };
 
+  const getExamQuestionsFromAdded = () => {
+    return addedQuestions.map((question, idx) => {
+      return { questionId: question._id, position: idx };
+    });
+  };
+
+  const getUpdates = (data: ExamFormValues) => {
+    let updates: Partial<IExamBase> = {};
+    if (exam) {
+      if (data.numberOfQuestionsAdded !== exam.numberOfQuestionsAdded) {
+        updates = {
+          ...updates,
+          numberOfQuestionsAdded: data.numberOfQuestionsAdded,
+        };
+      }
+      if (data.totalNumberOfQuestions !== exam.totalNumberOfQuestions) {
+        updates = {
+          ...updates,
+          totalNumberOfQuestions: data.totalNumberOfQuestions,
+        };
+      }
+      if (data.title !== exam.title) {
+        updates = {
+          ...updates,
+          title: data.title,
+        };
+      }
+      if (addedQuestions !== questions) {
+        updates = { ...updates, examQuestions: getExamQuestionsFromAdded() };
+      }
+    }
+    return updates;
+  };
+
   const createExam = useMutation({
     mutationFn: ({ exam }: { exam: IExamBase }) =>
       window.electron.exam.createExam(exam),
     onSuccess: () => {
-      toast.success("Exam is Created Successfully", {
+      toast.success("Exam Created Successfully", {
         position: "top-center",
         style: {
           justifyContent: "center",
@@ -89,18 +147,56 @@ const ExamForm = ({ _formType, exam }: IProps) => {
     },
   });
 
+  const updateExam = useMutation({
+    mutationFn: ({
+      examId,
+      updates,
+    }: {
+      examId: number;
+      updates: Partial<IExamBase>;
+    }) => window.electron.exam.updateExam(examId, updates),
+    onSuccess: (data) => {
+      toast.success("Exam Updated Successfully", {
+        position: "top-center",
+        style: {
+          justifyContent: "center",
+          color: "green",
+          fontSize: "16px",
+        },
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["questions", "findByExam", exam?._id],
+      });
+      navigate(`/exams/${exam?._id}`, { state: { exam: data } });
+    },
+    onError: () => {
+      toast.error("An Error Occurred While Updating The Exam! ", {
+        position: "top-center",
+        style: {
+          justifyContent: "center",
+          color: "crimson",
+          fontSize: "16px",
+        },
+      });
+    },
+  });
+
+  //todo:on edit form compare with exam to know updates
   const onSubmit = (data: ExamFormValues) => {
-    const examQuestions = addedQuestions.map((question, idx) => {
-      return { questionId: question._id, position: idx };
-    });
-    const payload: IExamBase = {
-      ...data,
-      examQuestions: examQuestions,
-      type: examType,
-      status: "final",
-    };
-    createExam.mutate({ exam: payload });
-    console.log(payload);
+    if (formType === "create") {
+      const examQuestions = getExamQuestionsFromAdded();
+      const payload: IExamBase = {
+        ...data,
+        examQuestions: examQuestions,
+        type: examType,
+        status: "final",
+      };
+      createExam.mutate({ exam: payload });
+    }
+    if (formType === "edit" && exam) {
+      const updates = getUpdates(data);
+      updateExam.mutate({ examId: exam?._id, updates: updates });
+    }
   };
 
   return (
@@ -114,6 +210,7 @@ const ExamForm = ({ _formType, exam }: IProps) => {
             <div className="flex w-full justify-end">
               <div className="flex flex-col gap-y-1">
                 <NumberSelectorInput
+                  defaultValue={exam ? exam.totalNumberOfQuestions : undefined}
                   label="Number of Questions"
                   name="totalQuestions"
                   onValueChange={(value) =>
@@ -168,7 +265,7 @@ const ExamForm = ({ _formType, exam }: IProps) => {
                   setAddedQuestions={setAddedQuestions}
                 />
                 <ExamAddFromBankModal
-                  examType={examType}
+                  examType={exam ? exam.type : examType}
                   addedQuestions={addedQuestions}
                   setAddedQuestions={setAddedQuestions}
                 />
@@ -193,8 +290,13 @@ const ExamForm = ({ _formType, exam }: IProps) => {
             })}
           </div>
 
-          <div className="w-full flex justify-center">
-            <Button className="w-fit">Submit</Button>
+          <div className="w-full flex justify-between">
+            <Button type="button" variant={"outline"}>
+              Save Draft
+            </Button>
+            <Button className="w-fit">
+              {formType === "create" ? "Submit" : "Save Changes"}
+            </Button>
           </div>
         </div>
       </form>
