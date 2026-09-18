@@ -18,11 +18,7 @@ interface IProps {
 
 //todo: all fetch statements in redux and components select values
 
-const ExamAddFromBankModal = ({
-  addedQuestions,
-  setAddedQuestions,
-  examType,
-}: IProps) => {
+const ExamAddFromBankModal = ({ setAddedQuestions, examType }: IProps) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedQuestions, setSelectedQuestions] = useState<IQuestions[]>([]);
@@ -37,7 +33,6 @@ const ExamAddFromBankModal = ({
     queryKey: ["questions", "filtered"],
     queryFn: () => window.electron.question.filterQuestions(examType),
   });
-  console.log(examType);
   const { data: categories } = useFetch({
     queryKey: ["categories", "findAllDetails"],
     queryFn: () => window.electron.category.findAllCategoriesDetails(),
@@ -75,13 +70,16 @@ const ExamAddFromBankModal = ({
 
   const onAddFromBankSubmit = () => {
     setOpen(false);
-    onClose();
-    selectedQuestions.map((question) => {
-      if (addedQuestions.includes(question)) return;
-      else {
-        setAddedQuestions((prev) => [...prev, question]);
-      }
+    setAddedQuestions((prev) => {
+      const existingIds = new Set(prev.map((question) => question._id));
+
+      const newQuestions = selectedQuestions.filter(
+        (question) => !existingIds.has(question._id),
+      );
+      return [...prev, ...newQuestions];
     });
+
+    onClose();
   };
 
   const renderSubFilters = () => {
@@ -119,7 +117,7 @@ const ExamAddFromBankModal = ({
       return (
         <div
           key={idx}
-          className={`rounded-md ${isSelected ? "border-2 border-primary" : ""}`}
+          className={`rounded-md h-fit ${isSelected ? "border-2 border-primary" : ""}`}
         >
           <QuestionCard
             idx={idx}

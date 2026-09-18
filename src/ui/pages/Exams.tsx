@@ -22,21 +22,35 @@ const Exams = () => {
     queryKey: ["exam", "getAll"],
     queryFn: () => window.electron.exam.findAllExams(),
   });
-  console.log(exams);
+
   const renderExams = exams?.map((exam) => {
     return (
       <div
-        className="flex flex-col w-full bg-card cursor-pointer px-5 py-3 rounded-md shadow hover:shadow-lg gap-y-2"
+        key={exam._id}
+        className=" w-full bg-card cursor-pointer px-5 py-3 rounded-md shadow hover:shadow-lg "
         onClick={() => {
           navigate(`/exams/${exam._id}`, { state: { exam: exam } });
         }}
       >
-        <span className="capitalize font-bold text-lg">[{exam.type} Exam]</span>
-        <div className="flex items-center">
-          <span className="font-bold text-xl ">{exam.title}: </span>
-          <span className="font-bold text-xl pl-1">
-            {exam.createdAt.split(" ")[0]}
-          </span>
+        <div className="flex w-full items-center justify-between">
+          <div className="flex flex-col w-full gap-y-1">
+            <span className={`font-bold text-lg capitalize`}>
+              [{exam.type === "essay" ? exam.type : exam.type.toUpperCase()}{" "}
+              Exam]
+            </span>
+
+            <span className="font-bold text-xl tracking-tight">
+              {exam.title}{" "}
+            </span>
+            <span className="font-semibold text-base text-muted/60">
+              Created: {exam.createdAt.split(" ")[0]}
+            </span>
+          </div>
+          {exam.status === "draft" && (
+            <span className="capitalize font-bold text-xl text-muted">
+              [{exam.status}]
+            </span>
+          )}
         </div>
       </div>
     );
@@ -55,7 +69,7 @@ const Exams = () => {
           <HoverCardContent side={"bottom"}>
             <div className="flex flex-col gap-1">
               <span
-                className="font-semibold text-[16px] text-primary hover:bg-primary/10 px-3 py-2 rounded-md cursor-pointer"
+                className="font-bold text-[16px] text-primary hover:bg-primary/10 px-3 py-2 rounded-md cursor-pointer"
                 onClick={() =>
                   navigate("/exams/form/mcq", { state: { formType: "create" } })
                 }
@@ -63,7 +77,7 @@ const Exams = () => {
                 MCQ Exam
               </span>
               <span
-                className="font-semibold text-[16px] text-primary hover:bg-primary/10 px-3 py-2 rounded-md cursor-pointer"
+                className="font-bold text-[16px] text-primary hover:bg-primary/10 px-3 py-2 rounded-md cursor-pointer"
                 onClick={() =>
                   navigate("/exams/form/essay", {
                     state: { formType: "create" },

@@ -58,7 +58,9 @@ const ExamForm = () => {
   const {
     setValue,
     register,
+    reset,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm<ExamFormValues>({
     resolver: yupResolver(examSchema),
@@ -93,7 +95,7 @@ const ExamForm = () => {
     });
   };
 
-  const getUpdates = (data: ExamFormValues) => {
+  const getUpdates = (data: Partial<IExamBase>) => {
     let updates: Partial<IExamBase> = {};
     if (exam) {
       if (data.numberOfQuestionsAdded !== exam.numberOfQuestionsAdded) {
@@ -112,6 +114,12 @@ const ExamForm = () => {
         updates = {
           ...updates,
           title: data.title,
+        };
+      }
+      if (data.status !== exam.status) {
+        updates = {
+          ...updates,
+          status: data.status,
         };
       }
       if (addedQuestions !== questions) {
@@ -181,7 +189,6 @@ const ExamForm = () => {
     },
   });
 
-  //todo:on edit form compare with exam to know updates
   const onSubmit = (data: ExamFormValues) => {
     if (formType === "create") {
       const examQuestions = getExamQuestionsFromAdded();
@@ -195,6 +202,38 @@ const ExamForm = () => {
     }
     if (formType === "edit" && exam) {
       const updates = getUpdates(data);
+      updateExam.mutate({
+        examId: exam?._id,
+        updates: { ...updates, status: "final" },
+      });
+    }
+  };
+
+  const saveDraft = () => {
+    const draft: IExamBase = {
+      title: getValues("title"),
+      numberOfQuestionsAdded: getValues("numberOfQuestionsAdded") ?? 0,
+      totalNumberOfQuestions: getValues("totalNumberOfQuestions") ?? 0,
+      status: "draft",
+      type: examType,
+      examQuestions: getExamQuestionsFromAdded(),
+    };
+    if (!draft.title) {
+      toast.error("You Must Enter Exam Title", {
+        position: "top-center",
+        style: {
+          justifyContent: "center",
+          color: "crimson",
+          fontSize: "16px",
+        },
+      });
+      return;
+    }
+    if (formType === "create") {
+      createExam.mutate({ exam: draft });
+    }
+    if (formType === "edit" && exam) {
+      const updates = getUpdates(draft);
       updateExam.mutate({ examId: exam?._id, updates: updates });
     }
   };
@@ -206,7 +245,7 @@ const ExamForm = () => {
       </h1>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="w-full flex flex-col gap-5 ">
-          <div className="flex flex-col gap-y-3 w-full sticky top-0 bg-popover py-2 z-10">
+          <div className="flex flex-col gap-y-3 w-full sticky top-0 bg-popover  py-2 z-10 ">
             <div className="flex w-full justify-end">
               <div className="flex flex-col gap-y-1">
                 <NumberSelectorInput
@@ -273,7 +312,7 @@ const ExamForm = () => {
             </div>
           </div>
 
-          <div className="flex flex-col ">
+          <div className="flex flex-col gap-5">
             {addedQuestions.map((question, idx) => {
               return (
                 <QuestionCard
@@ -290,9 +329,25 @@ const ExamForm = () => {
             })}
           </div>
 
-          <div className="w-full flex justify-between">
-            <Button type="button" variant={"outline"}>
+          <div className="w-full flex justify-between items-center">
+            <Button
+              type="button"
+              variant={"secondary"}
+              onClick={() => saveDraft()}
+            >
               Save Draft
+            </Button>
+            <Button
+              type="button"
+              variant={"ghost"}
+              onClick={() => {
+                reset();
+                setTotalQuestions(0);
+                setAddedQuestions([]);
+                navigate(-1);
+              }}
+            >
+              Cancel
             </Button>
             <Button className="w-fit">
               {formType === "create" ? "Submit" : "Save Changes"}

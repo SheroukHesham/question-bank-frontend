@@ -16,10 +16,15 @@ const ExamDetails = () => {
   });
 
   const renderQuestions = questions?.map((question, idx) => {
-    return <QuestionCard idx={idx} editable={false} question={question} />;
+    return (
+      <QuestionCard
+        key={question._id}
+        idx={idx}
+        editable={false}
+        question={question}
+      />
+    );
   });
-
-  console.log(exam);
 
   return (
     <div className="flex flex-col gap-5 w-full p-10">
@@ -39,15 +44,16 @@ const ExamDetails = () => {
         <div className="flex w-full justify-between">
           <div className="flex flex-col gap-1">
             <h1 className="text-4xl font-semibold  capitalize">
-              [{exam.type} Exam]
+              [{exam.type === "essay" ? exam.type : exam.type.toUpperCase()}{" "}
+              Exam]
             </h1>
 
-            <h1 className="text-4xl font-bold ">
+            <h1 className="text-4xl font-bold tracking-tight">
               {exam.title}: {exam.createdAt}
             </h1>
           </div>
           {exam.status === "draft" && (
-            <h1 className="text-4xl font-semibold capitalize text-muted/60">
+            <h1 className="text-4xl font-semibold capitalize text-muted">
               [{exam.status}]
             </h1>
           )}
@@ -62,7 +68,7 @@ const ExamDetails = () => {
           {exam.numberOfQuestionsAdded}/{exam.totalNumberOfQuestions}
         </span>
       </div>
-      <div>{renderQuestions}</div>
+      <div>{questions && renderQuestions}</div>
     </div>
   );
 };

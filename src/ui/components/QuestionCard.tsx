@@ -70,7 +70,7 @@ const QuestionCard = ({
         (choice) => !choice.isCorrect,
       );
       return (
-        <div className="flex flex-col gap-y-4">
+        <div className="flex flex-col gap-y-4 mt-5">
           <div className="rounded-md flex flex-col gap-3 p-3 border transition-colors border-primary/40 bg-primary/5">
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center size-8 rounded-full shrink-0 bg-primary text-primary-foreground">
@@ -115,7 +115,7 @@ const QuestionCard = ({
   };
   return (
     <div
-      className="flex flex-col gap-y-7 bg-card text-card-foreground p-5 rounded-md max-h-full mb-5 shadow"
+      className="flex flex-col gap-y-7 bg-card text-card-foreground p-5 rounded-md   shadow "
       onClick={() => {
         if (onClick) onClick();
       }}

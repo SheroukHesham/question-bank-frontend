@@ -160,13 +160,24 @@ const EditCategoryForm = ({ category, subcategories, setEditMode }: IProps) => {
   return (
     <div className="w-full">
       <div className="w-full flex justify-end mb-5">
-        <Button
-          onClick={() => {
-            setEditMode(false);
-          }}
-        >
-          Done
-        </Button>
+        <div className="flex items-center gap-5">
+          <Button
+            variant={"secondary"}
+            onClick={() => {
+              setEditMode(false);
+              reset();
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              setEditMode(false);
+            }}
+          >
+            Done
+          </Button>
+        </div>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="w-full mb-10 ">
         <div className="flex w-full justify-between">

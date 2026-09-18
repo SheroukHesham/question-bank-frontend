@@ -71,7 +71,7 @@ const CategoryQuestions = () => {
   const renderQuestions = () => {
     return (
       <div
-        className="relative w-full "
+        className="relative w-full flex flex-col gap-5"
         style={{
           height: `${rowVirtualizer.getTotalSize()}px`,
         }}
@@ -89,7 +89,9 @@ const CategoryQuestions = () => {
                 transform: `translateY(${virtualItem.start}px)`,
               }}
             >
-              <QuestionCard idx={virtualItem.index} question={question} />
+              <div className="mb-5">
+                <QuestionCard idx={virtualItem.index} question={question} />
+              </div>
             </div>
           );
         })}
@@ -218,7 +220,7 @@ const CategoryQuestions = () => {
 
           <div
             ref={parentRef}
-            className="w-full flex flex-col mt-5 h-[calc(100vh-250px)] overflow-y-auto scrollbar-none"
+            className="w-full flex flex-col mt-5 h-[calc(100vh-250px)] overflow-y-auto scrollbar-none gap-5"
           >
             {renderQuestions()}
           </div>
