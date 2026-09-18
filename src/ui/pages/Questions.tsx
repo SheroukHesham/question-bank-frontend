@@ -40,7 +40,7 @@ const Questions = () => {
       <div className="w-full flex justify-end mt-2">
         <QuestionForm />
       </div>
-      <div className="w-full p-3 grid grid-cols-3 gap-5 mt-5 bg-white rounded-md">
+      <div className="w-full p-3 grid grid-cols-3 gap-5 mt-5 bg-white rounded-md shadow">
         <div className="border-2 border-border rounded-md px-5 py-3 sm:flex sm:flex-col sm:justify-center  md:flex-row    items-center gap-3">
           <span className="text-primary ">
             <CircleQuestionMark size={45} />

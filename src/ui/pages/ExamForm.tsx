@@ -133,6 +133,7 @@ const ExamForm = () => {
     mutationFn: ({ exam }: { exam: IExamBase }) =>
       window.electron.exam.createExam(exam),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["exam", "getAll"] });
       toast.success("Exam Created Successfully", {
         position: "top-center",
         style: {
@@ -175,6 +176,7 @@ const ExamForm = () => {
       queryClient.invalidateQueries({
         queryKey: ["questions", "findByExam", exam?._id],
       });
+      queryClient.invalidateQueries({ queryKey: ["exam", "getAll"] });
       navigate(`/exams/${exam?._id}`, { state: { exam: data } });
     },
     onError: () => {

@@ -68,7 +68,7 @@ const ExamDetails = () => {
           {exam.numberOfQuestionsAdded}/{exam.totalNumberOfQuestions}
         </span>
       </div>
-      <div>{questions && renderQuestions}</div>
+      <div className="flex flex-col gap-5">{questions && renderQuestions}</div>
     </div>
   );
 };

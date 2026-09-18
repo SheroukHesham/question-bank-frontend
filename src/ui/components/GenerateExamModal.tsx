@@ -18,6 +18,7 @@ import { useFetch } from "../hooks/custom";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { unwrapIpcResult } from "../lib/utils";
+import ExamCard from "./ExamCard";
 
 interface IRawCriteria {
   _id: string;
@@ -51,7 +52,9 @@ const GenerateExamModal = ({
   setAddedQuestions,
 }: IProps) => {
   const [open, setOpen] = useState(false);
+  const [openExcludeModal, setOpenExcludeModal] = useState(false);
   const [criteria, setCriteria] = useState<IRawCriteria[]>([]);
+  const [excludeExamIds, setExcludedExamIds] = useState<number[]>([]);
 
   const {
     setValue,
@@ -69,6 +72,11 @@ const GenerateExamModal = ({
   const { data: subcategories } = useFetch({
     queryKey: ["subcategories", "findAllDetails"],
     queryFn: () => window.electron.subcategory.findAllSubcategories(),
+  });
+
+  const { data: exams } = useFetch({
+    queryKey: ["exam", "getAll"],
+    queryFn: () => window.electron.exam.findAllExams(),
   });
 
   const onValueChange = (
@@ -131,10 +139,10 @@ const GenerateExamModal = ({
         subcategoryId: Number(item.subcategoryId),
       };
     });
-    generateExamQuestions.mutate({ criteria: payload, excludeExamIds: [] });
-    //todo: send to api to generate questions
-
-    //todo:add generated questions to addedQuestions (add setter to props)
+    generateExamQuestions.mutate({
+      criteria: payload,
+      excludeExamIds: excludeExamIds,
+    });
   };
 
   const renderSubFilters = (categoryId: string | undefined) => {
@@ -265,6 +273,33 @@ const GenerateExamModal = ({
     );
   });
 
+  console.log(excludeExamIds);
+
+  const toggleExcluded = (examId: number) => {
+    if (excludeExamIds?.includes(examId)) {
+      const filtered = excludeExamIds.filter((item) => item !== examId);
+      setExcludedExamIds(filtered);
+    } else {
+      setExcludedExamIds((prev) => [...prev, examId]);
+    }
+  };
+
+  const renderExams = exams?.map((exam) => {
+    return (
+      <div
+        key={exam._id}
+        className={`rounded-lg ${excludeExamIds.includes(exam._id) ? "border-2 border-primary" : ""}`}
+      >
+        <ExamCard
+          exam={exam}
+          onClick={() => {
+            toggleExcluded(exam._id);
+          }}
+        />
+      </div>
+    );
+  });
+
   return (
     <Modal
       title="Generate Exam Questions"
@@ -279,16 +314,37 @@ const GenerateExamModal = ({
         setCriteria([]);
       }}
     >
-      <div>
-        <span className="text-muted/70 font-semibold mr-2 items-center ">
-          Questions Added:
-        </span>
-        <span
-          className={`font-bold ${addedQuestions.length > totalQuestions ? "text-destructive" : ""}`}
+      <div className="w-full flex items-center justify-between">
+        <div>
+          <span className="text-muted/70 font-semibold mr-2 items-center ">
+            Questions Added:
+          </span>
+          <span
+            className={`font-bold ${addedQuestions.length > totalQuestions ? "text-destructive" : ""}`}
+          >
+            {addedQuestions.length}
+          </span>
+          <span className="font-semibold">/{totalQuestions}</span>
+        </div>
+        <Modal
+          title="Exclude Questions From Exams"
+          triggerText={"Exclude Questions From Exams"}
+          open={openExcludeModal}
+          setOpen={setOpenExcludeModal}
+          saveButton={false}
+          onCancel={() => setExcludedExamIds([])}
         >
-          {addedQuestions.length}
-        </span>
-        <span className="font-semibold">/{totalQuestions}</span>
+          {renderExams}
+          <Button
+            type="button"
+            className="w-fit"
+            onClick={() => {
+              setOpenExcludeModal(false);
+            }}
+          >
+            Done
+          </Button>
+        </Modal>
       </div>
 
       <div className="mt-5">
