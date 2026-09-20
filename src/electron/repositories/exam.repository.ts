@@ -57,7 +57,7 @@ export class ExamRepository {
       .prepare<
         unknown[],
         ExamRow
-      >("SELECT _id, title, status,type, total_number_of_questions AS totalNumberOfQuestions, number_of_questions_added AS numberOfQuestionsAdded, strftime('%d/%m/%Y', created_at) AS createdAt, strftime('%d/%m/%Y', updated_at) AS updatedAt FROM exams ")
+      >("SELECT _id, title, status,type, total_number_of_questions AS totalNumberOfQuestions, number_of_questions_added AS numberOfQuestionsAdded, strftime('%d/%m/%Y', created_at) AS createdAt, strftime('%d/%m/%Y', updated_at) AS updatedAt FROM exams ORDER BY created_at DESC")
       .all();
 
     const exams: IExam[] = [];

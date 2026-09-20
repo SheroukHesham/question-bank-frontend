@@ -21,6 +21,7 @@ import { Trash2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useFetch } from "../hooks/custom";
+import { Alert } from "../components/Alert";
 
 interface IState {
   formType: "edit" | "create";
@@ -191,6 +192,36 @@ const ExamForm = () => {
     },
   });
 
+  const deleteExam = useMutation({
+    mutationFn: ({ examId }: { examId: number }) =>
+      window.electron.exam.deleteExam(examId),
+    onSuccess: () => {
+      toast.success("Exam Deleted Successfully", {
+        position: "top-center",
+        style: {
+          justifyContent: "center",
+          color: "green",
+          fontSize: "16px",
+        },
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["questions", "findByExam", exam?._id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["exam", "getAll"] });
+      navigate(`/exams`);
+    },
+    onError: () => {
+      toast.error("An Error Occurred While Deleting The Exam! ", {
+        position: "top-center",
+        style: {
+          justifyContent: "center",
+          color: "crimson",
+          fontSize: "16px",
+        },
+      });
+    },
+  });
+
   const onSubmit = (data: ExamFormValues) => {
     if (formType === "create") {
       const examQuestions = getExamQuestionsFromAdded();
@@ -242,9 +273,23 @@ const ExamForm = () => {
 
   return (
     <div className="w-full p-10 ">
-      <h1 className="text-4xl font-semibold capitalize ">
-        {examType === "essay" ? examType : examType?.toUpperCase()} Exam
-      </h1>
+      <div className="w-full flex items-center justify-between">
+        <h1 className="text-4xl font-semibold capitalize ">
+          {examType === "essay" ? examType : examType?.toUpperCase()} Exam
+        </h1>
+        {formType === "edit" && exam && (
+          <Alert
+            title="Delete Exam?"
+            description={`Are you sure you want to delete this exam? \n Deleting this exam will permanently remove it from the system.`}
+            submitText="Delete Exam"
+            buttonChildren={"Delete Exam"}
+            variant="destructive"
+            onSubmit={() => {
+              deleteExam.mutate({ examId: exam?._id });
+            }}
+          />
+        )}
+      </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="w-full flex flex-col gap-5 ">
           <div className="flex flex-col gap-y-3 w-full sticky top-0 bg-popover  py-2 z-10 ">

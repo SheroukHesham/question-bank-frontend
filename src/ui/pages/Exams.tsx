@@ -6,15 +6,25 @@ import {
 } from "@/ui/components/ui/hover-card";
 import { changeActiveTab } from "@/ui/features/activeTabSlice";
 import { Plus } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useFetch } from "../hooks/custom";
 import ExamCard from "../components/ExamCard";
+import type { TQuestionTypeFilter } from "../types";
+import { SingleSelect } from "../components/SingleSelect";
+import { SelectItem } from "../components/ui/select";
+
+type TExamStatusFilter = "all" | "final" | "draft";
 
 const Exams = () => {
+  const [typeFilter, setTypeFilter] = useState<TQuestionTypeFilter>("all");
+  const [examStatusFilter, setExamStatusFilter] =
+    useState<TExamStatusFilter>("all");
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   useEffect(() => {
     dispatch(changeActiveTab("exams"));
   }, [dispatch]);
@@ -24,7 +34,17 @@ const Exams = () => {
     queryFn: () => window.electron.exam.findAllExams(),
   });
 
-  const renderExams = exams?.map((exam) => {
+  const filteredExams = useMemo(() => {
+    return exams?.filter((exam) => {
+      const matchesType = typeFilter === "all" || exam.type === typeFilter;
+      const matchesStatus =
+        examStatusFilter === "all" || exam.status === examStatusFilter;
+
+      return matchesStatus && matchesType;
+    });
+  }, [exams, typeFilter, examStatusFilter]);
+
+  const renderExams = filteredExams?.map((exam) => {
     return (
       <ExamCard
         key={exam._id}
@@ -70,6 +90,29 @@ const Exams = () => {
           </HoverCardContent>
         </HoverCard>
       </div>
+
+      <div className=" flex w-full  mt-3">
+        <SingleSelect
+          placeholder="Exam Type"
+          onValueChange={(value) => setTypeFilter(value as TQuestionTypeFilter)}
+        >
+          <SelectItem value="all">All</SelectItem>
+          <SelectItem value="mcq">MCQ</SelectItem>
+          <SelectItem value="essay">Essay</SelectItem>
+        </SingleSelect>
+
+        <SingleSelect
+          placeholder="Exam Status"
+          onValueChange={(value) =>
+            setExamStatusFilter(value as TExamStatusFilter)
+          }
+        >
+          <SelectItem value="all">All</SelectItem>
+          <SelectItem value="final">Final</SelectItem>
+          <SelectItem value="draft">Draft</SelectItem>
+        </SingleSelect>
+      </div>
+
       <div className="flex flex-col w-full mt-10 gap-5">{renderExams}</div>
     </div>
   );
