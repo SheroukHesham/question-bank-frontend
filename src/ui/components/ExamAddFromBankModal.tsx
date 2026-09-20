@@ -1,22 +1,27 @@
-import { Plus, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Modal } from "./Modal";
 import { Button } from "./ui/button";
 import type { IQuestions } from "@/shared/interfaces";
-import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
+import {
+  useMemo,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import QuestionCard from "./QuestionCard";
 import type { TQuestionDifficulty, TQuestionTypes } from "@/shared/types";
 import { SingleSelect } from "./SingleSelect";
 import { SelectItem } from "./ui/select";
 import { useFetch } from "../hooks/custom";
-import { Input } from "./ui/input";
+import ReusableSearch from "./ReusableSearch";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 interface IProps {
   examType: TQuestionTypes;
   addedQuestions: IQuestions[];
   setAddedQuestions: Dispatch<SetStateAction<IQuestions[]>>;
 }
-
-//todo: all fetch statements in redux and components select values
 
 const ExamAddFromBankModal = ({ setAddedQuestions, examType }: IProps) => {
   const [open, setOpen] = useState(false);
@@ -28,6 +33,7 @@ const ExamAddFromBankModal = ({ setAddedQuestions, examType }: IProps) => {
     string | null
   >(null);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const parentRef = useRef<HTMLDivElement>(null);
 
   const { data: questions } = useFetch({
     queryKey: ["questions", "filtered"],
@@ -43,17 +49,29 @@ const ExamAddFromBankModal = ({ setAddedQuestions, examType }: IProps) => {
   });
 
   const filteredQuestions = useMemo(() => {
-    return (questions ?? []).filter((item) => {
-      const matchesDifficulty =
-        difficultyFilter === null || item.difficulty === difficultyFilter;
-      const matchesSpecialization =
-        !specializationFilter ||
-        item.subcategoryId.toString() === specializationFilter;
-      const matchesCategory =
-        !categoryFilter || item.categoryId.toString() === categoryFilter;
-      return matchesDifficulty && matchesSpecialization && matchesCategory;
-    });
-  }, [questions, difficultyFilter, specializationFilter, categoryFilter]);
+    if (search === "") {
+      return (questions ?? []).filter((item) => {
+        const matchesDifficulty =
+          difficultyFilter === null || item.difficulty === difficultyFilter;
+        const matchesSpecialization =
+          !specializationFilter ||
+          item.subcategoryId.toString() === specializationFilter;
+        const matchesCategory =
+          !categoryFilter || item.categoryId.toString() === categoryFilter;
+        return matchesDifficulty && matchesSpecialization && matchesCategory;
+      });
+    } else {
+      return (questions ?? []).filter((question) =>
+        question.header.toLowerCase().includes(search.toLowerCase()),
+      );
+    }
+  }, [
+    questions,
+    difficultyFilter,
+    specializationFilter,
+    categoryFilter,
+    search,
+  ]);
 
   const toggleSelected = (question: IQuestions) => {
     if (selectedQuestions.includes(question)) {
@@ -106,29 +124,57 @@ const ExamAddFromBankModal = ({ setAddedQuestions, examType }: IProps) => {
     }
   };
 
-  const renderQuestions = filteredQuestions
-    ?.filter((question) => {
-      return search === ""
-        ? question
-        : question.header.toLowerCase().includes(search.toLowerCase());
-    })
-    .map((question, idx) => {
-      const isSelected = selectedQuestions.includes(question);
-      return (
-        <div
-          key={idx}
-          className={`rounded-md h-fit ${isSelected ? "border-2 border-primary" : ""}`}
-        >
-          <QuestionCard
-            idx={idx}
-            question={question}
-            editable={false}
-            size="sm"
-            onClick={() => toggleSelected(question)}
-          />
-        </div>
-      );
-    });
+  //todo:fix questions appear on rerender and grid layout
+  const rowVirtualizer = useVirtualizer({
+    count: filteredQuestions.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 200,
+    overscan: 5,
+    getItemKey: (index) => filteredQuestions[index]._id,
+    measureElement:
+      typeof window !== "undefined"
+        ? (element) => element.getBoundingClientRect().height
+        : undefined,
+  });
+
+  const renderQuestions = () => {
+    return (
+      <div
+        className="relative w-full flex flex-col gap-5"
+        style={{
+          height: `${rowVirtualizer.getTotalSize()}px`,
+        }}
+      >
+        {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+          const question = filteredQuestions[virtualItem.index];
+          return (
+            <div
+              key={question._id}
+              ref={rowVirtualizer.measureElement}
+              data-index={virtualItem.index}
+              className="absolute top-0 left-0 w-full "
+              style={{
+                transform: `translateY(${virtualItem.start}px)`,
+              }}
+            >
+              <div
+                key={question._id}
+                className={`rounded-md h-fit mb-5 ${selectedQuestions.includes(question) ? "border-2 border-primary" : ""}`}
+              >
+                <QuestionCard
+                  idx={virtualItem.index}
+                  question={question}
+                  editable={false}
+                  size="sm"
+                  onClick={() => toggleSelected(question)}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <Modal
@@ -155,20 +201,11 @@ const ExamAddFromBankModal = ({ setAddedQuestions, examType }: IProps) => {
         </div>
       </div>
 
-      <div className="max-w-3xl flex items-center border-popover-border rounded-lg bg-white shadow-lg in-focus:shadow">
-        <Input
-          className="bg-transparent border-none shadow-none focus-visible:shadow-none"
-          autoFocus={false!}
-          placeholder="Search Question Bank"
-          value={search}
-          onChange={({ target }) => {
-            setSearch(target.value);
-          }}
-        />
-        <div className="pr-3">
-          <Search color="gray" />
-        </div>
-      </div>
+      <ReusableSearch
+        placeholder="Search Question Bank"
+        search={search}
+        setSearch={setSearch}
+      />
 
       <div className="w-full flex md:flex-row flex-col gap-y-2">
         <SingleSelect
@@ -215,8 +252,11 @@ const ExamAddFromBankModal = ({ setAddedQuestions, examType }: IProps) => {
         </SingleSelect>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {renderQuestions}
+      <div
+        ref={parentRef}
+        className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-[calc(100vh-250px)] overflow-y-auto scrollbar-none"
+      >
+        {renderQuestions()}
       </div>
     </Modal>
   );

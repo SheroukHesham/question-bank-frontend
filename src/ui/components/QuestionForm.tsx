@@ -49,6 +49,7 @@ const QuestionForm = ({
 }: IProps) => {
   const [mcq, setMcq] = useState(true);
   const [open, setOpen] = useState(false);
+  const [imageChanged, setImageChanged] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     type === "edit" && questionToEdit?.headerImageUrl
       ? (getQuestionImageSrc(questionToEdit.headerImageUrl) as string)
@@ -73,6 +74,12 @@ const QuestionForm = ({
           : defaultEssayFormValues
         : questionToEdit,
   });
+
+  useEffect(() => {
+    if (type === "edit" && questionToEdit && questionToEdit.headerImageUrl) {
+      setValue("headerImageFile", questionToEdit.headerImageUrl);
+    }
+  }, [type, questionToEdit, setValue]);
 
   useEffect(() => {
     if (defaultCategory) {
@@ -111,7 +118,7 @@ const QuestionForm = ({
     }
   };
 
-  const onSuccess = () => {
+  const onSuccess = (data: IQuestions) => {
     queryClient.invalidateQueries({
       queryKey: ["categories", "findAllDetails"],
     });
@@ -121,47 +128,56 @@ const QuestionForm = ({
     queryClient.invalidateQueries({
       queryKey: ["questions", "byCategory"],
     });
+    if (setQuestionToEdit) setQuestionToEdit(data);
+    if (type === "create") reset();
     setOpen(false);
-    reset();
+    setImageChanged(false);
   };
 
   const addMcq = useMutation({
     mutationKey: ["question", "createMcq"],
     mutationFn: (payload: ICreateMcqQuestion) =>
       window.electron.question.createMcq(payload),
-    onSuccess: () => {
-      onSuccess();
+    onSuccess: (data: IMcqQuestion) => {
+      onSuccess(data);
     },
   });
   const addEssay = useMutation({
     mutationKey: ["question", "createEssay"],
     mutationFn: (payload: ICreateEssayQuestion) =>
       window.electron.question.createEssay(payload),
-    onSuccess: () => {
-      onSuccess();
+    onSuccess: (data: IEssayQuestion) => {
+      onSuccess(data);
     },
   });
   const updateMcq = useMutation({
     mutationKey: ["question", "updateMcq"],
     mutationFn: (payload: IMcqQuestion) =>
       window.electron.question.updateMcq(payload),
-    onSuccess: () => {
-      onSuccess();
+    onSuccess: (data: IMcqQuestion) => {
+      onSuccess(data);
     },
   });
   const updateEssay = useMutation({
     mutationKey: ["question", "updateEssay"],
     mutationFn: (payload: IEssayQuestion) =>
       window.electron.question.updateEssay(payload),
-    onSuccess: () => {
-      onSuccess();
+    onSuccess: (data: IEssayQuestion) => {
+      onSuccess(data);
+    },
+    onError: (e) => {
+      console.log("Error:", e);
     },
   });
 
   const onSubmit = (data: QuestionFormValues) => {
-    const imageSourcePath = data.headerImageFile
-      ? window.electron.image.getPathForFile(data.headerImageFile)
-      : undefined;
+    const imageSourcePath = imageChanged
+      ? data.headerImageFile
+        ? window.electron.image.getPathForFile(data.headerImageFile)
+        : undefined
+      : questionToEdit?.headerImageUrl;
+
+    console.log(imageChanged);
 
     const payload: IQuestions =
       data.type === "essay"
@@ -187,8 +203,6 @@ const QuestionForm = ({
     } else {
       updateEssay.mutate(payload as IEssayQuestion);
     }
-
-    if (setQuestionToEdit) setQuestionToEdit(payload);
   };
 
   const renderAnswerFrom = (type: TQuestionTypes) => {
@@ -380,6 +394,7 @@ const QuestionForm = ({
             <ImageUpload
               previewURL={previewUrl}
               onFileSelected={(file) => {
+                setImageChanged(true);
                 setValue("headerImageFile", file);
                 setPreviewUrl(URL.createObjectURL(file));
               }}

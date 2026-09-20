@@ -32,6 +32,7 @@ const QuestionCard = ({
 }: IProps) => {
   const { header, difficulty, subcategoryId } = question;
   const [questionToEdit, setQuestionToEdit] = useState(question);
+  const [expanded, setExpanded] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: subcategory } = useFetch({
@@ -107,34 +108,50 @@ const QuestionCard = ({
       );
     } else {
       return (
-        <span className="font-semibold line-clamp-3 first-letter:uppercase">
+        <p
+          aria-expanded={expanded}
+          className="font-semibold line-clamp-3 text-justify first-letter:uppercase aria-expanded:line-clamp-none"
+        >
           {question.modelAnswer}
-        </span>
+        </p>
       );
     }
   };
   return (
     <div
-      className="flex flex-col gap-y-7 bg-card text-card-foreground p-5 rounded-md   shadow "
+      className="flex flex-col gap-y-7 bg-card text-card-foreground p-5 rounded-md shadow h-fit"
       onClick={() => {
-        if (onClick) onClick();
+        if (onClick) {
+          onClick();
+          return;
+        }
+        setExpanded((prev) => !prev);
       }}
     >
-      <div className="flex w-full justify-between">
-        <div className="flex w-full justify-between">
-          <div className="flex w-full gap-3 items-center">
-            <div className="size-8 text-xl text-center flex items-center justify-center rounded-md bg-muted/10 font-semibold text-card-foreground pb-0.5">
-              {idx + 1}
-            </div>
-            <span className="text-xl font-semibold text-card-foreground h-8 first-letter:uppercase">
-              {header}
-            </span>
-          </div>
-          <span
-            className={`text-lg rounded-full  font-semibold flex items-center justify-center px-5 py-2  mr-2 capitalize ${difficulty === "difficult" ? "bg-destructive/10 text-destructive" : difficulty === "moderate" ? "bg-warning/10 text-warning-foreground" : "bg-success/10 text-success-foreground"}`}
+      <div className="flex flex-col gap-1">
+        <div className="w-full flex justify-end">
+          <div
+            className={`text-lg rounded-full h-fit w-fit font-semibold flex items-center justify-center px-5 py-2  mr-2 capitalize ${difficulty === "difficult" ? "bg-destructive/10 text-destructive" : difficulty === "moderate" ? "bg-warning/10 text-warning-foreground" : "bg-success/10 text-success-foreground"}`}
           >
             {difficulty}
-          </span>
+          </div>
+        </div>
+        <div className="flex w-full ">
+          <div className="flex w-full ">
+            <div className="flex w-full gap-3 items-center">
+              <div className="h-full flex items-start">
+                <div className="size-8  text-xl text-center flex items-center justify-center rounded-md bg-muted/10 font-semibold text-card-foreground pb-0.5">
+                  {idx + 1}
+                </div>
+              </div>
+              <span
+                aria-expanded={expanded}
+                className="text-xl font-semibold text-card-foreground text-justify h-fit w-fit first-letter:uppercase line-clamp-3 aria-expanded:line-clamp-none"
+              >
+                {header}
+              </span>
+            </div>
+          </div>
         </div>
 
         {onClose && (
@@ -156,7 +173,6 @@ const QuestionCard = ({
               <img
                 src={getQuestionImageSrc(question.headerImageUrl)}
                 className="object-contain aspect-auto"
-                alt={question.header}
               />
             </div>
           )}

@@ -13,6 +13,7 @@ import Back from "../components/Back";
 import type { ICategory, ISubCategory } from "@/shared/interfaces";
 import EditCategoryForm from "../components/EditCategoryForm";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import ReusableSearch from "../components/ReusableSearch";
 
 const CategoryQuestions = () => {
   const params = useParams();
@@ -20,6 +21,7 @@ const CategoryQuestions = () => {
 
   const [editMode, setEditMode] = useState(false);
   const [deleteSub, setDeleteSub] = useState<ISubCategory>();
+  const [search, setSearch] = useState("");
 
   const { data: category } = useFetch({
     queryKey: ["category", "findById", categoryId],
@@ -44,16 +46,22 @@ const CategoryQuestions = () => {
   >(null);
 
   const filteredQuestions = useMemo(() => {
-    return allQuestions.filter((item) => {
-      const matchesType = typeFilter === "all" || item.type === typeFilter;
+    if (search === "") {
+      return allQuestions.filter((item) => {
+        const matchesType = typeFilter === "all" || item.type === typeFilter;
 
-      const matchesSpecialization =
-        !specializationFilter ||
-        item.subcategoryId === Number(specializationFilter);
+        const matchesSpecialization =
+          !specializationFilter ||
+          item.subcategoryId === Number(specializationFilter);
 
-      return matchesType && matchesSpecialization;
-    });
-  }, [allQuestions, typeFilter, specializationFilter]);
+        return matchesType && matchesSpecialization;
+      });
+    } else {
+      return allQuestions.filter((question) =>
+        question.header.toLowerCase().includes(search.toLowerCase()),
+      );
+    }
+  }, [allQuestions, typeFilter, specializationFilter, search]);
 
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -62,6 +70,7 @@ const CategoryQuestions = () => {
     getScrollElement: () => parentRef.current,
     estimateSize: () => 200,
     overscan: 5,
+    getItemKey: (index) => filteredQuestions[index]._id,
     measureElement:
       typeof window !== "undefined"
         ? (element) => element.getBoundingClientRect().height
@@ -183,6 +192,14 @@ const CategoryQuestions = () => {
                     }
                   : undefined
               }
+            />
+          </div>
+
+          <div className="my-5">
+            <ReusableSearch
+              placeholder="Search for a question"
+              search={search}
+              setSearch={setSearch}
             />
           </div>
 

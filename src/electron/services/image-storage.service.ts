@@ -29,3 +29,5 @@ export class ImageStorageService {
     return path.join(this.imagesDir, safeName);
   }
 }
+
+export const imageStorageService = new ImageStorageService();

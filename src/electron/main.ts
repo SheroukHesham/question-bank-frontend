@@ -1,7 +1,7 @@
-import { app, BrowserWindow, protocol, screen } from "electron";
+import { app, BrowserWindow, protocol, screen, Menu } from "electron";
 import path from "path";
 import fs from "fs";
-import { isDev } from "./utils.js";
+import { copyManagedImageToClipboard, isDev } from "./utils.js";
 import { getPreloadPath } from "./pathResolver.js";
 import { getDb } from "./database/connection.js";
 import { QuestionsRepository } from "./repositories/question.repository.js";
@@ -62,6 +62,7 @@ app.whenReady().then(() => {
   });
 
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+
   const mainWindow = new BrowserWindow({
     minHeight: 500,
     minWidth: 550,
@@ -71,6 +72,23 @@ app.whenReady().then(() => {
       preload: getPreloadPath(),
     },
   });
+
+  // -- Copy image -- //
+
+  // electron/main.ts
+  mainWindow.webContents.on("context-menu", (_event, params) => {
+    if (params.mediaType !== "image" || !params.hasImageContents) return;
+
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: "Copy Image",
+        click: () => copyManagedImageToClipboard(params.srcURL),
+      },
+    ]);
+
+    contextMenu.popup({ frame: params.frame ?? undefined });
+  });
+
   if (isDev()) {
     mainWindow.loadURL("http://localhost:5123");
   } else {
