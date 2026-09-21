@@ -17,7 +17,7 @@ import {
 } from "react-router-dom";
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useFetch } from "../hooks/custom";
@@ -39,6 +39,7 @@ const ExamForm = () => {
   const [totalQuestions, setTotalQuestions] = useState<number>(
     formType === "edit" && exam ? exam.totalNumberOfQuestions : 0,
   );
+  const [open, setOpen] = useState(false);
 
   const { data: questions } = useFetch({
     queryKey: ["questions", "findByExam", exam?._id],
@@ -350,10 +351,23 @@ const ExamForm = () => {
                   totalQuestions={totalQuestions}
                   setAddedQuestions={setAddedQuestions}
                 />
+
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setOpen(true);
+                  }}
+                >
+                  <Plus />
+                  Add From Question Bank
+                </Button>
+
                 <ExamAddFromBankModal
                   examType={exam ? exam.type : examType}
                   addedQuestions={addedQuestions}
                   setAddedQuestions={setAddedQuestions}
+                  open={open}
+                  setOpen={setOpen}
                 />
               </div>
             </div>

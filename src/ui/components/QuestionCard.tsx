@@ -36,10 +36,12 @@ const QuestionCard = ({
   const queryClient = useQueryClient();
 
   const { data: subcategory } = useFetch({
-    queryKey: ["subcategory", "findById"],
+    queryKey: ["subcategory", "findById", question._id],
     queryFn: () =>
       window.electron.subcategory.findSubcategoryById(subcategoryId),
   });
+
+  console.log(question, subcategory);
 
   const deleteQuestionMutation = useMutation({
     mutationKey: ["question", "delete"],
@@ -110,7 +112,7 @@ const QuestionCard = ({
       return (
         <p
           aria-expanded={expanded}
-          className="font-semibold line-clamp-3 text-justify first-letter:uppercase aria-expanded:line-clamp-none"
+          className="w-full font-semibold line-clamp-3 text-justify first-letter:uppercase aria-expanded:line-clamp-none "
         >
           {question.modelAnswer}
         </p>
@@ -129,12 +131,22 @@ const QuestionCard = ({
       }}
     >
       <div className="flex flex-col gap-1">
-        <div className="w-full flex justify-end">
+        <div className="w-full flex justify-between mb-3">
           <div
             className={`text-lg rounded-full h-fit w-fit font-semibold flex items-center justify-center px-5 py-2  mr-2 capitalize ${difficulty === "difficult" ? "bg-destructive/10 text-destructive" : difficulty === "moderate" ? "bg-warning/10 text-warning-foreground" : "bg-success/10 text-success-foreground"}`}
           >
             {difficulty}
           </div>
+          {onClose && (
+            <Button
+              variant={closeButton ? "destructive" : "ghost"}
+              size={"icon"}
+              className=" flex justify-center"
+              onClick={onClose}
+            >
+              {closeButton ?? <X />}
+            </Button>
+          )}
         </div>
         <div className="flex w-full ">
           <div className="flex w-full ">
@@ -153,17 +165,6 @@ const QuestionCard = ({
             </div>
           </div>
         </div>
-
-        {onClose && (
-          <Button
-            variant={closeButton ? "destructive" : "ghost"}
-            size={"icon"}
-            className=" flex justify-center"
-            onClick={onClose}
-          >
-            {closeButton ?? <X />}
-          </Button>
-        )}
       </div>
 
       {size === "default" ? (
@@ -189,9 +190,7 @@ const QuestionCard = ({
               />
             </div>
           )}
-          <div className={`${question.headerImageUrl ? "w-[50%]" : "w-full"}`}>
-            {renderAnswer()}
-          </div>
+          <div className="w-full">{renderAnswer()}</div>
         </div>
       )}
 

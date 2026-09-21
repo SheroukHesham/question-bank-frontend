@@ -87,20 +87,6 @@ export function AppSidebar() {
         {renderNavBarItems}
         <SidebarGroup />
       </SidebarContent>
-      {/* <SidebarFooter>
-        <Button
-          variant={"destructive"}
-          asChild
-          onClick={() => {
-            dispatch(logout());
-          }}
-        >
-          <SidebarGroupLabel className="hover:text-destructive px-0 py-5">
-            <LogOut size={20} />
-            <span className="mr-2 text-[16px]">Logout</span>
-          </SidebarGroupLabel>
-        </Button>
-      </SidebarFooter> */}
     </Sidebar>
   );
 }

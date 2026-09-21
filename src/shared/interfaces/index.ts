@@ -39,8 +39,9 @@ export interface IQuestionBase {
   difficulty: TQuestionDifficulty;
   categoryId: number;
   subcategoryId: number;
-  // type: TQuestionTypes;
   headerImageUrl?: string;
+  categoryName?: string;
+  subcategoryName?: string;
 }
 
 export interface IEssayQuestion extends IQuestionBase {

@@ -1,11 +1,10 @@
 --General--
-TODO: export exam to word
 TODO: export all questions to excel
 TODO: all fetch through redux then useSelector to access
 TODO: memorize (optimize) fetch data
 
 --Exam--
-TODO: Add from question bank form: render questions on scroll to avoid lagging 
+//--TODO: Add from question bank form: render questions on scroll to avoid lagging 
 TODO: optimize attach details bottleneck in backend
 TODO: add backend validation for exam service
 

@@ -36,7 +36,7 @@ const CategoryCards = ({ categoriesDetails }: IProps) => {
                 <span className="font-semibold text-[15px]">Types</span>
 
                 {category.subcategories[0] !== null ? (
-                  <div className="flex w-full  flex-wrap gap-2">
+                  <div className="flex w-full flex-wrap gap-2 max-h-26 overflow-hidden">
                     {category.subcategories.map((subcategory) => {
                       return (
                         <Badge

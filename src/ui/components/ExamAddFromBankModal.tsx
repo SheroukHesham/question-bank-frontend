@@ -1,8 +1,8 @@
-import { Plus } from "lucide-react";
-import { Modal } from "./Modal";
+import { X } from "lucide-react";
 import { Button } from "./ui/button";
 import type { IQuestions } from "@/shared/interfaces";
 import {
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -21,10 +21,16 @@ interface IProps {
   examType: TQuestionTypes;
   addedQuestions: IQuestions[];
   setAddedQuestions: Dispatch<SetStateAction<IQuestions[]>>;
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const ExamAddFromBankModal = ({ setAddedQuestions, examType }: IProps) => {
-  const [open, setOpen] = useState(false);
+const ExamAddFromBankModal = ({
+  setAddedQuestions,
+  examType,
+  open,
+  setOpen,
+}: IProps) => {
   const [search, setSearch] = useState("");
   const [selectedQuestions, setSelectedQuestions] = useState<IQuestions[]>([]);
   const [difficultyFilter, setDifficultyFilter] =
@@ -33,6 +39,7 @@ const ExamAddFromBankModal = ({ setAddedQuestions, examType }: IProps) => {
     string | null
   >(null);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+
   const parentRef = useRef<HTMLDivElement>(null);
 
   const { data: questions } = useFetch({
@@ -83,11 +90,13 @@ const ExamAddFromBankModal = ({ setAddedQuestions, examType }: IProps) => {
   };
 
   const onClose = () => {
+    // if (containerRef.current !== null)
+    parentRef?.current?.scrollTo({ top: 0 });
+    setOpen(false);
     setSelectedQuestions([]);
   };
 
   const onAddFromBankSubmit = () => {
-    setOpen(false);
     setAddedQuestions((prev) => {
       const existingIds = new Set(prev.map((question) => question._id));
 
@@ -124,7 +133,6 @@ const ExamAddFromBankModal = ({ setAddedQuestions, examType }: IProps) => {
     }
   };
 
-  //todo:fix questions appear on rerender and grid layout
   const rowVirtualizer = useVirtualizer({
     count: filteredQuestions.length,
     getScrollElement: () => parentRef.current,
@@ -147,6 +155,11 @@ const ExamAddFromBankModal = ({ setAddedQuestions, examType }: IProps) => {
       >
         {rowVirtualizer.getVirtualItems().map((virtualItem) => {
           const question = filteredQuestions[virtualItem.index];
+
+          const isSelected = selectedQuestions.some(
+            (item) => item._id === question._id,
+          );
+
           return (
             <div
               key={question._id}
@@ -158,8 +171,7 @@ const ExamAddFromBankModal = ({ setAddedQuestions, examType }: IProps) => {
               }}
             >
               <div
-                key={question._id}
-                className={`rounded-md h-fit mb-5 ${selectedQuestions.includes(question) ? "border-2 border-primary" : ""}`}
+                className={`mb-5 rounded-md h-fit ${isSelected ? "border-2 border-primary" : ""}`}
               >
                 <QuestionCard
                   idx={virtualItem.index}
@@ -176,89 +188,116 @@ const ExamAddFromBankModal = ({ setAddedQuestions, examType }: IProps) => {
     );
   };
 
+  const [shouldRender, setShouldRender] = useState(open);
+
+  useEffect(() => {
+    if (open) {
+      setShouldRender(true);
+    }
+  }, [open]);
+
+  if (!shouldRender) return null;
+
   return (
-    <Modal
-      title="Add From Question Bank"
-      triggerText={"Add From Question Bank"}
-      triggerIcon={<Plus />}
-      saveButton={false}
-      onClose={onClose}
-      buttonVariant={"default"}
-      open={open}
-      setOpen={setOpen}
+    <div
+      data-open={open}
+      data-closed={!open}
+      onAnimationEnd={() => {
+        if (!open) setShouldRender(false);
+      }}
+      className="fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 max-h-80vh overflow-auto"
     >
-      <div className=" sticky top-0 w-full flex justify-end  ">
-        <div className="bg-popover ">
-          <Button
-            type="button"
-            onClick={onAddFromBankSubmit}
-            disabled={selectedQuestions?.length === 0}
-            className="sm:w-lg disabled:pointer-events-none"
+      <div
+        className={`absolute rounded-lg bg-popover p-5 m-auto w-[95%] z-10 h-[95%] inset-0 ${open ? "flex" : "hidden"}`}
+      >
+        <div className="relative w-full h-full bg-popover z-10 flex flex-col gap-5">
+          <div className="w-full flex justify-between">
+            <h1 className="text-3xl font-semibold tracking-tight">
+              Add From Question Bank
+            </h1>
+            <X
+              size={20}
+              className="text-muted/80 hover:text-muted cursor-pointer"
+              onClick={() => {
+                onClose();
+              }}
+            />
+          </div>
+          <div className=" sticky top-0 w-full flex justify-end  ">
+            <div className="bg-popover ">
+              <Button
+                type="button"
+                onClick={onAddFromBankSubmit}
+                disabled={selectedQuestions?.length === 0}
+                className="sm:w-lg disabled:pointer-events-none"
+              >
+                Add
+                {selectedQuestions?.length > 0 &&
+                  ` (${selectedQuestions.length})`}
+              </Button>
+            </div>
+          </div>
+
+          <ReusableSearch
+            placeholder="Search Question Bank"
+            search={search}
+            setSearch={setSearch}
+          />
+
+          <div className="w-full flex md:flex-row flex-col gap-y-2">
+            <SingleSelect
+              placeholder="Topic"
+              onValueChange={(value) =>
+                setCategoryFilter(value === "all" ? null : value)
+              }
+            >
+              <SelectItem value="all">All</SelectItem>
+              {categories?.map((category) => {
+                return (
+                  <SelectItem
+                    key={category.categoryId}
+                    value={category.categoryId.toString()}
+                  >
+                    {category.categoryName}
+                  </SelectItem>
+                );
+              })}
+            </SingleSelect>
+
+            <SingleSelect
+              placeholder="Subtopic"
+              onValueChange={(value) =>
+                setSpecializationFilter(value === "all" ? null : value)
+              }
+            >
+              <SelectItem value="all">All</SelectItem>
+              {renderSubFilters()}
+            </SingleSelect>
+
+            <SingleSelect
+              placeholder="Question Difficulty"
+              onValueChange={(value) =>
+                setDifficultyFilter(
+                  value === "all" ? null : (value as TQuestionDifficulty),
+                )
+              }
+            >
+              <SelectItem value="all">All Difficulties</SelectItem>
+              <SelectItem value="easy">Easy</SelectItem>
+              <SelectItem value="moderate">Moderate</SelectItem>
+              <SelectItem value="difficult">Difficult</SelectItem>
+            </SingleSelect>
+          </div>
+
+          <div
+            ref={parentRef}
+            className="w-full flex flex-col mt-5 h-[calc(100vh-250px)] overflow-y-auto scrollbar-none gap-5"
           >
-            Add
-            {selectedQuestions?.length > 0 && ` (${selectedQuestions.length})`}
-          </Button>
+            {renderQuestions()}
+          </div>
         </div>
       </div>
-
-      <ReusableSearch
-        placeholder="Search Question Bank"
-        search={search}
-        setSearch={setSearch}
-      />
-
-      <div className="w-full flex md:flex-row flex-col gap-y-2">
-        <SingleSelect
-          placeholder="Topic"
-          onValueChange={(value) =>
-            setCategoryFilter(value === "all" ? null : value)
-          }
-        >
-          <SelectItem value="all">All</SelectItem>
-          {categories?.map((category) => {
-            return (
-              <SelectItem
-                key={category.categoryId}
-                value={category.categoryId.toString()}
-              >
-                {category.categoryName}
-              </SelectItem>
-            );
-          })}
-        </SingleSelect>
-
-        <SingleSelect
-          placeholder="Subtopic"
-          onValueChange={(value) =>
-            setSpecializationFilter(value === "all" ? null : value)
-          }
-        >
-          <SelectItem value="all">All</SelectItem>
-          {renderSubFilters()}
-        </SingleSelect>
-
-        <SingleSelect
-          placeholder="Question Difficulty"
-          onValueChange={(value) =>
-            setDifficultyFilter(
-              value === "all" ? null : (value as TQuestionDifficulty),
-            )
-          }
-        >
-          <SelectItem value="all">All Difficulties</SelectItem>
-          <SelectItem value="easy">Easy</SelectItem>
-          <SelectItem value="moderate">Moderate</SelectItem>
-          <SelectItem value="difficult">Difficult</SelectItem>
-        </SingleSelect>
-      </div>
-
-      <div
-        ref={parentRef}
-        className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-[calc(100vh-250px)] overflow-y-auto scrollbar-none"
-      >
-        {renderQuestions()}
-      </div>
-    </Modal>
+    </div>
   );
 };
 
