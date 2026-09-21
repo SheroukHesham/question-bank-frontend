@@ -134,5 +134,7 @@ contextBridge.exposeInMainWorld("electron", {
     findAllExams: () => {
       return ipcRenderer.invoke("exam:findAllExams");
     },
+    exportToWord: (examId: number) =>
+      ipcRenderer.invoke("exam:exportToWord", examId),
   },
 });

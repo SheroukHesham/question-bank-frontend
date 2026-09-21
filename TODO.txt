@@ -1,19 +1,15 @@
 --General--
-TODO: allow to copy header image
-TODO: export all questions to excel
 TODO: export exam to word
+TODO: export all questions to excel
 TODO: all fetch through redux then useSelector to access
 TODO: memorize (optimize) fetch data
-//--TODO: question card expandable see more for essay
-// TODO: add search to category questions page
 
 --Exam--
-TODO: Add from question bank form : render questions on scroll to avoid lagging 
+TODO: Add from question bank form: render questions on scroll to avoid lagging 
 TODO: optimize attach details bottleneck in backend
-//-!!TODO: exam generation do not add questions from exams!!
-//--TODO: Exam Page exam filter by type (essay/mcq) (draft/final)
-//-TODO: router add exam/id page to display exam
-//-TODO: Exam Display page: display exam and allow to edit
-//-TODO: save as draft option with different display in All Exams Page
-//-TODO: delete exam from question bank
 TODO: add backend validation for exam service
+
+--Security--
+//TODO: secure electron app
+
+//TODO: remove all unused files and dependencies

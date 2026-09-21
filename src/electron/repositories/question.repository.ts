@@ -454,6 +454,7 @@ export class QuestionsRepository {
 
       return {
         ...question,
+        type: "mcq",
         categoryId: question.category_id,
         subcategoryId: question.subcategory_id,
         choices: [
@@ -472,6 +473,7 @@ export class QuestionsRepository {
 
     return {
       ...question,
+      type: "essay",
       categoryId: question.category_id,
       subcategoryId: question.subcategory_id,
       modelAnswer: essayDetails?.model_answer as string,

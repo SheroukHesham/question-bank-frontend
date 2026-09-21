@@ -1,7 +1,6 @@
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupLabel,
   SidebarHeader,
@@ -15,15 +14,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
-import { ChevronDown, LogOut } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { NAVBAR_ITEMS } from "@/ui/data";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import type { RootState } from "@/ui/store";
-import { Button } from "./ui/button";
-import { logout } from "@/ui/features/userSlice";
 
 export function AppSidebar() {
-  const dispatch = useDispatch();
   const activeTab = useSelector(
     (state: RootState) => state.activeTab.activeIdx,
   );
@@ -91,7 +87,7 @@ export function AppSidebar() {
         {renderNavBarItems}
         <SidebarGroup />
       </SidebarContent>
-      <SidebarFooter>
+      {/* <SidebarFooter>
         <Button
           variant={"destructive"}
           asChild
@@ -104,7 +100,7 @@ export function AppSidebar() {
             <span className="mr-2 text-[16px]">Logout</span>
           </SidebarGroupLabel>
         </Button>
-      </SidebarFooter>
+      </SidebarFooter> */}
     </Sidebar>
   );
 }

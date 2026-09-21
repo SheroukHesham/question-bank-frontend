@@ -39,15 +39,17 @@ export interface IQuestionBase {
   difficulty: TQuestionDifficulty;
   categoryId: number;
   subcategoryId: number;
-  type: TQuestionTypes;
+  // type: TQuestionTypes;
   headerImageUrl?: string;
 }
 
 export interface IEssayQuestion extends IQuestionBase {
+  type: "essay";
   modelAnswer: string;
 }
 
 export interface IMcqQuestion extends IQuestionBase {
+  type: "mcq";
   choices: IChoice[];
 }
 

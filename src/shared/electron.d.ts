@@ -79,6 +79,12 @@ declare global {
         deleteExam(examId: number): Promise<void>;
         findExamById(examId: number): Promise<IExam>;
         findAllExams(): Promise<IExam[]>;
+        exportToWord(
+          examId: number,
+        ): Promise<{
+          success: boolean;
+          data: { exported: boolean; filePath: string };
+        }>;
       };
     };
   }

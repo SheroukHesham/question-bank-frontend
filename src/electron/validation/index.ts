@@ -7,9 +7,9 @@ export const validateBaseQuestion = (
   categoryService: CategoryService,
   subCategoriesService: SubCategoryService,
 ) => {
-  const { categoryId, difficulty, header, subcategoryId, type } = question;
+  const { categoryId, difficulty, header, subcategoryId } = question;
 
-  if (!categoryId || !difficulty || !header || !subcategoryId || !type) {
+  if (!categoryId || !difficulty || !header || !subcategoryId) {
     throw new Error("Question is missing required fields");
   }
   if (!categoryService.findCategoryById(categoryId)) {
@@ -26,9 +26,6 @@ export const validateBaseQuestion = (
     )
   ) {
     throw new Error("Difficulty is invalid");
-  }
-  if (!(type === "mcq" || type === "essay")) {
-    throw new Error("Question must be either MCQ or Essay");
   }
 };
 

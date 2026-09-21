@@ -4,6 +4,9 @@ import Back from "../components/Back";
 import QuestionCard from "../components/QuestionCard";
 import { useFetch } from "../hooks/custom";
 import { Button } from "../components/ui/button";
+import { DownloadIcon } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const ExamDetails = () => {
   const location = useLocation();
@@ -13,6 +16,42 @@ const ExamDetails = () => {
   const { data: questions } = useFetch({
     queryKey: ["questions", "findByExam", exam._id],
     queryFn: () => window.electron.question.findQuestionsForExam(exam._id),
+  });
+
+  const exportToWord = useMutation({
+    mutationFn: (examId: number) => window.electron.exam.exportToWord(examId),
+    onSuccess: (result) => {
+      if (result.success) {
+        if (result.data.exported) {
+          toast.success(`Exam Exported Successfully`, {
+            position: "top-center",
+            style: {
+              justifyContent: "center",
+              fontSize: "16px",
+              color: "green",
+            },
+          });
+        }
+      } else {
+        toast.error("Failed to export exam", {
+          description:
+            "If You are Replacing the File, Please Close it Before Exporting!",
+          position: "top-center",
+          style: {
+            justifyContent: "center",
+            color: "crimson",
+            fontSize: "16px",
+          },
+        });
+      }
+    },
+    onError: (error) => {
+      toast.error("Failed to export exam", {
+        description: error.message,
+        position: "top-center",
+        style: { justifyContent: "center", color: "crimson", fontSize: "16px" },
+      });
+    },
   });
 
   const renderQuestions = questions?.map((question, idx) => {
@@ -28,8 +67,17 @@ const ExamDetails = () => {
 
   return (
     <div className="flex flex-col gap-5 w-full p-10">
+      <Back />
       <div className="flex w-full justify-between">
-        <Back />
+        <Button
+          variant={"secondary"}
+          onClick={() => {
+            exportToWord.mutate(exam._id);
+          }}
+        >
+          <DownloadIcon />
+          Export to Word
+        </Button>
         <Button
           onClick={() => {
             navigate(`/exams/form/${exam.type}`, {

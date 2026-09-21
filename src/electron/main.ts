@@ -48,7 +48,7 @@ app.whenReady().then(() => {
   registerCategoryIPC(categoryService);
   registerSubcategoryIPC(subcategoryService);
   registerImageIPC(imageStorageService);
-  registerExamIPC(examService);
+  registerExamIPC(examService, questionsService);
 
   // image handler protocol
   protocol.handle("app-image", (request) => {
