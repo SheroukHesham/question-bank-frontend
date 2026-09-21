@@ -1,4 +1,8 @@
-import { IChoice, IQuestionBase } from "@/shared/interfaces/index.js";
+import {
+  IChoice,
+  IExamBase,
+  IQuestionBase,
+} from "@/shared/interfaces/index.js";
 import { SubCategoryService } from "../services/subcategory.service.js";
 import { CategoryService } from "../services/category.service.js";
 
@@ -54,4 +58,47 @@ export const validateSubcategory = async (
   if (!categoryId) throw new Error("category is required");
   if (!categoriesService.findCategoryById(categoryId))
     throw new Error("The category you are assigning does not exist.");
+};
+
+export const validateExam = (exam: IExamBase) => {
+  const {
+    title,
+    numberOfQuestionsAdded,
+    examQuestions,
+    totalNumberOfQuestions,
+    type,
+  } = exam;
+  if (!title.trim()) throw new Error("Exam Title is required");
+  if (!type) throw new Error("Exam Type is required");
+  if (!totalNumberOfQuestions)
+    throw new Error("Total number of questions is required");
+  if (!numberOfQuestionsAdded)
+    throw new Error("Number of questions added is required");
+  if (totalNumberOfQuestions !== numberOfQuestionsAdded)
+    throw new Error(
+      "Number of questions added does not match total number of questions needed",
+    );
+  if (examQuestions.length === 0)
+    throw new Error("Exam must have at least one question");
+};
+
+export const validateExamUpdates = (updates: Partial<IExamBase>) => {
+  const {
+    examQuestions,
+    numberOfQuestionsAdded,
+    status,
+    title,
+    totalNumberOfQuestions,
+  } = updates;
+  if (!title || !title.trim()) throw new Error("Exam Title is required");
+  if (status === "draft") {
+    return;
+  }
+
+  if (totalNumberOfQuestions !== numberOfQuestionsAdded)
+    throw new Error(
+      "Number of questions added does not match total number of questions needed",
+    );
+  if (examQuestions && examQuestions.length === 0)
+    throw new Error("Exam must have at least one question");
 };

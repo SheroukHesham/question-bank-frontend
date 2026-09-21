@@ -98,7 +98,6 @@ export class QuestionsService {
     const existing = this.questionsRepository.findById(updatedQuestion._id);
     if (!existing) throw new Error(`Question not found`);
     let headerImageUrl = existing.headerImageUrl;
-    console.log(headerImageUrl, updatedQuestion.headerImageUrl);
 
     // if updated header image
     if (

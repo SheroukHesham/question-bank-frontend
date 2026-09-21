@@ -177,8 +177,6 @@ const QuestionForm = ({
         : undefined
       : questionToEdit?.headerImageUrl;
 
-    console.log(imageChanged);
-
     const payload: IQuestions =
       data.type === "essay"
         ? ({

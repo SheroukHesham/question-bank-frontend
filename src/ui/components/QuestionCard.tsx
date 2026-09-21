@@ -41,8 +41,6 @@ const QuestionCard = ({
       window.electron.subcategory.findSubcategoryById(subcategoryId),
   });
 
-  console.log(question, subcategory);
-
   const deleteQuestionMutation = useMutation({
     mutationKey: ["question", "delete"],
     mutationFn: (questionId: number) =>

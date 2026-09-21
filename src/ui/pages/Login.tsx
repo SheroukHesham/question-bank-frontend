@@ -23,8 +23,7 @@ const Login = () => {
 
   //todo: loading state, toast on failed login, reset form on successful login
   //todo: dispatch
-  const onSubmit = (data: LoginFormValues) => {
-    console.log(data);
+  const onSubmit = (_data: LoginFormValues) => {
     dispatch(login());
     navigate("/");
 

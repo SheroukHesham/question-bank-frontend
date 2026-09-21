@@ -118,7 +118,6 @@ const GenerateExamModal = ({
       });
     },
     onError: (error) => {
-      console.log(error);
       const errorIdx = criteria.findIndex((item) => item._id === error.cause);
       toast.error(`Criteria ${errorIdx + 1}: ${error.message}`, {
         position: "top-center",
@@ -272,8 +271,6 @@ const GenerateExamModal = ({
       </div>
     );
   });
-
-  console.log(excludeExamIds);
 
   const toggleExcluded = (examId: number) => {
     if (excludeExamIds?.includes(examId)) {

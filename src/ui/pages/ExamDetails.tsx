@@ -1,10 +1,9 @@
 import type { IExam } from "@/shared/interfaces";
 import { useLocation, useNavigate } from "react-router-dom";
-import Back from "../components/Back";
 import QuestionCard from "../components/QuestionCard";
 import { useFetch } from "../hooks/custom";
 import { Button } from "../components/ui/button";
-import { DownloadIcon } from "lucide-react";
+import { DownloadIcon, MoveLeft } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -67,8 +66,16 @@ const ExamDetails = () => {
 
   return (
     <div className="flex flex-col gap-5 w-full p-10">
-      <Back />
-      <div className="flex w-full justify-between">
+      <div
+        className="flex gap-1 items-center cursor-pointer"
+        onClick={() => {
+          navigate("/exams");
+        }}
+      >
+        <MoveLeft size={20} />
+        <span className="font-semibold">Back</span>
+      </div>
+      <div className="flex w-full justify-between items-center">
         <Button
           variant={"secondary"}
           onClick={() => {
