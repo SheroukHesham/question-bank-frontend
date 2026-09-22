@@ -96,7 +96,6 @@ const DisplayQuestions = ({
 
     placeholderData: (previousData) => previousData,
   });
-  console.log(difficultyFilter);
   const questions = data?.data.questions ?? [];
   const total = data?.data.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));

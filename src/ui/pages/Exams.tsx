@@ -14,6 +14,7 @@ import ExamCard from "../components/ExamCard";
 import type { TQuestionTypeFilter } from "../types";
 import { SingleSelect } from "../components/SingleSelect";
 import { SelectItem } from "../components/ui/select";
+import ReusableSearch from "../components/ReusableSearch";
 
 type TExamStatusFilter = "all" | "final" | "draft";
 
@@ -21,6 +22,7 @@ const Exams = () => {
   const [typeFilter, setTypeFilter] = useState<TQuestionTypeFilter>("all");
   const [examStatusFilter, setExamStatusFilter] =
     useState<TExamStatusFilter>("all");
+  const [search, setSearch] = useState("");
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -35,14 +37,20 @@ const Exams = () => {
   });
 
   const filteredExams = useMemo(() => {
-    return exams?.filter((exam) => {
-      const matchesType = typeFilter === "all" || exam.type === typeFilter;
-      const matchesStatus =
-        examStatusFilter === "all" || exam.status === examStatusFilter;
+    if (search === "") {
+      return exams?.filter((exam) => {
+        const matchesType = typeFilter === "all" || exam.type === typeFilter;
+        const matchesStatus =
+          examStatusFilter === "all" || exam.status === examStatusFilter;
 
-      return matchesStatus && matchesType;
-    });
-  }, [exams, typeFilter, examStatusFilter]);
+        return matchesStatus && matchesType;
+      });
+    } else {
+      return exams?.filter((exam) =>
+        exam.title.toLowerCase().includes(search.toLowerCase()),
+      );
+    }
+  }, [exams, typeFilter, examStatusFilter, search]);
 
   const renderExams = filteredExams?.map((exam) => {
     return (
@@ -91,6 +99,13 @@ const Exams = () => {
         </HoverCard>
       </div>
 
+      <div className="mt-5">
+        <ReusableSearch
+          placeholder="Search Exams"
+          search={search}
+          setSearch={setSearch}
+        />
+      </div>
       <div className=" flex w-full  mt-3">
         <SingleSelect
           placeholder="Exam Type"

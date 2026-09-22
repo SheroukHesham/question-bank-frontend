@@ -120,7 +120,13 @@ const QuestionForm = ({
 
   const onSuccess = (data: IQuestions) => {
     queryClient.invalidateQueries({
+      queryKey: ["questions", "filtered"],
+    });
+    queryClient.invalidateQueries({
       queryKey: ["categories", "findAllDetails"],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["questions", "totalPerCategory"],
     });
     queryClient.invalidateQueries({
       queryKey: ["questions", "total"],
