@@ -6,7 +6,7 @@ import { Button } from "@/ui/components/ui/button";
 import { SelectItem } from "@/ui/components/ui/select";
 import type { TQuestionTypeFilter } from "@/ui/types";
 import { Check, Pen } from "lucide-react";
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useFetch } from "../hooks/custom";
 import Back from "../components/Back";
@@ -14,14 +14,33 @@ import type { ICategory, ISubCategory } from "@/shared/interfaces";
 import EditCategoryForm from "../components/EditCategoryForm";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import ReusableSearch from "../components/ReusableSearch";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 const CategoryQuestions = () => {
+  //todo:change after testing
+  const PAGE_SIZE = 5;
   const params = useParams();
   const categoryId = Number(params.id);
 
   const [editMode, setEditMode] = useState(false);
   const [deleteSub, setDeleteSub] = useState<ISubCategory>();
+  const [typeFilter, setTypeFilter] = useState<TQuestionTypeFilter>("all");
+  const [specializationFilter, setSpecializationFilter] = useState<
+    string | null
+  >(null);
   const [search, setSearch] = useState("");
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  function useDebouncedValue<T>(value: T, delay = 300): T {
+    const [debounced, setDebounced] = useState(value);
+    useEffect(() => {
+      const t = setTimeout(() => setDebounced(value), delay);
+      return () => clearTimeout(t);
+    }, [value, delay]);
+    return debounced;
+  }
+
+  const debouncedSearch = useDebouncedValue(search, 300);
 
   const { data: category } = useFetch({
     queryKey: ["category", "findById", categoryId],
@@ -39,43 +58,65 @@ const CategoryQuestions = () => {
     queryFn: () => window.electron.question.findByCategoryId(categoryId),
   });
 
-  const [typeFilter, setTypeFilter] = useState<TQuestionTypeFilter>("all");
+  //todo:invalidate query after question creation/update/delete
+  const { data } = useInfiniteQuery({
+    queryKey: [
+      "questions",
+      "filtered",
+      categoryId,
+      typeFilter,
+      specializationFilter,
+      debouncedSearch,
+    ],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) =>
+      window.electron.question.findByFilterPaginated({
+        categoryId,
+        questionType: typeFilter === "all" ? undefined : typeFilter,
+        subcategoryId: specializationFilter
+          ? Number(specializationFilter)
+          : undefined,
+        search: debouncedSearch || undefined,
+        limit: PAGE_SIZE,
+        offset: pageParam,
+      }),
 
-  const [specializationFilter, setSpecializationFilter] = useState<
-    string | null
-  >(null);
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.data.hasMore ? allPages.length * PAGE_SIZE : undefined,
+  });
 
-  const filteredQuestions = useMemo(() => {
-    if (search === "") {
-      return allQuestions.filter((item) => {
-        const matchesType = typeFilter === "all" || item.type === typeFilter;
-
-        const matchesSpecialization =
-          !specializationFilter ||
-          item.subcategoryId === Number(specializationFilter);
-
-        return matchesType && matchesSpecialization;
-      });
-    } else {
-      return allQuestions.filter((question) =>
-        question.header.toLowerCase().includes(search.toLowerCase()),
-      );
-    }
-  }, [allQuestions, typeFilter, specializationFilter, search]);
-
-  const parentRef = useRef<HTMLDivElement>(null);
+  const filteredQuestions = useMemo(
+    () => data?.pages.flatMap((p) => p.data.questions) ?? [],
+    [data],
+  );
 
   const rowVirtualizer = useVirtualizer({
     count: filteredQuestions.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 200,
+    estimateSize: () => 220,
     overscan: 5,
-    getItemKey: (index) => filteredQuestions[index]._id,
-    measureElement:
-      typeof window !== "undefined"
-        ? (element) => element.getBoundingClientRect().height
-        : undefined,
+    getItemKey: (index) => filteredQuestions?.[index]?._id,
+    measureElement: (el) => el.getBoundingClientRect().height,
   });
+
+  // useEffect(() => {
+  //   const items = rowVirtualizer.getVirtualItems();
+  //   const last = items[items.length - 1];
+  //   if (
+  //     last &&
+  //     last.index >= filteredQuestions.length - 1 &&
+  //     hasNextPage &&
+  //     !isFetchingNextPage
+  //   ) {
+  //     fetchNextPage();
+  //   }
+  // }, [
+  //   filteredQuestions.length,
+  //   hasNextPage,
+  //   isFetchingNextPage,
+  //   fetchNextPage,
+  //   rowVirtualizer,
+  // ]);
 
   const renderQuestions = () => {
     return (
@@ -243,6 +284,22 @@ const CategoryQuestions = () => {
           </div>
         </div>
       )}
+      {/* <PagePagination
+        onNext={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onPrevious={() => {
+          if (hasPreviousPage && !isFetchingPreviousPage) {
+            fetchPreviousPage();
+          }
+        }}
+      >
+        <PaginationItem>
+          <PaginationLink>1</PaginationLink>
+        </PaginationItem>
+      </PagePagination> */}
     </div>
   );
 };

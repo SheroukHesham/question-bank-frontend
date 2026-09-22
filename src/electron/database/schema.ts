@@ -96,6 +96,12 @@ const migrations: string[] = [
   ALTER TABLE exam_questions
   DROP mark_awarded;
   `,
+  `
+  CREATE INDEX idx_questions_type ON questions (type);
+  CREATE INDEX idx_questions_category_created ON questions (category_id, created_at DESC);
+  CREATE INDEX idx_questions_subcategory_created ON questions (subcategory_id, created_at DESC);
+  CREATE INDEX idx_mcq_distractors_question_id ON mcq_distractors (question_id);
+  `,
 ];
 
 export function runMigrations(db: Database.Database): void {

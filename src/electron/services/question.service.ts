@@ -1,9 +1,9 @@
-import { TQuestionTypes } from "@/shared/types/index.js";
 import type {
   ICreateEssayQuestion,
   ICreateMcqQuestion,
   IEssayQuestion,
   IFilteredQuestion,
+  IFindQuestionsParams,
   IGenerateExamInput,
   IGroupedQuestionCategory,
   IMcqQuestion,
@@ -70,18 +70,11 @@ export class QuestionsService {
     return this.questionsRepository.findByCategory(categoryId);
   }
 
-  findByFilter(
-    questionType?: TQuestionTypes,
-    categoryId?: number,
-    subcategoryId?: number,
-    difficulty?: number,
-  ): IFilteredQuestion[] {
-    return this.questionsRepository.findByFilter(
-      questionType,
-      categoryId,
-      subcategoryId,
-      difficulty,
-    );
+  findByFilterPaginated(params: IFindQuestionsParams): {
+    questions: IFilteredQuestion[];
+    hasMore: boolean;
+  } {
+    return this.questionsRepository.findByFilterPaginated(params);
   }
 
   updateMcq(updatedQuestion: IMcqQuestion): IMcqQuestion {

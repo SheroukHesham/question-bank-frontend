@@ -1,13 +1,11 @@
 --General--
 TODO: export all questions to excel
-TODO: all fetch through redux then useSelector to access
-TODO: memorize (optimize) fetch data
+TODO: make single source of truth for fetch data (optimization & maintainability)
 
 --Exam--
-TODO: optimize attach details bottleneck in backend
-//-TODO: add backend validation for exam service
+TODO: optimize attach details bottleneck in backend, Fix Pagination
 
 --Security--
-//TODO: secure electron app
+//--TODO: secure electron app
 
 //TODO: remove all unused files and dependencies

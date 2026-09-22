@@ -3,7 +3,7 @@ import type {
   ICreateEssayQuestion,
   ICreateMcqQuestion,
   IEssayQuestion,
-  IFilteredQuestion,
+  IFindQuestionsParams,
   IGenerateExamInput,
   IGroupedQuestionCategory,
   IMcqQuestion,
@@ -11,7 +11,6 @@ import type {
   IQuestions,
 } from "../../shared/interfaces/index.js";
 import { QuestionsService } from "../services/question.service.js";
-import { TQuestionTypes } from "@/shared/types/index.js";
 import { safeHandle } from "./safeHandle.js";
 
 export function registerQuestionIPC(questionsService: QuestionsService) {
@@ -48,21 +47,11 @@ export function registerQuestionIPC(questionsService: QuestionsService) {
       return questionsService.findByCategory(categoryId);
     },
   );
-  ipcMain.handle(
-    "question:findByFilter",
-    async (
-      _event,
-      questionType?: TQuestionTypes,
-      categoryId?: number,
-      subcategoryId?: number,
-      difficulty?: number,
-    ): Promise<IFilteredQuestion[]> => {
-      return questionsService.findByFilter(
-        questionType,
-        categoryId,
-        subcategoryId,
-        difficulty,
-      );
+  // electron/ipc/question.ipc.ts
+  safeHandle(
+    "question:findByFilterPaginated",
+    (_e, params: IFindQuestionsParams) => {
+      return questionsService.findByFilterPaginated(params);
     },
   );
   ipcMain.handle(

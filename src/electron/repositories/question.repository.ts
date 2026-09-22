@@ -7,12 +7,12 @@ import {
   IEssayQuestion,
   IExamCriteria,
   IFilteredQuestion,
+  IFindQuestionsParams,
   IGroupedQuestionCategory,
   IMcqQuestion,
   IQuestionCountByCategory,
   IQuestions,
 } from "@/shared/interfaces/index.js";
-import { TQuestionTypes } from "@/shared/types/index.js";
 
 export type GroupedQuestions = Record<string, Record<string, IQuestions[]>>;
 
@@ -105,20 +105,14 @@ export class QuestionsRepository {
     interface Row extends QuestionRow {
       category_id_ref: number;
       category_name: string;
-      category_description: string | null;
       subcategory_id_ref: number;
       subcategory_name: string;
     }
 
     const rows = this.db
       .prepare<[], Row>(
-        `SELECT
-         q.*,
-         c._id AS category_id_ref,
-         c.name AS category_name,
-         c.description AS category_description,
-         s._id AS subcategory_id_ref,
-         s.name AS subcategory_name
+        `SELECT q.*, c._id AS category_id_ref, c.name AS category_name,
+              s._id AS subcategory_id_ref, s.name AS subcategory_name
        FROM questions q
        JOIN categories c ON c._id = q.category_id
        JOIN subcategories s ON s._id = q.subcategory_id
@@ -126,7 +120,8 @@ export class QuestionsRepository {
       )
       .all();
 
-    // categoryId -> { category, subcategories: Map<subcategoryId, {...}> }
+    const questions = this.attachDetailsBulk(rows);
+
     const categoryMap = new Map<
       number,
       {
@@ -141,50 +136,35 @@ export class QuestionsRepository {
       }
     >();
 
-    for (const row of rows) {
-      const question = this.attachDetails(row);
-
+    rows.forEach((row, i) => {
       let categoryEntry = categoryMap.get(row.category_id_ref);
       if (!categoryEntry) {
         categoryEntry = {
-          category: {
-            _id: row.category_id_ref,
-            name: row.category_name,
-          },
+          category: { _id: row.category_id_ref, name: row.category_name },
           subcategories: new Map(),
         };
         categoryMap.set(row.category_id_ref, categoryEntry);
       }
-
-      let subcategoryEntry = categoryEntry?.subcategories.get(
-        row.subcategory_id_ref,
-      );
-      if (!subcategoryEntry) {
-        subcategoryEntry = {
+      let subEntry = categoryEntry.subcategories.get(row.subcategory_id_ref);
+      if (!subEntry) {
+        subEntry = {
           subcategory: {
             _id: row.subcategory_id_ref,
             name: row.subcategory_name,
           },
           questions: [],
         };
-        categoryEntry?.subcategories.set(
-          row.subcategory_id_ref,
-          subcategoryEntry,
-        );
+        categoryEntry.subcategories.set(row.subcategory_id_ref, subEntry);
       }
+      subEntry.questions.push(questions[i]);
+    });
 
-      subcategoryEntry.questions.push(question);
-    }
-
-    const result: IGroupedQuestionCategory[] = [];
-    for (const { category, subcategories } of categoryMap.values()) {
-      result.push({
+    return Array.from(categoryMap.values()).map(
+      ({ category, subcategories }) => ({
         category,
         grouped: Array.from(subcategories.values()),
-      });
-    }
-
-    return result;
+      }),
+    );
   }
 
   findByCategory(categoryId: number) {
@@ -195,70 +175,63 @@ export class QuestionsRepository {
       >("SELECT * FROM questions WHERE category_id = ? ORDER BY created_at DESC;")
       .all(categoryId);
 
-    const result: IQuestions[] = [];
-    if (rows)
-      for (const row of rows) {
-        result.push(this.attachDetails(row));
-      }
-    return result;
+    return this.attachDetailsBulk(rows);
   }
 
-  findByFilter(
-    questionType?: TQuestionTypes,
-    categoryId?: number,
-    subcategoryId?: number,
-    difficulty?: number,
-  ): IFilteredQuestion[] {
-    let baseSQL = `
-    SELECT
-      q.*,
-      c.name AS category_name,
-      s.name AS subcategory_name
-    FROM questions q
-    JOIN categories c
-      ON q.category_id = c._id
-    JOIN subcategories s
-      ON q.subcategory_id = s._id
-  `;
-
+  findByFilterPaginated(params: IFindQuestionsParams): {
+    questions: IFilteredQuestion[];
+    hasMore: boolean;
+  } {
     const conditions: string[] = [];
-    const params: (TQuestionTypes | number)[] = [];
+    const sqlParams: (string | number)[] = [];
 
-    if (questionType) {
+    if (params.questionType) {
       conditions.push("q.type = ?");
-      params.push(questionType);
+      sqlParams.push(params.questionType);
     }
-
-    if (categoryId) {
+    if (params.categoryId) {
       conditions.push("q.category_id = ?");
-      params.push(categoryId);
+      sqlParams.push(params.categoryId);
     }
-
-    if (subcategoryId) {
+    if (params.subcategoryId) {
       conditions.push("q.subcategory_id = ?");
-      params.push(subcategoryId);
+      sqlParams.push(params.subcategoryId);
     }
-
-    if (difficulty) {
+    if (params.difficulty) {
       conditions.push("q.difficulty = ?");
-      params.push(difficulty);
+      sqlParams.push(params.difficulty);
+    }
+    if (params.search) {
+      conditions.push("q.header LIKE ? ESCAPE '\\' COLLATE NOCASE");
+      sqlParams.push(`%${params.search.replace(/[%_]/g, "\\$&")}%`);
     }
 
-    if (conditions.length > 0) {
-      baseSQL += ` WHERE ${conditions.join(" AND ")}`;
-    }
-
-    baseSQL += " ORDER BY q.created_at DESC";
+    const whereClause = conditions.length
+      ? `WHERE ${conditions.join(" AND ")}`
+      : "";
 
     const rows = this.db
-      .prepare<unknown[], FilteredQuestionRow>(baseSQL)
-      .all(...params);
+      .prepare<unknown[], FilteredQuestionRow>(
+        `SELECT q.*, c.name AS category_name, s.name AS subcategory_name
+       FROM questions q
+       JOIN categories c ON q.category_id = c._id
+       JOIN subcategories s ON q.subcategory_id = s._id
+       ${whereClause}
+       ORDER BY q.created_at DESC
+       LIMIT ? OFFSET ?`,
+      )
+      .all(...sqlParams, params.limit, params.offset);
 
-    return rows.map((row) => ({
-      ...this.attachDetails(row),
-      categoryName: row.category_name,
-      subcategoryName: row.subcategory_name,
-    }));
+    const questions = this.attachDetailsBulk(rows);
+
+    return {
+      questions: questions.map((q, i) => ({
+        ...q,
+        categoryName: rows[i].category_name,
+        subcategoryName: rows[i].subcategory_name,
+      })),
+      hasMore: rows.length === params.limit,
+    };
   }
 
   updateMcq(updatedQuestion: IMcqQuestion): IMcqQuestion {
@@ -323,8 +296,7 @@ export class QuestionsRepository {
        ORDER BY eq.position ASC`,
       )
       .all(examId);
-
-    return rows.map((row) => this.attachDetails(row));
+    return this.attachDetailsBulk(rows);
   }
 
   /** Cascades to mcq_key/mcq_distractors/essay_details automatically via ON DELETE CASCADE. */
@@ -401,12 +373,10 @@ export class QuestionsRepository {
     const rows = this.db
       .prepare<unknown[], QuestionRow>(
         `SELECT * FROM questions
-         WHERE type = ? AND category_id = ? AND subcategory_id = ? AND difficulty = ?
-         AND _id NOT IN (
-           SELECT question_id FROM exam_questions WHERE exam_id IN (${placeholders})
-         )
-         ORDER BY RANDOM()
-         LIMIT ?`,
+       WHERE type = ? AND category_id = ? AND subcategory_id = ? AND difficulty = ?
+       AND _id NOT IN (SELECT question_id FROM exam_questions WHERE exam_id IN (${placeholders}))
+       ORDER BY RANDOM()
+       LIMIT ?`,
       )
       .all(
         criterion.examType,
@@ -418,7 +388,7 @@ export class QuestionsRepository {
       );
 
     if (rows.length === 0) {
-      throw new Error(`No available questions for criteria.`, {
+      throw new Error("No available questions for criteria.", {
         cause: `${criterion._id}`,
       });
     }
@@ -429,7 +399,7 @@ export class QuestionsRepository {
       );
     }
 
-    return rows.map((r) => this.attachDetails(r));
+    return this.attachDetailsBulk(rows);
   }
 
   private attachDetails(question: QuestionRow): IQuestions {
@@ -478,5 +448,71 @@ export class QuestionsRepository {
       subcategoryId: question.subcategory_id,
       modelAnswer: essayDetails?.model_answer as string,
     };
+  }
+
+  private attachDetailsBulk(rows: QuestionRow[]): IQuestions[] {
+    if (rows.length === 0) return [];
+
+    const mcqIds = rows.filter((r) => r.type === "mcq").map((r) => r._id);
+    const essayIds = rows.filter((r) => r.type === "essay").map((r) => r._id);
+
+    const keyMap = new Map<number, string>();
+    const distractorsMap = new Map<number, string[]>();
+    const essayMap = new Map<number, string>();
+
+    if (mcqIds.length > 0) {
+      const ph = mcqIds.map(() => "?").join(",");
+
+      this.db
+        .prepare<unknown[], { question_id: number; correct_answer: string }>(
+          `SELECT question_id, correct_answer FROM mcq_key WHERE question_id IN (${ph})`,
+        )
+        .all(...mcqIds)
+        .forEach((r) => keyMap.set(r.question_id, r.correct_answer));
+
+      this.db
+        .prepare<unknown[], { question_id: number; distractor_text: string }>(
+          `SELECT question_id, distractor_text FROM mcq_distractors WHERE question_id IN (${ph})`,
+        )
+        .all(...mcqIds)
+        .forEach((r) => {
+          const list = distractorsMap.get(r.question_id) ?? [];
+          list.push(r.distractor_text);
+          distractorsMap.set(r.question_id, list);
+        });
+    }
+
+    if (essayIds.length > 0) {
+      const ph = essayIds.map(() => "?").join(",");
+      this.db
+        .prepare<unknown[], { question_id: number; model_answer: string }>(
+          `SELECT question_id, model_answer FROM essay_details WHERE question_id IN (${ph})`,
+        )
+        .all(...essayIds)
+        .forEach((r) => essayMap.set(r.question_id, r.model_answer));
+    }
+
+    return rows.map((row) => {
+      if (row.type === "mcq") {
+        const distractors = distractorsMap.get(row._id) ?? [];
+        return {
+          ...row,
+          type: "mcq",
+          categoryId: row.category_id,
+          subcategoryId: row.subcategory_id,
+          choices: [
+            { choice: keyMap.get(row._id) as string, isCorrect: true },
+            ...distractors.map((d) => ({ choice: d, isCorrect: false })),
+          ],
+        } as IMcqQuestion;
+      }
+      return {
+        ...row,
+        type: "essay",
+        categoryId: row.category_id,
+        subcategoryId: row.subcategory_id,
+        modelAnswer: essayMap.get(row._id) as string,
+      } as IEssayQuestion;
+    });
   }
 }

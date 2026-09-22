@@ -12,10 +12,10 @@ import type {
   IGenerateExamInput,
   IExamBase,
   IExam,
+  IFindQuestionsParams,
 } from "./interfaces";
 import type { IpcResult } from "./ipc-result";
 import type { ICreateMcqQuestion, IMcqQuestion } from "./question";
-import type { TQuestionTypes } from "./types";
 
 export {};
 
@@ -27,12 +27,12 @@ declare global {
         createEssay(input: ICreateEssayQuestion): Promise<IEssayQuestion>;
         findQuestionById(id: number): Promise<IQuestions>;
         findGroupedQuestions(): Promise<IGroupedQuestionCategory[]>;
-        filterQuestions(
-          questionType?: TQuestionTypes,
-          categoryId?: number,
-          subcategoryId?: number,
-          difficulty?: number,
-        ): Promise<IFilteredQuestion[]>;
+        findByFilterPaginated(params: IFindQuestionsParams): Promise<{
+          data: {
+            questions: IFilteredQuestion[];
+            hasMore: boolean;
+          };
+        }>;
         updateMcq(updatedQuestion: IMcqQuestion): Promise<IMcqQuestion>;
         updateEssay(updatedQuestion: IEssayQuestion): Promise<IEssayQuestion>;
         deleteQuestion(id: number): Promise<void>;
@@ -79,9 +79,7 @@ declare global {
         deleteExam(examId: number): Promise<void>;
         findExamById(examId: number): Promise<IExam>;
         findAllExams(): Promise<IExam[]>;
-        exportToWord(
-          examId: number,
-        ): Promise<{
+        exportToWord(examId: number): Promise<{
           success: boolean;
           data: { exported: boolean; filePath: string };
         }>;

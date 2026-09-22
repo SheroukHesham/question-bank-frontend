@@ -119,3 +119,13 @@ export interface IGenerateExamInput {
   criteria: IExamCriteria[];
   excludeExamIds?: number[];
 }
+
+export interface IFindQuestionsParams {
+  questionType?: TQuestionTypes;
+  categoryId?: number;
+  subcategoryId?: number;
+  difficulty?: string;
+  search?: string;
+  limit: number;
+  offset: number;
+}

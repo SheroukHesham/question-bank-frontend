@@ -5,6 +5,7 @@ import {
   IEssayQuestion,
   IExam,
   IExamBase,
+  IFindQuestionsParams,
   IMcqQuestion,
   ISubCategory,
 } from "@/shared/interfaces";
@@ -31,20 +32,8 @@ contextBridge.exposeInMainWorld("electron", {
     findByCategoryId: (categoryId: number) => {
       return ipcRenderer.invoke("question:findByCategoryId", categoryId);
     },
-    filterQuestions: (
-      questionType?: TQuestionTypes,
-      categoryId?: number,
-      subcategoryId?: number,
-      difficulty?: number,
-    ) => {
-      return ipcRenderer.invoke(
-        "question:findByFilter",
-        questionType,
-        categoryId,
-        subcategoryId,
-        difficulty,
-      );
-    },
+    findByFilterPaginated: (params: IFindQuestionsParams) =>
+      ipcRenderer.invoke("question:findByFilterPaginated", params),
     updateMcq: (id: number, updatedQuestion: IMcqQuestion) => {
       return ipcRenderer.invoke("question:updateMcq", id, updatedQuestion);
     },
