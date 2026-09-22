@@ -48,6 +48,10 @@ export interface EssayDetailRow {
   model_answer: string;
 }
 
+export interface FilteredQuestionRowWithTotal extends FilteredQuestionRow {
+  total_count: number;
+}
+
 export type ExamStatus = "draft" | "final";
 
 export interface ExamRow {

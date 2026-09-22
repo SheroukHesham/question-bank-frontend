@@ -1,5 +1,8 @@
 import type Database from "better-sqlite3";
-import type { FilteredQuestionRow, QuestionRow } from "../interfaces/index.js";
+import type {
+  FilteredQuestionRowWithTotal,
+  QuestionRow,
+} from "../interfaces/index.js";
 import {
   ICategory,
   ICreateEssayQuestion,
@@ -7,12 +10,12 @@ import {
   IEssayQuestion,
   IExamCriteria,
   IFilteredQuestion,
-  IFindQuestionsParams,
   IGroupedQuestionCategory,
   IMcqQuestion,
   IQuestionCountByCategory,
   IQuestions,
 } from "@/shared/interfaces/index.js";
+import { TQuestionTypes } from "@/shared/types/index.js";
 
 export type GroupedQuestions = Record<string, Record<string, IQuestions[]>>;
 
@@ -178,10 +181,15 @@ export class QuestionsRepository {
     return this.attachDetailsBulk(rows);
   }
 
-  findByFilterPaginated(params: IFindQuestionsParams): {
-    questions: IFilteredQuestion[];
-    hasMore: boolean;
-  } {
+  findByFilterPaginated(params: {
+    questionType?: TQuestionTypes;
+    categoryId?: number;
+    subcategoryId?: number;
+    difficulty?: string;
+    search?: string;
+    limit: number;
+    offset: number;
+  }): { questions: IFilteredQuestion[]; total: number } {
     const conditions: string[] = [];
     const sqlParams: (string | number)[] = [];
 
@@ -211,8 +219,9 @@ export class QuestionsRepository {
       : "";
 
     const rows = this.db
-      .prepare<unknown[], FilteredQuestionRow>(
-        `SELECT q.*, c.name AS category_name, s.name AS subcategory_name
+      .prepare<unknown[], FilteredQuestionRowWithTotal>(
+        `SELECT q.*, c.name AS category_name, s.name AS subcategory_name,
+              COUNT(*) OVER() AS total_count
        FROM questions q
        JOIN categories c ON q.category_id = c._id
        JOIN subcategories s ON q.subcategory_id = s._id
@@ -230,7 +239,7 @@ export class QuestionsRepository {
         categoryName: rows[i].category_name,
         subcategoryName: rows[i].subcategory_name,
       })),
-      hasMore: rows.length === params.limit,
+      total: rows[0]?.total_count ?? 0,
     };
   }
 
@@ -323,9 +332,9 @@ export class QuestionsRepository {
     const result = this.db
       .prepare<
         [],
-        IQuestionCountByCategory[]
+        IQuestionCountByCategory
       >("SELECT  category_id, COUNT (*) as total FROM questions GROUP BY category_id;")
-      .get();
+      .all();
     return result;
   }
 

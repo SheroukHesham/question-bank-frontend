@@ -1,153 +1,38 @@
-import QuestionCard from "@/ui/components/QuestionCard";
 import QuestionForm from "@/ui/components/QuestionForm";
 import { Badge } from "@/ui/components/reui/badge";
-import { SingleSelect } from "@/ui/components/SingleSelect";
 import { Button } from "@/ui/components/ui/button";
-import { SelectItem } from "@/ui/components/ui/select";
-import type { TQuestionTypeFilter } from "@/ui/types";
 import { Check, Pen } from "lucide-react";
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useFetch } from "../hooks/custom";
 import Back from "../components/Back";
 import type { ICategory, ISubCategory } from "@/shared/interfaces";
 import EditCategoryForm from "../components/EditCategoryForm";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import ReusableSearch from "../components/ReusableSearch";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import DisplayQuestions from "../components/DisplayQuestions";
 
 const CategoryQuestions = () => {
-  //todo:change after testing
-  const PAGE_SIZE = 5;
   const params = useParams();
   const categoryId = Number(params.id);
-
   const [editMode, setEditMode] = useState(false);
   const [deleteSub, setDeleteSub] = useState<ISubCategory>();
-  const [typeFilter, setTypeFilter] = useState<TQuestionTypeFilter>("all");
-  const [specializationFilter, setSpecializationFilter] = useState<
-    string | null
-  >(null);
-  const [search, setSearch] = useState("");
-  const parentRef = useRef<HTMLDivElement>(null);
-
-  function useDebouncedValue<T>(value: T, delay = 300): T {
-    const [debounced, setDebounced] = useState(value);
-    useEffect(() => {
-      const t = setTimeout(() => setDebounced(value), delay);
-      return () => clearTimeout(t);
-    }, [value, delay]);
-    return debounced;
-  }
-
-  const debouncedSearch = useDebouncedValue(search, 300);
 
   const { data: category } = useFetch({
     queryKey: ["category", "findById", categoryId],
     queryFn: () => window.electron.category.getCategoryById(categoryId),
   });
 
+  const { data } = useFetch({
+    queryKey: ["questions", "totalPerCategory"],
+    queryFn: () => window.electron.question.getTotalQuestionsPerCategory(),
+  });
+
+  const categoryTotal = data?.find((v) => v.category_id === categoryId);
+
   const { data: subcategories } = useFetch({
     queryKey: ["subcategory", "findByCategoryId", categoryId],
     queryFn: () =>
       window.electron.subcategory.findSubcategoryByCategoryId(categoryId),
   });
-
-  const { data: allQuestions = [] } = useFetch({
-    queryKey: ["questions", "byCategory", categoryId],
-    queryFn: () => window.electron.question.findByCategoryId(categoryId),
-  });
-
-  //todo:invalidate query after question creation/update/delete
-  const { data } = useInfiniteQuery({
-    queryKey: [
-      "questions",
-      "filtered",
-      categoryId,
-      typeFilter,
-      specializationFilter,
-      debouncedSearch,
-    ],
-    initialPageParam: 0,
-    queryFn: ({ pageParam }) =>
-      window.electron.question.findByFilterPaginated({
-        categoryId,
-        questionType: typeFilter === "all" ? undefined : typeFilter,
-        subcategoryId: specializationFilter
-          ? Number(specializationFilter)
-          : undefined,
-        search: debouncedSearch || undefined,
-        limit: PAGE_SIZE,
-        offset: pageParam,
-      }),
-
-    getNextPageParam: (lastPage, allPages) =>
-      lastPage.data.hasMore ? allPages.length * PAGE_SIZE : undefined,
-  });
-
-  const filteredQuestions = useMemo(
-    () => data?.pages.flatMap((p) => p.data.questions) ?? [],
-    [data],
-  );
-
-  const rowVirtualizer = useVirtualizer({
-    count: filteredQuestions.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 220,
-    overscan: 5,
-    getItemKey: (index) => filteredQuestions?.[index]?._id,
-    measureElement: (el) => el.getBoundingClientRect().height,
-  });
-
-  // useEffect(() => {
-  //   const items = rowVirtualizer.getVirtualItems();
-  //   const last = items[items.length - 1];
-  //   if (
-  //     last &&
-  //     last.index >= filteredQuestions.length - 1 &&
-  //     hasNextPage &&
-  //     !isFetchingNextPage
-  //   ) {
-  //     fetchNextPage();
-  //   }
-  // }, [
-  //   filteredQuestions.length,
-  //   hasNextPage,
-  //   isFetchingNextPage,
-  //   fetchNextPage,
-  //   rowVirtualizer,
-  // ]);
-
-  const renderQuestions = () => {
-    return (
-      <div
-        className="relative w-full flex flex-col gap-5"
-        style={{
-          height: `${rowVirtualizer.getTotalSize()}px`,
-        }}
-      >
-        {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-          const question = filteredQuestions[virtualItem.index];
-
-          return (
-            <div
-              key={question._id}
-              ref={rowVirtualizer.measureElement}
-              data-index={virtualItem.index}
-              className="absolute top-0 left-0 w-full "
-              style={{
-                transform: `translateY(${virtualItem.start}px)`,
-              }}
-            >
-              <div className="mb-5">
-                <QuestionCard idx={virtualItem.index} question={question} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
 
   return (
     <div className="w-full p-10 scrollbar-gutter-stable">
@@ -166,7 +51,7 @@ const CategoryQuestions = () => {
             <div className="flex  items-center gap-2 mt-10">
               <h1 className="text-4xl font-semibold ">{category?.name}</h1>
               <span className="text-muted/50 text-3xl font-semibold">
-                ({allQuestions?.length})
+                ({categoryTotal?.total})
               </span>
             </div>
             {editMode ? (
@@ -236,7 +121,12 @@ const CategoryQuestions = () => {
             />
           </div>
 
-          <div className="my-5">
+          <DisplayQuestions
+            subcategories={subcategories as ISubCategory[]}
+            categoryId={categoryId}
+          />
+
+          {/* <div className="my-5">
             <ReusableSearch
               placeholder="Search for a question"
               search={search}
@@ -282,24 +172,15 @@ const CategoryQuestions = () => {
           >
             {renderQuestions()}
           </div>
+          <div className=" mt-5 flex justify-center ">
+            <PagePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div> */}
         </div>
       )}
-      {/* <PagePagination
-        onNext={() => {
-          if (hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-          }
-        }}
-        onPrevious={() => {
-          if (hasPreviousPage && !isFetchingPreviousPage) {
-            fetchPreviousPage();
-          }
-        }}
-      >
-        <PaginationItem>
-          <PaginationLink>1</PaginationLink>
-        </PaginationItem>
-      </PagePagination> */}
     </div>
   );
 };

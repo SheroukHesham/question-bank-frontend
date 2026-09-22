@@ -30,7 +30,7 @@ declare global {
         findByFilterPaginated(params: IFindQuestionsParams): Promise<{
           data: {
             questions: IFilteredQuestion[];
-            hasMore: boolean;
+            total: number;
           };
         }>;
         updateMcq(updatedQuestion: IMcqQuestion): Promise<IMcqQuestion>;

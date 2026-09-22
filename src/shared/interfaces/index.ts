@@ -66,7 +66,7 @@ export type IFilteredQuestion =
   | (IMcqQuestion & IFilteredQuestionBase);
 
 export interface IQuestionCountByCategory {
-  categoryId: number;
+  category_id: number;
   total: number;
 }
 

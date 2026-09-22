@@ -1,21 +1,10 @@
 import { X } from "lucide-react";
 import { Button } from "./ui/button";
-import type { IQuestions } from "@/shared/interfaces";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type Dispatch,
-  type SetStateAction,
-} from "react";
-import QuestionCard from "./QuestionCard";
-import type { TQuestionDifficulty, TQuestionTypes } from "@/shared/types";
-import { SingleSelect } from "./SingleSelect";
-import { SelectItem } from "./ui/select";
+import type { IQuestions, ISubCategory } from "@/shared/interfaces";
+import { useRef, useState, type Dispatch, type SetStateAction } from "react";
+import type { TQuestionTypes } from "@/shared/types";
 import { useFetch } from "../hooks/custom";
-import ReusableSearch from "./ReusableSearch";
-import { useVirtualizer } from "@tanstack/react-virtual";
+import DisplayQuestions from "./DisplayQuestions";
 
 interface IProps {
   examType: TQuestionTypes;
@@ -31,21 +20,9 @@ const ExamAddFromBankModal = ({
   open,
   setOpen,
 }: IProps) => {
-  const [search, setSearch] = useState("");
   const [selectedQuestions, setSelectedQuestions] = useState<IQuestions[]>([]);
-  const [difficultyFilter, setDifficultyFilter] =
-    useState<TQuestionDifficulty | null>(null);
-  const [specializationFilter, setSpecializationFilter] = useState<
-    string | null
-  >(null);
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
-
   const parentRef = useRef<HTMLDivElement>(null);
 
-  const { data: questions } = useFetch({
-    queryKey: ["questions", "filtered"],
-    queryFn: () => window.electron.question.filterQuestions(examType),
-  });
   const { data: categories } = useFetch({
     queryKey: ["categories", "findAllDetails"],
     queryFn: () => window.electron.category.findAllCategoriesDetails(),
@@ -54,31 +31,6 @@ const ExamAddFromBankModal = ({
     queryKey: ["subcategories", "findAllDetails"],
     queryFn: () => window.electron.subcategory.findAllSubcategories(),
   });
-
-  const filteredQuestions = useMemo(() => {
-    if (search === "") {
-      return (questions ?? []).filter((item) => {
-        const matchesDifficulty =
-          difficultyFilter === null || item.difficulty === difficultyFilter;
-        const matchesSpecialization =
-          !specializationFilter ||
-          item.subcategoryId.toString() === specializationFilter;
-        const matchesCategory =
-          !categoryFilter || item.categoryId.toString() === categoryFilter;
-        return matchesDifficulty && matchesSpecialization && matchesCategory;
-      });
-    } else {
-      return (questions ?? []).filter((question) =>
-        question.header.toLowerCase().includes(search.toLowerCase()),
-      );
-    }
-  }, [
-    questions,
-    difficultyFilter,
-    specializationFilter,
-    categoryFilter,
-    search,
-  ]);
 
   const toggleSelected = (question: IQuestions) => {
     if (selectedQuestions.includes(question)) {
@@ -109,92 +61,11 @@ const ExamAddFromBankModal = ({
     onClose();
   };
 
-  const renderSubFilters = () => {
-    if (categoryFilter) {
-      const filteredSub = subcategories?.filter(
-        (item) => item.categoryId.toString() === categoryFilter,
-      );
-
-      return filteredSub?.map((sub) => {
-        return (
-          <SelectItem key={sub._id} value={sub._id.toString()}>
-            {sub.name}
-          </SelectItem>
-        );
-      });
-    } else {
-      return subcategories?.map((sub) => {
-        return (
-          <SelectItem key={sub._id} value={sub._id.toString()}>
-            {sub.name}
-          </SelectItem>
-        );
-      });
-    }
-  };
-
-  const rowVirtualizer = useVirtualizer({
-    count: filteredQuestions.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 200,
-    overscan: 5,
-    getItemKey: (index) => filteredQuestions[index]._id,
-    measureElement:
-      typeof window !== "undefined"
-        ? (element) => element.getBoundingClientRect().height
-        : undefined,
-  });
-
-  const renderQuestions = () => {
-    return (
-      <div
-        className="relative w-full flex flex-col gap-5"
-        style={{
-          height: `${rowVirtualizer.getTotalSize()}px`,
-        }}
-      >
-        {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-          const question = filteredQuestions[virtualItem.index];
-
-          const isSelected = selectedQuestions.some(
-            (item) => item._id === question._id,
-          );
-
-          return (
-            <div
-              key={question._id}
-              ref={rowVirtualizer.measureElement}
-              data-index={virtualItem.index}
-              className="absolute top-0 left-0 w-full "
-              style={{
-                transform: `translateY(${virtualItem.start}px)`,
-              }}
-            >
-              <div
-                className={`mb-5 rounded-md h-fit ${isSelected ? "border-2 border-primary" : ""}`}
-              >
-                <QuestionCard
-                  idx={virtualItem.index}
-                  question={question}
-                  editable={false}
-                  size="sm"
-                  onClick={() => toggleSelected(question)}
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
   const [shouldRender, setShouldRender] = useState(open);
 
-  useEffect(() => {
-    if (open) {
-      setShouldRender(true);
-    }
-  }, [open]);
+  if (open && !shouldRender) {
+    setShouldRender(true);
+  }
 
   if (!shouldRender) return null;
 
@@ -238,63 +109,14 @@ const ExamAddFromBankModal = ({
             </div>
           </div>
 
-          <ReusableSearch
-            placeholder="Search Question Bank"
-            search={search}
-            setSearch={setSearch}
+          <DisplayQuestions
+            subcategories={subcategories as ISubCategory[]}
+            categories={categories}
+            editable={false}
+            selectedQuestions={selectedQuestions}
+            toggleSelected={toggleSelected}
+            examType={examType}
           />
-
-          <div className="w-full flex md:flex-row flex-col gap-y-2">
-            <SingleSelect
-              placeholder="Topic"
-              onValueChange={(value) =>
-                setCategoryFilter(value === "all" ? null : value)
-              }
-            >
-              <SelectItem value="all">All</SelectItem>
-              {categories?.map((category) => {
-                return (
-                  <SelectItem
-                    key={category.categoryId}
-                    value={category.categoryId.toString()}
-                  >
-                    {category.categoryName}
-                  </SelectItem>
-                );
-              })}
-            </SingleSelect>
-
-            <SingleSelect
-              placeholder="Subtopic"
-              onValueChange={(value) =>
-                setSpecializationFilter(value === "all" ? null : value)
-              }
-            >
-              <SelectItem value="all">All</SelectItem>
-              {renderSubFilters()}
-            </SingleSelect>
-
-            <SingleSelect
-              placeholder="Question Difficulty"
-              onValueChange={(value) =>
-                setDifficultyFilter(
-                  value === "all" ? null : (value as TQuestionDifficulty),
-                )
-              }
-            >
-              <SelectItem value="all">All Difficulties</SelectItem>
-              <SelectItem value="easy">Easy</SelectItem>
-              <SelectItem value="moderate">Moderate</SelectItem>
-              <SelectItem value="difficult">Difficult</SelectItem>
-            </SingleSelect>
-          </div>
-
-          <div
-            ref={parentRef}
-            className="w-full flex flex-col mt-5 h-[calc(100vh-250px)] overflow-y-auto scrollbar-none gap-5"
-          >
-            {renderQuestions()}
-          </div>
         </div>
       </div>
     </div>

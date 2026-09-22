@@ -72,7 +72,7 @@ export class QuestionsService {
 
   findByFilterPaginated(params: IFindQuestionsParams): {
     questions: IFilteredQuestion[];
-    hasMore: boolean;
+    total: number;
   } {
     return this.questionsRepository.findByFilterPaginated(params);
   }
