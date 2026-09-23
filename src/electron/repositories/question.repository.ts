@@ -376,14 +376,18 @@ export class QuestionsRepository {
   generateQuestionsFromCriteria(
     criterion: IExamCriteria,
     excludeExamIds: number[],
+    excludeQuestionIds: number[] = [],
   ): IQuestions[] {
-    const placeholders = excludeExamIds.map(() => "?").join(",") || "NULL";
+    const examPlaceholders = excludeExamIds.map(() => "?").join(",") || "NULL";
+    const questionPlaceholders =
+      excludeQuestionIds.map(() => "?").join(",") || "NULL";
 
     const rows = this.db
       .prepare<unknown[], QuestionRow>(
         `SELECT * FROM questions
        WHERE type = ? AND category_id = ? AND subcategory_id = ? AND difficulty = ?
-       AND _id NOT IN (SELECT question_id FROM exam_questions WHERE exam_id IN (${placeholders}))
+       AND _id NOT IN (SELECT question_id FROM exam_questions WHERE exam_id IN (${examPlaceholders}))
+       AND _id NOT IN (${questionPlaceholders})
        ORDER BY RANDOM()
        LIMIT ?`,
       )
@@ -393,6 +397,7 @@ export class QuestionsRepository {
         criterion.subcategoryId,
         criterion.difficulty,
         ...excludeExamIds,
+        ...excludeQuestionIds,
         criterion.numberOfQuestions,
       );
 

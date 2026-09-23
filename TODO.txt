@@ -1,11 +1,8 @@
 --General--
 TODO: export all questions to excel
 TODO: make single source of truth for fetch data (optimization & maintainability)
-
---Exam--
-//-TODO: optimize attach details bottleneck in backend, Fix Pagination
-
---Security--
-//--TODO: secure electron app
-
 //TODO: remove all unused files and dependencies
+
+
+--Testing--
+//TODO: Test the entire workflow

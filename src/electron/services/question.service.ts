@@ -134,6 +134,7 @@ export class QuestionsService {
       this.questionsRepository.generateQuestionsFromCriteria(
         criterion,
         excludeExamIds,
+        inputCriteria.excludeQuestionIds,
       ),
     );
   }

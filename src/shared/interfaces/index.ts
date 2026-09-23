@@ -118,6 +118,7 @@ export interface IExamCriteria {
 export interface IGenerateExamInput {
   criteria: IExamCriteria[];
   excludeExamIds?: number[];
+  excludeQuestionIds: number[];
 }
 
 export interface IFindQuestionsParams {

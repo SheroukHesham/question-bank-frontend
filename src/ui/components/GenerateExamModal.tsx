@@ -100,6 +100,7 @@ const GenerateExamModal = ({
     setCriteria(filteredCriteria);
   };
 
+  //TODO:exclude addedQuestions from generation
   const generateExamQuestions = useMutation({
     mutationFn: (criteria: IGenerateExamInput) =>
       unwrapIpcResult(window.electron.question.generateExamQuestions(criteria)),
@@ -141,6 +142,7 @@ const GenerateExamModal = ({
     generateExamQuestions.mutate({
       criteria: payload,
       excludeExamIds: excludeExamIds,
+      excludeQuestionIds: addedQuestions.map((question) => question._id),
     });
   };
 
