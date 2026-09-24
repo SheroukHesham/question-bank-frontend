@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import QuestionCard from "./QuestionCard";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import PagePagination from "./PagePagination";
-import { useQuery } from "@tanstack/react-query";
 import ReusableSearch from "./ReusableSearch";
 import { SingleSelect } from "./SingleSelect";
 import type { TQuestionTypeFilter } from "../types";
@@ -13,6 +12,8 @@ import type {
   ISubCategory,
 } from "@/shared/interfaces";
 import type { TQuestionDifficulty, TQuestionTypes } from "@/shared/types";
+import { useFetch } from "../hooks/custom";
+import { questionQueries } from "../lib/queries/questions.queries";
 
 interface IProps {
   categoryId?: number;
@@ -68,40 +69,26 @@ const DisplayQuestions = ({
   }
 
   //todo:invalidate query after question creation/update/delete
-  const { data } = useQuery({
-    queryKey: [
-      "questions",
-      "filtered",
-      categoryId,
-      typeFilter,
-      specializationFilter,
-      debouncedSearch,
+  const { data } = useFetch(
+    questionQueries.filtered({
+      categoryId: categoryId ? categoryId : Number(categoryFilter),
+      typeFilter: examType ?? (typeFilter === "all" ? undefined : typeFilter),
+      specializationFilter: specializationFilter
+        ? Number(specializationFilter)
+        : undefined,
+      difficulty: difficultyFilter,
       currentPage,
-      difficultyFilter,
-    ],
-    queryFn: () =>
-      window.electron.question.findByFilterPaginated({
-        categoryId: categoryId ? categoryId : Number(categoryFilter),
-        questionType:
-          examType ?? (typeFilter === "all" ? undefined : typeFilter),
-        subcategoryId: specializationFilter
-          ? Number(specializationFilter)
-          : undefined,
-        difficulty: difficultyFilter,
+      search: debouncedSearch || undefined,
+      PAGE_SIZE,
+    }),
+  );
 
-        search: debouncedSearch || undefined,
-        limit: PAGE_SIZE,
-        offset: (currentPage - 1) * PAGE_SIZE,
-      }),
-
-    placeholderData: (previousData) => previousData,
-  });
   const questions = data?.data.questions ?? [];
   const total = data?.data.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  // // TanStack Virtual exposes an imperative API that React Compiler cannot safely memoize.
-  // // eslint-disable-next-line react-hooks/incompatible-library
+  // TanStack Virtual exposes an imperative API that React Compiler cannot safely memoize.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: questions.length,
     getScrollElement: () => parentRef.current,
@@ -137,7 +124,7 @@ const DisplayQuestions = ({
               }}
             >
               <div
-                className={`mb-5 rounded-md h-fit ${isSelected ? "border-2 border-primary" : ""}`}
+                className={`mb-5 hover:cursor-pointer rounded-md h-fit ${isSelected ? "border-2 border-primary" : ""}`}
               >
                 <QuestionCard
                   idx={(currentPage - 1) * PAGE_SIZE + virtualItem.index}
@@ -169,9 +156,10 @@ const DisplayQuestions = ({
         {!categoryId && (
           <SingleSelect
             placeholder="Topic"
-            onValueChange={(value) =>
-              setCategoryFilter(value === "all" ? undefined : value)
-            }
+            onValueChange={(value) => {
+              setCategoryFilter(value === "all" ? undefined : value);
+              setSpecializationFilter(null);
+            }}
           >
             <SelectItem value="all">All</SelectItem>
             {categories?.map((category) => {
@@ -189,21 +177,38 @@ const DisplayQuestions = ({
 
         <SingleSelect
           placeholder="Subtopic"
+          value={specializationFilter ?? "all"}
           onValueChange={(value) =>
             setSpecializationFilter(value === "all" ? null : value)
           }
         >
           <SelectItem value="all">All</SelectItem>
-          {subcategories?.map((subcategory) => {
-            return (
-              <SelectItem
-                key={subcategory._id}
-                value={subcategory._id.toString()}
-              >
-                {subcategory.name}
-              </SelectItem>
-            );
-          })}
+          {categoryFilter
+            ? subcategories
+                .filter(
+                  (subcategory) =>
+                    subcategory.categoryId === Number(categoryFilter),
+                )
+                ?.map((subcategory) => {
+                  return (
+                    <SelectItem
+                      key={subcategory._id}
+                      value={subcategory._id.toString()}
+                    >
+                      {subcategory.name}
+                    </SelectItem>
+                  );
+                })
+            : subcategories?.map((subcategory) => {
+                return (
+                  <SelectItem
+                    key={subcategory._id}
+                    value={subcategory._id.toString()}
+                  >
+                    {subcategory.name}
+                  </SelectItem>
+                );
+              })}
         </SingleSelect>
 
         {!examType && (

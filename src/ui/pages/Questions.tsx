@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { useFetch } from "../hooks/custom";
 import ErrorHandler from "../errors/ErrorHandler";
 import { Spinner } from "../components/ui/spinner";
+import { questionQueries } from "../lib/queries/questions.queries";
 
 //TODO: ADD LOADING AND ERROR STATES
 
@@ -25,10 +26,7 @@ const Questions = () => {
     data: totalQuestions,
     isLoading,
     isError,
-  } = useFetch({
-    queryKey: ["questions", "total"],
-    queryFn: () => window.electron.question.getTotalQuestions(),
-  });
+  } = useFetch(questionQueries.total());
 
   if (isError) {
     return <ErrorHandler />;

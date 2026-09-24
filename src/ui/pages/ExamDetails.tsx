@@ -6,16 +6,14 @@ import { Button } from "../components/ui/button";
 import { DownloadIcon, MoveLeft } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { questionQueries } from "../lib/queries/questions.queries";
 
 const ExamDetails = () => {
   const location = useLocation();
   const exam: IExam = location.state.exam;
   const navigate = useNavigate();
 
-  const { data: questions } = useFetch({
-    queryKey: ["questions", "findByExam", exam._id],
-    queryFn: () => window.electron.question.findQuestionsForExam(exam._id),
-  });
+  const { data: questions } = useFetch(questionQueries.byExam(exam._id));
 
   const exportToWord = useMutation({
     mutationFn: (examId: number) => window.electron.exam.exportToWord(examId),

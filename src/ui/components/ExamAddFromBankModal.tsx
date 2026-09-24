@@ -33,12 +33,11 @@ const ExamAddFromBankModal = ({
   });
 
   const toggleSelected = (question: IQuestions) => {
-    if (selectedQuestions.includes(question)) {
-      const filtered = selectedQuestions.filter((item) => item !== question);
-      setSelectedQuestions(filtered);
-    } else {
-      setSelectedQuestions((prev) => [...prev, question]);
-    }
+    setSelectedQuestions((prev) =>
+      prev.some((item) => item._id === question._id)
+        ? prev.filter((item) => item._id !== question._id)
+        : [...prev, question],
+    );
   };
 
   const onClose = () => {

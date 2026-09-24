@@ -9,6 +9,7 @@ import Back from "../components/Back";
 import type { ICategory, ISubCategory } from "@/shared/interfaces";
 import EditCategoryForm from "../components/EditCategoryForm";
 import DisplayQuestions from "../components/DisplayQuestions";
+import { questionQueries } from "../lib/queries/questions.queries";
 
 const CategoryQuestions = () => {
   const params = useParams();
@@ -21,10 +22,7 @@ const CategoryQuestions = () => {
     queryFn: () => window.electron.category.getCategoryById(categoryId),
   });
 
-  const { data } = useFetch({
-    queryKey: ["questions", "totalPerCategory"],
-    queryFn: () => window.electron.question.getTotalQuestionsPerCategory(),
-  });
+  const { data } = useFetch(questionQueries.totalPerCategory());
 
   const categoryTotal = data?.find((v) => v.category_id === categoryId);
 
@@ -125,60 +123,6 @@ const CategoryQuestions = () => {
             subcategories={subcategories as ISubCategory[]}
             categoryId={categoryId}
           />
-
-          {/* <div className="my-5">
-            <ReusableSearch
-              placeholder="Search for a question"
-              search={search}
-              setSearch={setSearch}
-            />
-          </div>
-
-          <div className=" flex w-full  mt-3">
-            <SingleSelect
-              placeholder="Question Type"
-              onValueChange={(value) =>
-                setTypeFilter(value as TQuestionTypeFilter)
-              }
-            >
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="mcq">MCQ</SelectItem>
-              <SelectItem value="essay">Essay</SelectItem>
-            </SingleSelect>
-
-            <SingleSelect
-              placeholder="Subtopic"
-              onValueChange={(value) =>
-                setSpecializationFilter(value === "all" ? null : value)
-              }
-            >
-              <SelectItem value="all">All</SelectItem>
-              {subcategories?.map((subcategory) => {
-                return (
-                  <SelectItem
-                    key={subcategory._id}
-                    value={subcategory._id.toString()}
-                  >
-                    {subcategory.name}
-                  </SelectItem>
-                );
-              })}
-            </SingleSelect>
-          </div>
-
-          <div
-            ref={parentRef}
-            className="w-full flex flex-col mt-5 h-[calc(100vh-250px)] overflow-y-auto scrollbar-none gap-5"
-          >
-            {renderQuestions()}
-          </div>
-          <div className=" mt-5 flex justify-center ">
-            <PagePagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          </div> */}
         </div>
       )}
     </div>

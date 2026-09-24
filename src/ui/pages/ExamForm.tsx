@@ -22,6 +22,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useFetch } from "../hooks/custom";
 import { Alert } from "../components/Alert";
+import { questionQueries } from "../lib/queries/questions.queries";
 
 interface IState {
   formType: "edit" | "create";
@@ -41,13 +42,8 @@ const ExamForm = () => {
   );
   const [open, setOpen] = useState(false);
 
-  const { data: questions } = useFetch({
-    queryKey: ["questions", "findByExam", exam?._id],
-    queryFn: () => window.electron.question.findQuestionsForExam(exam!._id),
-    enabled: !!exam,
-  });
+  const { data: questions } = useFetch(questionQueries.byExam(exam?._id));
 
-  //todo: if exam is passed, addedQuestions are the questions of the prop
   const [addedQuestions, setAddedQuestions] = useState<IQuestions[]>([]);
 
   const [isHydrated, setIsHydrated] = useState(false);
