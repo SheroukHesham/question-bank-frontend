@@ -40,7 +40,7 @@ const UpdateSubcategoryEntry = ({ subcategory }: IProps) => {
       window.electron.subcategory.updateSubcategory(subcategory),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["subcategory", "findByCategoryId"],
+        queryKey: ["subcategories", "findByCategoryId"],
       });
       toast.success("Subtopic Name Updated Successfully", {
         position: "top-center",
@@ -83,7 +83,7 @@ const UpdateSubcategoryEntry = ({ subcategory }: IProps) => {
         },
       });
       queryClient.invalidateQueries({
-        queryKey: ["subcategory", "findByCategoryId"],
+        queryKey: ["subcategories", "findByCategoryId"],
       });
       queryClient.invalidateQueries({
         queryKey: ["categories", "getGroupedSubCat"],

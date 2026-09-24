@@ -10,6 +10,7 @@ import { useFetch } from "../hooks/custom";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getQuestionImageSrc } from "../lib/image-url";
+import { subcategoryQueries } from "../lib/queries/subcategory.queries";
 
 interface IProps {
   idx: number;
@@ -35,18 +36,19 @@ const QuestionCard = ({
   const [expanded, setExpanded] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: subcategory } = useFetch({
-    queryKey: ["subcategory", "findById", question._id],
-    queryFn: () =>
-      window.electron.subcategory.findSubcategoryById(subcategoryId),
-  });
+  const { data: subcategory } = useFetch(
+    subcategoryQueries.findById(subcategoryId, question._id),
+  );
 
   const deleteQuestionMutation = useMutation({
     mutationKey: ["question", "delete"],
     mutationFn: (questionId: number) =>
       window.electron.question.deleteQuestion(questionId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["questions", "byCategory"] });
+      queryClient.invalidateQueries({ queryKey: ["questions", "filtered"] });
+      queryClient.invalidateQueries({
+        queryKey: ["questions", "totalPerCategory"],
+      });
       toast.success("Question Deleted Successfully", {
         position: "top-center",
         style: { justifyContent: "center", color: "green", fontSize: "16px" },

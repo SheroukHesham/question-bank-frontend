@@ -5,6 +5,8 @@ import { useRef, useState, type Dispatch, type SetStateAction } from "react";
 import type { TQuestionTypes } from "@/shared/types";
 import { useFetch } from "../hooks/custom";
 import DisplayQuestions from "./DisplayQuestions";
+import { categoryQueries } from "../lib/queries/categories.queries";
+import { subcategoryQueries } from "../lib/queries/subcategory.queries";
 
 interface IProps {
   examType: TQuestionTypes;
@@ -23,14 +25,8 @@ const ExamAddFromBankModal = ({
   const [selectedQuestions, setSelectedQuestions] = useState<IQuestions[]>([]);
   const parentRef = useRef<HTMLDivElement>(null);
 
-  const { data: categories } = useFetch({
-    queryKey: ["categories", "findAllDetails"],
-    queryFn: () => window.electron.category.findAllCategoriesDetails(),
-  });
-  const { data: subcategories } = useFetch({
-    queryKey: ["subcategories", "findAllDetails"],
-    queryFn: () => window.electron.subcategory.findAllSubcategories(),
-  });
+  const { data: categories } = useFetch(categoryQueries.findAllDetails());
+  const { data: subcategories } = useFetch(subcategoryQueries.findAllDetails());
 
   const toggleSelected = (question: IQuestions) => {
     setSelectedQuestions((prev) =>

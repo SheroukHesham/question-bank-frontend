@@ -57,6 +57,9 @@ const EditCategoryForm = ({ category, subcategories, setEditMode }: IProps) => {
       queryClient.invalidateQueries({
         queryKey: ["categories", "getGroupedSubCat"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["categories", "byId", category._id],
+      });
       toast.success("Topic Name Updated Successfully", {
         position: "top-center",
         style: {
@@ -99,7 +102,7 @@ const EditCategoryForm = ({ category, subcategories, setEditMode }: IProps) => {
         },
       });
       queryClient.invalidateQueries({
-        queryKey: ["subcategory", "findByCategoryId"],
+        queryKey: ["subcategories", "findByCategoryId"],
       });
       queryClient.invalidateQueries({
         queryKey: ["categories", "getGroupedSubCat"],
@@ -126,7 +129,7 @@ const EditCategoryForm = ({ category, subcategories, setEditMode }: IProps) => {
         },
       });
       queryClient.invalidateQueries({
-        queryKey: ["subcategory", "findByCategoryId"],
+        queryKey: ["subcategories", "findByCategoryId"],
       });
       queryClient.invalidateQueries({
         queryKey: ["categories", "getGroupedSubCat"],

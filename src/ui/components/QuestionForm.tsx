@@ -28,6 +28,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useFetch } from "../hooks/custom";
 import { Textarea } from "./ui/textarea";
 import { getQuestionImageSrc } from "../lib/image-url";
+import { categoryQueries } from "../lib/queries/categories.queries";
 
 interface IProps {
   type?: "create" | "edit";
@@ -98,10 +99,9 @@ const QuestionForm = ({
     };
   }, [previewUrl]);
 
-  const { data: groupedCategories } = useFetch({
-    queryKey: ["categories", "getGroupedSubCat"],
-    queryFn: () => window.electron.category.getGroupedCategorySubcategory(),
-  });
+  const { data: groupedCategories } = useFetch(
+    categoryQueries.getGroupedSubcategory(),
+  );
 
   const onSelectTopicValueChange = (v: string) => {
     if (!v) return;
@@ -130,9 +130,6 @@ const QuestionForm = ({
     });
     queryClient.invalidateQueries({
       queryKey: ["questions", "total"],
-    });
-    queryClient.invalidateQueries({
-      queryKey: ["questions", "byCategory"],
     });
     if (setQuestionToEdit) setQuestionToEdit(data);
     if (type === "create") reset();

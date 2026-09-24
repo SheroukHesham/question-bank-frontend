@@ -16,7 +16,6 @@ const choiceSchema = yup.object({
   isCorrect: yup.boolean().required(),
 });
 
-//todo: choices must be unique
 export const questionSchema = yup.object({
   type: yup.mixed<TQuestionTypes>().oneOf(["essay", "mcq"]).required(),
   difficulty: yup
@@ -52,7 +51,13 @@ export const questionSchema = yup.object({
             "Select exactly one correct choice",
             (choices) =>
               (choices ?? []).filter((c) => c.isCorrect).length === 1,
-          ),
+          )
+          .test("unique-choices", "Choices must be unique", (choices) => {
+            const normalized = (choices ?? [])
+              .map((c) => c.choice?.trim().toLowerCase())
+              .filter(Boolean);
+            return normalized.length === new Set(normalized).size;
+          }),
       otherwise: (schema) => schema.strip(),
     }),
 });

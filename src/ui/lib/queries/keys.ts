@@ -4,7 +4,6 @@ export const questionKeys = {
   all: ["questions"] as const,
   total: () => [...questionKeys.all, "total"] as const,
   totalPerCategory: () => [...questionKeys.all, "totalPerCategory"] as const,
-  //   questionsByCategory: () => [...questionKeys.all, "byCategory"] as const,
   byExam: (examId: number) =>
     [...questionKeys.all, "findByExam", examId] as const,
   filtered: (params: {

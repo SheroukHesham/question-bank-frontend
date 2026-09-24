@@ -4,6 +4,7 @@ import { changeActiveTab } from "@/ui/features/activeTabSlice";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useFetch } from "../hooks/custom";
+import { categoryQueries } from "../lib/queries/categories.queries";
 
 const Categories = () => {
   const dispatch = useDispatch();
@@ -11,10 +12,9 @@ const Categories = () => {
     dispatch(changeActiveTab("questions-categories"));
   }, [dispatch]);
 
-  const { data: categoriesDetails } = useFetch({
-    queryKey: ["categories", "findAllDetails"],
-    queryFn: () => window.electron.category.findAllCategoriesDetails(),
-  });
+  const { data: categoriesDetails } = useFetch(
+    categoryQueries.findAllDetails(),
+  );
 
   return (
     <div className="w-full p-10 ">

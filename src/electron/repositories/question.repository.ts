@@ -378,16 +378,20 @@ export class QuestionsRepository {
     excludeExamIds: number[],
     excludeQuestionIds: number[] = [],
   ): IQuestions[] {
-    const examPlaceholders = excludeExamIds.map(() => "?").join(",") || "NULL";
-    const questionPlaceholders =
-      excludeQuestionIds.map(() => "?").join(",") || "NULL";
+    const examClause = excludeExamIds.length
+      ? `AND _id NOT IN (SELECT question_id FROM exam_questions WHERE exam_id IN (${excludeExamIds.map(() => "?").join(",")}))`
+      : "";
+
+    const questionClause = excludeQuestionIds.length
+      ? `AND _id NOT IN (${excludeQuestionIds.map(() => "?").join(",")})`
+      : "";
 
     const rows = this.db
       .prepare<unknown[], QuestionRow>(
         `SELECT * FROM questions
        WHERE type = ? AND category_id = ? AND subcategory_id = ? AND difficulty = ?
-       AND _id NOT IN (SELECT question_id FROM exam_questions WHERE exam_id IN (${examPlaceholders}))
-       AND _id NOT IN (${questionPlaceholders})
+       ${examClause}
+       ${questionClause}
        ORDER BY RANDOM()
        LIMIT ?`,
       )

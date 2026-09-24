@@ -19,6 +19,9 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { unwrapIpcResult } from "../lib/utils";
 import ExamCard from "./ExamCard";
+import { categoryQueries } from "../lib/queries/categories.queries";
+import { subcategoryQueries } from "../lib/queries/subcategory.queries";
+import { examQueries } from "../lib/queries/exam.queries";
 
 interface IRawCriteria {
   _id: string;
@@ -65,19 +68,10 @@ const GenerateExamModal = ({
     resolver: yupResolver(generateQuestionsSchema),
   });
 
-  const { data: categories } = useFetch({
-    queryKey: ["categories", "findAllDetails"],
-    queryFn: () => window.electron.category.findAllCategoriesDetails(),
-  });
-  const { data: subcategories } = useFetch({
-    queryKey: ["subcategories", "findAllDetails"],
-    queryFn: () => window.electron.subcategory.findAllSubcategories(),
-  });
+  const { data: categories } = useFetch(categoryQueries.findAllDetails());
+  const { data: subcategories } = useFetch(subcategoryQueries.findAllDetails());
 
-  const { data: exams } = useFetch({
-    queryKey: ["exam", "getAll"],
-    queryFn: () => window.electron.exam.findAllExams(),
-  });
+  const { data: exams } = useFetch(examQueries.findAll());
 
   const onValueChange = (
     criteria: IRawCriteria,
@@ -139,6 +133,7 @@ const GenerateExamModal = ({
         subcategoryId: Number(item.subcategoryId),
       };
     });
+    console.log(payload);
     generateExamQuestions.mutate({
       criteria: payload,
       excludeExamIds: excludeExamIds,

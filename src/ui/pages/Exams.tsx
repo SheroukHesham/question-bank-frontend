@@ -15,6 +15,7 @@ import type { TQuestionTypeFilter } from "../types";
 import { SingleSelect } from "../components/SingleSelect";
 import { SelectItem } from "../components/ui/select";
 import ReusableSearch from "../components/ReusableSearch";
+import { examQueries } from "../lib/queries/exam.queries";
 
 type TExamStatusFilter = "all" | "final" | "draft";
 
@@ -31,10 +32,7 @@ const Exams = () => {
     dispatch(changeActiveTab("exams"));
   }, [dispatch]);
 
-  const { data: exams } = useFetch({
-    queryKey: ["exam", "getAll"],
-    queryFn: () => window.electron.exam.findAllExams(),
-  });
+  const { data: exams } = useFetch(examQueries.findAll());
 
   const filteredExams = useMemo(() => {
     if (search === "") {

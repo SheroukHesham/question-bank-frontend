@@ -8,6 +8,7 @@ import { useFetch } from "../hooks/custom";
 import ErrorHandler from "../errors/ErrorHandler";
 import { Spinner } from "../components/ui/spinner";
 import { questionQueries } from "../lib/queries/questions.queries";
+import { categoryQueries } from "../lib/queries/categories.queries";
 
 //TODO: ADD LOADING AND ERROR STATES
 
@@ -17,10 +18,9 @@ const Questions = () => {
     dispatch(changeActiveTab("all-questions"));
   }, [dispatch]);
 
-  const { data: categoriesDetails } = useFetch({
-    queryKey: ["categories", "findAllDetails"],
-    queryFn: () => window.electron.category.findAllCategoriesDetails(),
-  });
+  const { data: categoriesDetails } = useFetch(
+    categoryQueries.findAllDetails(),
+  );
 
   const {
     data: totalQuestions,

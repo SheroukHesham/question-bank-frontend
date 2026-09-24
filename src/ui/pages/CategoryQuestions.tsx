@@ -10,6 +10,8 @@ import type { ICategory, ISubCategory } from "@/shared/interfaces";
 import EditCategoryForm from "../components/EditCategoryForm";
 import DisplayQuestions from "../components/DisplayQuestions";
 import { questionQueries } from "../lib/queries/questions.queries";
+import { categoryQueries } from "../lib/queries/categories.queries";
+import { subcategoryQueries } from "../lib/queries/subcategory.queries";
 
 const CategoryQuestions = () => {
   const params = useParams();
@@ -17,20 +19,16 @@ const CategoryQuestions = () => {
   const [editMode, setEditMode] = useState(false);
   const [deleteSub, setDeleteSub] = useState<ISubCategory>();
 
-  const { data: category } = useFetch({
-    queryKey: ["category", "findById", categoryId],
-    queryFn: () => window.electron.category.getCategoryById(categoryId),
-  });
+  const { data: category } = useFetch(categoryQueries.findById(categoryId));
+  console.log(category);
 
   const { data } = useFetch(questionQueries.totalPerCategory());
 
   const categoryTotal = data?.find((v) => v.category_id === categoryId);
 
-  const { data: subcategories } = useFetch({
-    queryKey: ["subcategory", "findByCategoryId", categoryId],
-    queryFn: () =>
-      window.electron.subcategory.findSubcategoryByCategoryId(categoryId),
-  });
+  const { data: subcategories } = useFetch(
+    subcategoryQueries.findByCategoryId(categoryId),
+  );
 
   return (
     <div className="w-full p-10 scrollbar-gutter-stable">
