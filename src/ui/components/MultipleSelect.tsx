@@ -12,8 +12,8 @@ import {
   ComboboxItem,
   ComboboxList,
   ComboboxValue,
-  useComboboxAnchor,
 } from "@/ui/components/ui/combobox";
+import { useComboboxAnchor } from "../hooks/custom";
 import { UseModalContext } from "@/ui/context/ModalContext";
 import type { UseFormSetValue } from "react-hook-form";
 import type { CategoryFormValues } from "@/ui/validation";

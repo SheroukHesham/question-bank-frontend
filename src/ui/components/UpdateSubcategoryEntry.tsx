@@ -12,9 +12,10 @@ import { Alert } from "./Alert";
 
 interface IProps {
   subcategory: ISubCategory;
+  setSubFormDirty: (dirty: boolean) => void;
 }
 
-const UpdateSubcategoryEntry = ({ subcategory }: IProps) => {
+const UpdateSubcategoryEntry = ({ subcategory, setSubFormDirty }: IProps) => {
   const [editSubcategory, setEditSubcategory] = useState(false);
   const queryClient = useQueryClient();
 
@@ -23,11 +24,15 @@ const UpdateSubcategoryEntry = ({ subcategory }: IProps) => {
     reset,
     setFocus,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<SubcategoryFormValues>({
     resolver: yupResolver(subcategorySchema),
     defaultValues: { name: subcategory.name },
   });
+
+  useEffect(() => {
+    setSubFormDirty(isDirty || editSubcategory);
+  }, [isDirty, setSubFormDirty, editSubcategory]);
 
   useEffect(() => {
     if (editSubcategory) {
@@ -39,6 +44,7 @@ const UpdateSubcategoryEntry = ({ subcategory }: IProps) => {
     mutationFn: (subcategory: ISubCategory) =>
       window.electron.subcategory.updateSubcategory(subcategory),
     onSuccess: () => {
+      setSubFormDirty(false);
       queryClient.invalidateQueries({
         queryKey: ["subcategories", "findByCategoryId"],
       });
@@ -66,8 +72,9 @@ const UpdateSubcategoryEntry = ({ subcategory }: IProps) => {
   });
 
   const onSubmit = (data: SubcategoryFormValues) => {
-    updateSubcategory.mutate({ ...subcategory, name: data.name });
     setEditSubcategory(false);
+    if (data.name.toLowerCase() === subcategory.name.toLowerCase()) return;
+    updateSubcategory.mutate({ ...subcategory, name: data.name });
   };
 
   const deleteSubcategories = useMutation({

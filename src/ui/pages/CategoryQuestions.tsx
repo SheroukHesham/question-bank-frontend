@@ -2,7 +2,7 @@ import QuestionForm from "@/ui/components/QuestionForm";
 import { Badge } from "@/ui/components/reui/badge";
 import { Button } from "@/ui/components/ui/button";
 import { Check, Pen } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useFetch } from "../hooks/custom";
 import Back from "../components/Back";
@@ -12,15 +12,21 @@ import DisplayQuestions from "../components/DisplayQuestions";
 import { questionQueries } from "../lib/queries/questions.queries";
 import { categoryQueries } from "../lib/queries/categories.queries";
 import { subcategoryQueries } from "../lib/queries/subcategory.queries";
+import { useDispatch } from "react-redux";
+import { changeActiveTab } from "../features/activeTabSlice";
 
 const CategoryQuestions = () => {
   const params = useParams();
   const categoryId = Number(params.id);
   const [editMode, setEditMode] = useState(false);
   const [deleteSub, setDeleteSub] = useState<ISubCategory>();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(changeActiveTab("questions-categories"));
+  }, [dispatch]);
 
   const { data: category } = useFetch(categoryQueries.findById(categoryId));
-  console.log(category);
 
   const { data } = useFetch(questionQueries.totalPerCategory());
 

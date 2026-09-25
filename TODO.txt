@@ -1,6 +1,5 @@
 --General--
 TODO: export all questions to excel
-TODO: make single source of truth for fetch data (optimization & maintainability)
 TODO: remove all unused files and dependencies
 
 

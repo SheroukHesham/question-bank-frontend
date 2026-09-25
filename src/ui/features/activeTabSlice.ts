@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import type { TNavBarLinks } from "../types";
 
 export interface activeTabState {
   activeIdx: string;
@@ -13,7 +14,7 @@ export const activeTabSlice = createSlice({
   name: "activeTab",
   initialState,
   reducers: {
-    changeActiveTab: (state, action: PayloadAction<string>) => {
+    changeActiveTab: (state, action: PayloadAction<TNavBarLinks>) => {
       state.activeIdx = action.payload;
       window.localStorage.setItem("activeTab", action.payload);
     },

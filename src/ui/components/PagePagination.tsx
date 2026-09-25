@@ -6,7 +6,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
+} from "@/ui/components/ui/pagination";
 
 interface IProps {
   currentPage: number;

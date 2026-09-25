@@ -7,7 +7,7 @@ import type { IExam, IExamBase, IQuestions } from "@/shared/interfaces";
 import type { TQuestionTypes } from "@/shared/types";
 import { examSchema, type ExamFormValues } from "@/ui/validation";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   useLocation,
@@ -23,6 +23,10 @@ import { toast } from "sonner";
 import { useFetch } from "../hooks/custom";
 import { Alert } from "../components/Alert";
 import { questionQueries } from "../lib/queries/questions.queries";
+import QuestionForm from "../components/QuestionForm";
+import { useNavigationGuard } from "../context/NavigationGuardContext";
+import { useDispatch } from "react-redux";
+import { changeActiveTab } from "../features/activeTabSlice";
 
 interface IState {
   formType: "edit" | "create";
@@ -41,12 +45,31 @@ const ExamForm = () => {
     formType === "edit" && exam ? exam.totalNumberOfQuestions : 0,
   );
   const [open, setOpen] = useState(false);
-
   const { data: questions } = useFetch(questionQueries.byExam(exam?._id));
-
   const [addedQuestions, setAddedQuestions] = useState<IQuestions[]>([]);
-
   const [isHydrated, setIsHydrated] = useState(false);
+  const [shouldBlock, setShouldBlock] = useState(true);
+  const dispatch = useDispatch();
+
+  const {
+    setIsBlocked,
+    requestNavigation,
+    pendingNavigation,
+    confirmNavigation,
+    cancelNavigation,
+  } = useNavigationGuard();
+
+  useEffect(() => {
+    dispatch(changeActiveTab("exams"));
+  }, [dispatch]);
+
+  useEffect(() => {
+    setIsBlocked(shouldBlock);
+  }, [shouldBlock, setIsBlocked]);
+
+  useEffect(() => {
+    return () => setIsBlocked(false);
+  }, [setIsBlocked]);
 
   if (questions && !isHydrated) {
     setIsHydrated(true);
@@ -131,7 +154,7 @@ const ExamForm = () => {
     mutationFn: ({ exam }: { exam: IExamBase }) =>
       window.electron.exam.createExam(exam),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["exam", "getAll"] });
+      queryClient.invalidateQueries({ queryKey: ["exams", "getAll"] });
       toast.success("Exam Created Successfully", {
         position: "top-center",
         style: {
@@ -140,6 +163,7 @@ const ExamForm = () => {
           fontSize: "16px",
         },
       });
+      setShouldBlock(false);
       navigate(-1);
     },
     onError: () => {
@@ -174,8 +198,13 @@ const ExamForm = () => {
       queryClient.invalidateQueries({
         queryKey: ["questions", "findByExam", exam?._id],
       });
-      queryClient.invalidateQueries({ queryKey: ["exam", "getAll"] });
-      navigate(`/exams/${exam?._id}`, { state: { exam: data } });
+      queryClient.invalidateQueries({ queryKey: ["exams", "getAll"] });
+      setShouldBlock(false);
+      if (pendingNavigation) {
+        confirmNavigation();
+      } else {
+        navigate(`/exams/${exam?._id}`, { state: { exam: data } });
+      }
     },
     onError: () => {
       toast.error("An Error Occurred While Updating The Exam! ", {
@@ -204,7 +233,8 @@ const ExamForm = () => {
       queryClient.invalidateQueries({
         queryKey: ["questions", "findByExam", exam?._id],
       });
-      queryClient.invalidateQueries({ queryKey: ["exam", "getAll"] });
+      queryClient.invalidateQueries({ queryKey: ["exams", "getAll"] });
+      setShouldBlock(false);
       navigate(`/exams`);
     },
     onError: () => {
@@ -220,6 +250,7 @@ const ExamForm = () => {
   });
 
   const onSubmit = (data: ExamFormValues) => {
+    setShouldBlock(false);
     if (formType === "create") {
       const examQuestions = getExamQuestionsFromAdded();
       const payload: IExamBase = {
@@ -269,7 +300,7 @@ const ExamForm = () => {
   };
 
   return (
-    <div className="w-full p-10 ">
+    <div className="w-full p-10 h-screen ">
       <div className="w-full flex items-center justify-between">
         <h1 className="text-4xl font-semibold capitalize ">
           {examType === "essay" ? examType : examType?.toUpperCase()} Exam
@@ -287,8 +318,8 @@ const ExamForm = () => {
           />
         )}
       </div>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="w-full flex flex-col gap-5 ">
+      <form onSubmit={handleSubmit(onSubmit)} className="h-full">
+        <div className="w-full flex flex-col gap-5 h-full">
           <div className="flex flex-col gap-y-3 w-full sticky top-0 bg-popover  py-2 z-10 ">
             <div className="flex w-full justify-end">
               <div className="flex flex-col gap-y-1">
@@ -369,6 +400,13 @@ const ExamForm = () => {
             </div>
           </div>
 
+          <div className="w-fit">
+            <QuestionForm
+              questionTypeLock={examType}
+              setAddedQuestions={setAddedQuestions}
+            />
+          </div>
+
           <div className="flex flex-col gap-5">
             {addedQuestions.map((question, idx) => {
               return (
@@ -386,31 +424,67 @@ const ExamForm = () => {
             })}
           </div>
 
-          <div className="w-full flex justify-between items-center">
+          <div className="h-full flex items-end pb-5">
+            <div className="w-full flex justify-between items-center">
+              <Button
+                type="button"
+                variant={"secondary"}
+                onClick={() => {
+                  setShouldBlock(false);
+                  saveDraft();
+                }}
+              >
+                Save Draft
+              </Button>
+              <Button
+                type="button"
+                variant={"ghost"}
+                onClick={() => {
+                  requestNavigation(() => {
+                    reset();
+                    setTotalQuestions(0);
+                    setAddedQuestions([]);
+                    setShouldBlock(false);
+                    navigate(-1);
+                  });
+                }}
+              >
+                Cancel
+              </Button>
+              <Button className="w-fit">
+                {formType === "create" ? "Submit" : "Save Changes"}
+              </Button>
+            </div>
+          </div>
+        </div>
+        <Alert
+          title="Do you want to save your changes?"
+          description="If you do not save your changes they will be lost."
+          submitText="Save Draft"
+          cancelText="Don't Save"
+          onSubmit={() => {
+            saveDraft();
+          }}
+          variant="default"
+          open={pendingNavigation !== null}
+          onCancel={() => {
+            reset();
+            setTotalQuestions(0);
+            setAddedQuestions([]);
+            setShouldBlock(false);
+            confirmNavigation();
+          }}
+          extraButton={
             <Button
-              type="button"
-              variant={"secondary"}
-              onClick={() => saveDraft()}
-            >
-              Save Draft
-            </Button>
-            <Button
-              type="button"
               variant={"ghost"}
               onClick={() => {
-                reset();
-                setTotalQuestions(0);
-                setAddedQuestions([]);
-                navigate(-1);
+                cancelNavigation();
               }}
             >
               Cancel
             </Button>
-            <Button className="w-fit">
-              {formType === "create" ? "Submit" : "Save Changes"}
-            </Button>
-          </div>
-        </div>
+          }
+        />
       </form>
     </div>
   );

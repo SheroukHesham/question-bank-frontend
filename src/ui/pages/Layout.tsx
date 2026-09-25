@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/ui/components/ui/sidebar";
 import { AppSidebar } from "@/ui/components/Sidebar";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NavigationGuardProvider } from "../context/NavigationGuardProvider";
 
 const Layout = () => {
   const queryClient = new QueryClient({
@@ -16,15 +17,16 @@ const Layout = () => {
   return (
     <>
       <QueryClientProvider client={queryClient}>
-        <SidebarProvider>
-          <AppSidebar />
-          <SidebarTrigger />
-          <div className="flex flex-col w-full">
-            {/* <Navbar /> */}
-            <Toaster />
-            <Outlet />
-          </div>
-        </SidebarProvider>
+        <NavigationGuardProvider>
+          <SidebarProvider>
+            <AppSidebar />
+            <SidebarTrigger />
+            <div className="flex flex-col w-full">
+              <Toaster />
+              <Outlet />
+            </div>
+          </SidebarProvider>
+        </NavigationGuardProvider>
       </QueryClientProvider>
     </>
   );

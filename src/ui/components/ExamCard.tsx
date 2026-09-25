@@ -17,11 +17,9 @@ const ExamCard = ({ exam, onClick }: IProps) => {
             [{exam.type === "essay" ? exam.type : exam.type.toUpperCase()} Exam]
           </span>
 
-          <span className="font-bold text-xl tracking-tight">
-            {exam.title}{" "}
-          </span>
+          <span className="font-bold text-xl tracking-tight">{exam.title}</span>
           <span className="font-semibold text-base text-muted/60">
-            Created: {exam.createdAt.split(" ")[0]}
+            Created: {exam.createdAt}
           </span>
         </div>
         {exam.status === "draft" && (

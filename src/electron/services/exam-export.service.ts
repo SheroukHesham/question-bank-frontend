@@ -17,8 +17,8 @@ const CHOICE_LETTERS = ["A", "B", "C", "D", "E", "F"];
 
 import { imageSize } from "image-size";
 
-const MAX_WIDTH_PX = 400; // stays comfortably inside standard page margins
-const MAX_HEIGHT_PX = 500; // guards against very tall/narrow images too
+const MAX_WIDTH_PX = 400;
+const MAX_HEIGHT_PX = 500;
 
 function getScaledImageDimensions(imageBuffer: Buffer): {
   width: number;
@@ -186,7 +186,7 @@ export async function generateExamDocx(
             spacing: { after: 400 },
           }),
           ...questions.flatMap((q, i) => buildQuestionBlock(q, i)),
-          ...buildAnswerKeySection(questions),
+          ...(exam.type === "essay" ? buildAnswerKeySection(questions) : []),
         ],
       },
     ],

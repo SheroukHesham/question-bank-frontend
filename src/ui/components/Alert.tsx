@@ -14,7 +14,7 @@ import { Button } from "@/ui/components/ui/button";
 import type { ReactNode } from "react";
 
 interface IProps {
-  buttonChildren: ReactNode;
+  buttonChildren?: ReactNode;
   variant: "destructive" | "default";
   buttonSize?:
     | "default"
@@ -29,9 +29,12 @@ interface IProps {
   title: string;
   description: string;
   submitText: string;
+  cancelText?: string;
   onSubmit: () => void;
   onCancel?: () => void;
   disabled?: boolean;
+  open?: boolean;
+  extraButton?: ReactNode;
 }
 
 export function Alert({
@@ -41,23 +44,28 @@ export function Alert({
   onCancel,
   onSubmit: onSubmit,
   submitText,
+  cancelText,
   title,
   variant,
   icon,
   disabled,
+  open,
+  extraButton,
 }: IProps) {
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant={variant}
-          size={buttonSize}
-          disabled={disabled}
-          type="button"
-        >
-          {buttonChildren}
-        </Button>
-      </AlertDialogTrigger>
+    <AlertDialog open={open}>
+      {buttonChildren && (
+        <AlertDialogTrigger asChild>
+          <Button
+            variant={variant}
+            size={buttonSize}
+            disabled={disabled}
+            type="button"
+          >
+            {buttonChildren}
+          </Button>
+        </AlertDialogTrigger>
+      )}
       <AlertDialogContent size="default">
         <AlertDialogHeader>
           {icon && (
@@ -75,8 +83,9 @@ export function Alert({
             variant="outline"
             onClick={() => onCancel && onCancel()}
           >
-            Cancel
+            {cancelText ?? "Cancel"}
           </AlertDialogCancel>
+          {extraButton}
           <AlertDialogAction variant={variant} onClick={() => onSubmit()}>
             {submitText}
           </AlertDialogAction>

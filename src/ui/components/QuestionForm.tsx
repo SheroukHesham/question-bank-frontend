@@ -29,6 +29,7 @@ import { useFetch } from "../hooks/custom";
 import { Textarea } from "./ui/textarea";
 import { getQuestionImageSrc } from "../lib/image-url";
 import { categoryQueries } from "../lib/queries/categories.queries";
+import { toast } from "sonner";
 
 interface IProps {
   type?: "create" | "edit";
@@ -40,6 +41,8 @@ interface IProps {
     subcategoryName: string;
     subcategoryId: number;
   };
+  questionTypeLock?: TQuestionTypes;
+  setAddedQuestions?: Dispatch<SetStateAction<IQuestions[]>>;
 }
 
 const QuestionForm = ({
@@ -47,8 +50,12 @@ const QuestionForm = ({
   questionToEdit,
   setQuestionToEdit,
   defaultCategory,
+  questionTypeLock,
+  setAddedQuestions,
 }: IProps) => {
-  const [mcq, setMcq] = useState(true);
+  const [mcq, setMcq] = useState(
+    (questionTypeLock && questionTypeLock === "mcq") ?? true,
+  );
   const [open, setOpen] = useState(false);
   const [imageChanged, setImageChanged] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
@@ -135,6 +142,16 @@ const QuestionForm = ({
     if (type === "create") reset();
     setOpen(false);
     setImageChanged(false);
+    if (setAddedQuestions) {
+      setAddedQuestions((prev) => [...prev, data]);
+    }
+    toast.success(
+      `Question ${type === "create" ? "Created" : "Updated"} Successfully`,
+      {
+        position: "top-center",
+        style: { justifyContent: "center", color: "green", fontSize: "16px" },
+      },
+    );
   };
 
   const addMcq = useMutation({
@@ -284,9 +301,12 @@ const QuestionForm = ({
                 setMcq={setMcq}
                 setValue={setValue}
                 defaultValue={
-                  type === "create" ? "mcq" : (questionToEdit?.type as string)
+                  type === "create"
+                    ? "mcq"
+                    : (questionToEdit?.type as TQuestionTypes)
                 }
                 radioItems={RadioQuestionGroup}
+                questionTypeLock={questionTypeLock}
               />
             </div>
             {errors.type && (

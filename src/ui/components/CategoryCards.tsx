@@ -22,7 +22,7 @@ const CategoryCards = ({ categoriesDetails }: IProps) => {
               navigate(`/category/${category.categoryId}`);
             }}
           >
-            <div className="w-full flex flex-col justify-around h-full">
+            <div className="w-full flex flex-col gap-5 h-full">
               <div className="w-full flex justify-between items-center">
                 <span className="font-semibold text-[15px]">
                   Total Questions
@@ -32,11 +32,11 @@ const CategoryCards = ({ categoriesDetails }: IProps) => {
                 </div>
               </div>
               <Separator />
-              <div className="flex flex-col gap-3 ">
-                <span className="font-semibold text-[15px]">Types</span>
+              <div className="flex flex-col gap-3">
+                <span className="font-semibold text-[15px]">Subtopics</span>
 
                 {category.subcategories[0] !== null ? (
-                  <div className="flex w-full flex-wrap gap-2 max-h-26 overflow-hidden">
+                  <div className="flex w-full flex-wrap gap-2 max-h-25 overflow-y-auto scrollbar-thin ">
                     {category.subcategories.map((subcategory) => {
                       return (
                         <Badge

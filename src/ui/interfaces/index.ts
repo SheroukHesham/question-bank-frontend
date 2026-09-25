@@ -1,9 +1,10 @@
 import type { IQuestions } from "@/shared/interfaces";
 import type { LucideProps } from "lucide-react";
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
+import type { TNavBarLinks } from "../types";
 
 export interface INavbar {
-  id: string;
+  id: TNavBarLinks;
   label: string;
   to?: string;
   subLinks?: INavbar[];

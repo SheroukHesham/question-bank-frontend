@@ -30,7 +30,7 @@ export function ClickCard({
       onClick={onClick}
     >
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle className="capitalize">{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="h-full flex flex-col justify-around">

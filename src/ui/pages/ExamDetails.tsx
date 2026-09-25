@@ -7,11 +7,19 @@ import { DownloadIcon, MoveLeft } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { questionQueries } from "../lib/queries/questions.queries";
+import { useDispatch } from "react-redux";
+import { changeActiveTab } from "../features/activeTabSlice";
+import { useEffect } from "react";
 
 const ExamDetails = () => {
   const location = useLocation();
   const exam: IExam = location.state.exam;
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(changeActiveTab("exams"));
+  }, [dispatch]);
 
   const { data: questions } = useFetch(questionQueries.byExam(exam._id));
 

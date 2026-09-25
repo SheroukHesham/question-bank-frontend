@@ -41,29 +41,113 @@ export class ExamRepository {
 
   findExamById(examId: number): IExam {
     const examInfo = this.db
-      .prepare<
-        number,
-        ExamRow
-      >("SELECT _id, title, status, type, total_number_of_questions AS totalNumberOfQuestions, number_of_questions_added AS numberOfQuestionsAdded, strftime('%d/%m/%Y', created_at) AS createdAt, strftime('%d/%m/%Y', updated_at) AS updatedAt FROM exams WHERE _id = ?")
+      .prepare<number, ExamRow>(
+        `
+      SELECT
+        _id,
+        title,
+        status,
+        type,
+        total_number_of_questions AS totalNumberOfQuestions,
+        number_of_questions_added AS numberOfQuestionsAdded,
+
+        strftime('%d/%m/%Y', created_at) || ' ' ||
+        CASE
+          WHEN CAST(strftime('%H', created_at) AS INTEGER) = 0
+            THEN '12:' || strftime('%M', created_at) || ' AM'
+          WHEN CAST(strftime('%H', created_at) AS INTEGER) < 12
+            THEN CAST(CAST(strftime('%H', created_at) AS INTEGER) AS TEXT)
+                 || ':' || strftime('%M', created_at) || ' AM'
+          WHEN CAST(strftime('%H', created_at) AS INTEGER) = 12
+            THEN '12:' || strftime('%M', created_at) || ' PM'
+          ELSE
+            CAST(CAST(strftime('%H', created_at) AS INTEGER) - 12 AS TEXT)
+                 || ':' || strftime('%M', created_at) || ' PM'
+        END AS createdAt,
+
+        strftime('%d/%m/%Y', updated_at) || ' ' ||
+        CASE
+          WHEN CAST(strftime('%H', updated_at) AS INTEGER) = 0
+            THEN '12:' || strftime('%M', updated_at) || ' AM'
+          WHEN CAST(strftime('%H', updated_at) AS INTEGER) < 12
+            THEN CAST(CAST(strftime('%H', updated_at) AS INTEGER) AS TEXT)
+                 || ':' || strftime('%M', updated_at) || ' AM'
+          WHEN CAST(strftime('%H', updated_at) AS INTEGER) = 12
+            THEN '12:' || strftime('%M', updated_at) || ' PM'
+          ELSE
+            CAST(CAST(strftime('%H', updated_at) AS INTEGER) - 12 AS TEXT)
+                 || ':' || strftime('%M', updated_at) || ' PM'
+        END AS updatedAt
+
+      FROM exams
+      WHERE _id = ?
+      `,
+      )
       .get(examId);
 
-    if (examInfo)
-      return { ...examInfo, examQuestions: this.findExamQuestions(examId) };
+    if (examInfo) {
+      return {
+        ...examInfo,
+        examQuestions: this.findExamQuestions(examId),
+      };
+    }
+
     throw new Error("Exam Not Found!");
   }
 
   findAllExams(): IExam[] {
     const result = this.db
-      .prepare<
-        unknown[],
-        ExamRow
-      >("SELECT _id, title, status,type, total_number_of_questions AS totalNumberOfQuestions, number_of_questions_added AS numberOfQuestionsAdded, strftime('%d/%m/%Y', created_at) AS createdAt, strftime('%d/%m/%Y', updated_at) AS updatedAt FROM exams ORDER BY created_at DESC")
+      .prepare<unknown[], ExamRow>(
+        `
+      SELECT
+        _id,
+        title,
+        status,
+        type,
+        total_number_of_questions AS totalNumberOfQuestions,
+        number_of_questions_added AS numberOfQuestionsAdded,
+
+        strftime('%d/%m/%Y', created_at) || ' ' ||
+        CASE
+          WHEN CAST(strftime('%H', created_at) AS INTEGER) = 0
+            THEN '12:' || strftime('%M', created_at) || ' AM'
+          WHEN CAST(strftime('%H', created_at) AS INTEGER) < 12
+            THEN CAST(CAST(strftime('%H', created_at) AS INTEGER) AS TEXT)
+                 || ':' || strftime('%M', created_at) || ' AM'
+          WHEN CAST(strftime('%H', created_at) AS INTEGER) = 12
+            THEN '12:' || strftime('%M', created_at) || ' PM'
+          ELSE
+            CAST(CAST(strftime('%H', created_at) AS INTEGER) - 12 AS TEXT)
+                 || ':' || strftime('%M', created_at) || ' PM'
+        END AS createdAt,
+
+        strftime('%d/%m/%Y', updated_at) || ' ' ||
+        CASE
+          WHEN CAST(strftime('%H', updated_at) AS INTEGER) = 0
+            THEN '12:' || strftime('%M', updated_at) || ' AM'
+          WHEN CAST(strftime('%H', updated_at) AS INTEGER) < 12
+            THEN CAST(CAST(strftime('%H', updated_at) AS INTEGER) AS TEXT)
+                 || ':' || strftime('%M', updated_at) || ' AM'
+          WHEN CAST(strftime('%H', updated_at) AS INTEGER) = 12
+            THEN '12:' || strftime('%M', updated_at) || ' PM'
+          ELSE
+            CAST(CAST(strftime('%H', updated_at) AS INTEGER) - 12 AS TEXT)
+                 || ':' || strftime('%M', updated_at) || ' PM'
+        END AS updatedAt
+
+      FROM exams
+      ORDER BY created_at DESC
+      `,
+      )
       .all();
 
     const exams: IExam[] = [];
 
     for (const exam of result) {
-      exams.push({ ...exam, examQuestions: this.findExamQuestions(exam._id) });
+      exams.push({
+        ...exam,
+        examQuestions: this.findExamQuestions(exam._id),
+      });
     }
 
     return exams;

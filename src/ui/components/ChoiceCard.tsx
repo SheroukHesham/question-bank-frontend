@@ -15,15 +15,17 @@ import type { IQuestions } from "@/shared/interfaces";
 
 interface IProps {
   radioItems: IRadioGroupItem[];
-  defaultValue: string;
+  defaultValue: TQuestionTypes;
   setValue?: UseFormSetValue<QuestionFormValues>;
   errors?: FieldErrors<QuestionFormValues>;
   questionToEdit?: IQuestions;
   setQuestionToEdit?: Dispatch<SetStateAction<IQuestions>>;
   setMcq: Dispatch<SetStateAction<boolean>>;
+  questionTypeLock?: TQuestionTypes;
 }
 
 export function RadioGroupChoiceCard({
+  questionTypeLock,
   defaultValue,
   radioItems,
   questionToEdit,
@@ -33,20 +35,47 @@ export function RadioGroupChoiceCard({
 }: IProps) {
   return (
     <RadioGroup
-      defaultValue={defaultValue}
+      defaultValue={questionTypeLock ?? defaultValue}
       value={setValue ? undefined : questionToEdit?.type}
       onValueChange={(value: TQuestionTypes) => {
-        setMcq(value === "mcq" ? true : false);
+        setMcq(value === "mcq");
         if (setValue) setValue("type", value, { shouldValidate: true });
-        if (setQuestionToEdit)
-          setQuestionToEdit((prev) => ({
-            ...prev,
-            type: value,
-          }));
+
+        if (setQuestionToEdit) {
+          setQuestionToEdit((prev) => {
+            const base = {
+              _id: prev._id,
+              header: prev.header,
+              difficulty: prev.difficulty,
+              categoryId: prev.categoryId,
+              subcategoryId: prev.subcategoryId,
+              headerImageUrl: prev.headerImageUrl,
+              categoryName: prev.categoryName,
+              subcategoryName: prev.subcategoryName,
+            };
+
+            if (value === "essay") {
+              return {
+                ...base,
+                type: "essay",
+                modelAnswer: prev.type === "essay" ? prev.modelAnswer : "",
+              };
+            }
+
+            return {
+              ...base,
+              type: "mcq",
+              choices: prev.type === "mcq" ? prev.choices : [],
+            };
+          });
+        }
       }}
       className="grid grid-cols-2 max-w-lg gap-7 "
     >
       {radioItems.map((item) => {
+        if (questionTypeLock && item.id !== questionTypeLock) {
+          return;
+        }
         const Icon = item.icon;
         return (
           <FieldLabel

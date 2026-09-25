@@ -87,7 +87,7 @@ export const defaultEssayFormValues: QuestionFormValues = {
   difficulty: "" as TQuestionDifficulty,
   categoryId: -1,
   subcategoryId: -1,
-  headerImageUrl: "",
+  headerImageFile: "",
   modelAnswer: "",
 };
 
@@ -97,6 +97,6 @@ export const defaultMcqFormValues: QuestionFormValues = {
   difficulty: "" as TQuestionDifficulty,
   categoryId: -1,
   subcategoryId: -1,
-  headerImageUrl: "",
+  headerImageFile: "",
   choices: Array.from({ length: 5 }, () => ({ choice: "", isCorrect: false })),
 };

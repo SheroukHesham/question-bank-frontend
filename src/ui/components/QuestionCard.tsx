@@ -208,6 +208,7 @@ const QuestionCard = ({
               type="edit"
               questionToEdit={questionToEdit}
               setQuestionToEdit={setQuestionToEdit}
+              questionTypeLock={question.type}
             />
             <Alert
               title="Are you sure you want to delete this question?"

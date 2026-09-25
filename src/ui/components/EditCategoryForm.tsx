@@ -17,9 +17,9 @@ import { toast } from "sonner";
 import SubcategoryAddForm from "./SubcategoryAddForm";
 import { Alert } from "./Alert";
 import { useNavigate } from "react-router-dom";
+import { useNavigationGuard } from "../context/NavigationGuardContext";
 
 //todo:fix on error message in toast
-//todo: exclude self from findByName
 
 interface IProps {
   category: ICategory;
@@ -30,6 +30,16 @@ interface IProps {
 const EditCategoryForm = ({ category, subcategories, setEditMode }: IProps) => {
   const [editCategoryName, setEditCategoryName] = useState(false);
   const [addNewSub, setAddNewSub] = useState(false);
+  const [subFormDirty, setSubFormDirty] = useState(false);
+
+  const {
+    setIsBlocked,
+    requestNavigation,
+    pendingNavigation,
+    confirmNavigation,
+    cancelNavigation,
+  } = useNavigationGuard();
+
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -49,6 +59,10 @@ const EditCategoryForm = ({ category, subcategories, setEditMode }: IProps) => {
       setFocus("name");
     }
   }, [editCategoryName, setFocus]);
+
+  useEffect(() => {
+    setIsBlocked(editCategoryName || addNewSub || subFormDirty);
+  }, [editCategoryName, addNewSub, setIsBlocked, subFormDirty]);
 
   const updateCategory = useMutation({
     mutationFn: (category: ICategory) =>
@@ -83,9 +97,9 @@ const EditCategoryForm = ({ category, subcategories, setEditMode }: IProps) => {
     },
   });
 
-  //todo:api call to update
   const onSubmit = (data: CategoryFormValues) => {
     setEditCategoryName(false);
+    if (data.name.toLowerCase() === category.name.toLowerCase()) return;
     updateCategory.mutate({ ...category, name: data.name });
   };
 
@@ -155,7 +169,10 @@ const EditCategoryForm = ({ category, subcategories, setEditMode }: IProps) => {
   const renderSubcategories = subcategories.map((subcategory) => {
     return (
       <div className="flex gap-5" key={subcategory._id}>
-        <UpdateSubcategoryEntry subcategory={subcategory} />
+        <UpdateSubcategoryEntry
+          subcategory={subcategory}
+          setSubFormDirty={setSubFormDirty}
+        />
       </div>
     );
   });
@@ -175,14 +192,17 @@ const EditCategoryForm = ({ category, subcategories, setEditMode }: IProps) => {
           </Button>
           <Button
             onClick={() => {
-              setEditMode(false);
+              if (!editCategoryName && !addNewSub && !subFormDirty)
+                setEditMode(false);
+              else
+                requestNavigation(() => navigate(`/category/${category._id}`));
             }}
           >
             Done
           </Button>
         </div>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full mb-10 ">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full mb-10">
         <div className="flex w-full justify-between">
           <div className="flex  flex-col gap-5">
             <Label className="text-5xl">Topic</Label>
@@ -229,6 +249,23 @@ const EditCategoryForm = ({ category, subcategories, setEditMode }: IProps) => {
             </div>
           </div>
         </div>
+        <Alert
+          title="Save Changes?"
+          description="If you navigate to another page without saving your changes they will be lost."
+          submitText="Cancel"
+          cancelText="Don't Save"
+          open={pendingNavigation !== null}
+          onSubmit={cancelNavigation}
+          onCancel={() => {
+            reset();
+            setEditCategoryName(false);
+            setAddNewSub(false);
+            setSubFormDirty(false);
+            setEditMode(false);
+            confirmNavigation();
+          }}
+          variant="default"
+        />
       </form>
 
       <div className="flex flex-col gap-10">

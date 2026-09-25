@@ -8,6 +8,7 @@ import {
   type QueryFunction,
   type QueryKey,
 } from "@tanstack/react-query";
+import * as React from "react";
 
 interface IFetchProps<TData, TQueryKey extends QueryKey = QueryKey> {
   queryKey: TQueryKey;
@@ -56,4 +57,7 @@ export function useMutate<
       queryClient.invalidateQueries({ queryKey: invalidateKey });
     },
   });
+}
+export function useComboboxAnchor() {
+  return React.useRef<HTMLDivElement | null>(null);
 }

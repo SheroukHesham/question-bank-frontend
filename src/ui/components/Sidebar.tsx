@@ -8,7 +8,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/ui/components/ui/sidebar";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Collapsible,
   CollapsibleContent,
@@ -18,11 +18,16 @@ import { ChevronDown } from "lucide-react";
 import { NAVBAR_ITEMS } from "@/ui/data";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/ui/store";
+import { useNavigationGuard } from "../context/NavigationGuardContext";
 
 export function AppSidebar() {
   const activeTab = useSelector(
     (state: RootState) => state.activeTab.activeIdx,
   );
+  const navigate = useNavigate();
+  const { requestNavigation } = useNavigationGuard();
+
+  const goTo = (to: string) => requestNavigation(() => navigate(to));
 
   const renderNavBarItems = NAVBAR_ITEMS.map((item) => {
     const Icon = item.icon;
@@ -41,17 +46,18 @@ export function AppSidebar() {
               <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
             </CollapsibleTrigger>
           </SidebarGroupLabel>
-          <CollapsibleContent className="flex flex-col gap-1">
+          <CollapsibleContent className="flex  flex-col gap-1">
             {item.subLinks.map((subLink) => {
               return (
                 <SidebarMenu key={subLink.id}>
                   <SidebarMenuItem
-                    className={`capitalize ${subLink.id === activeTab ? "bg-primary/10 text-primary" : ""} `}
+                    className={`capitalize  ${subLink.id === activeTab ? "bg-primary/10 text-primary" : ""} `}
                   >
-                    <SidebarMenuButton asChild>
-                      <Link to={subLink.to as string}>
-                        <span className="text-[16px]">{subLink.label}</span>
-                      </Link>
+                    <SidebarMenuButton
+                      className="cursor-pointer"
+                      onClick={() => goTo(subLink.to as string)}
+                    >
+                      <span className="text-[16px] ">{subLink.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
@@ -62,14 +68,18 @@ export function AppSidebar() {
       </Collapsible>
     ) : (
       <SidebarGroup key={item.id}>
-        <Link to={item.to as string} className={`flex items-center gap-2`}>
+        <button
+          type="button"
+          onClick={() => goTo(item.to as string)}
+          className="flex items-center gap-2 w-full text-left"
+        >
           <SidebarGroupLabel
             className={`${item.id === activeTab ? "text-primary" : ""}`}
           >
             {Icon && <Icon size={20} />}
             <span className="text-[16px]">{item.label}</span>
           </SidebarGroupLabel>
-        </Link>
+        </button>
       </SidebarGroup>
     );
   });
@@ -78,9 +88,9 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="px-5 bg-white mt-5 mb-5 flex justify-center ">
-          <Link to={"/"}>
+          <button type="button" onClick={() => goTo("/")}>
             <img className="h-20" src="../../../university.png" />
-          </Link>
+          </button>
         </div>
       </SidebarHeader>
       <SidebarContent>
