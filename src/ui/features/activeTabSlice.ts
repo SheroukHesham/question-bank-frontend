@@ -10,7 +10,7 @@ const initialState: activeTabState = {
   activeIdx: "./questions",
 };
 
-export const activeTabSlice = createSlice({
+const activeTabSlice = createSlice({
   name: "activeTab",
   initialState,
   reducers: {

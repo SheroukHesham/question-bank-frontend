@@ -1,3 +1,4 @@
+import { SidebarContext } from "@/ui/context/SideBarContext";
 import {
   useMutation,
   useQuery,
@@ -60,4 +61,12 @@ export function useMutate<
 }
 export function useComboboxAnchor() {
   return React.useRef<HTMLDivElement | null>(null);
+}
+export function useSidebar() {
+  const context = React.useContext(SidebarContext);
+  if (!context) {
+    throw new Error("useSidebar must be used within a SidebarProvider.");
+  }
+
+  return context;
 }

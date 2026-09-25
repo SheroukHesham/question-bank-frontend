@@ -65,7 +65,7 @@ const Exams = () => {
   return (
     <div className="w-full p-10 ">
       <h1 className="text-4xl font-semibold ">All Exams</h1>
-      <div className="w-full flex justify-end ">
+      <div className="w-full flex justify-end mt-5">
         <HoverCard openDelay={100} closeDelay={100}>
           <HoverCardTrigger asChild>
             <Button variant={"secondary"} size={"default"}>
@@ -104,7 +104,7 @@ const Exams = () => {
           setSearch={setSearch}
         />
       </div>
-      <div className=" flex w-full  mt-3">
+      <div className="flex-col gap-5 sm:flex sm:flex-row w-full mt-5">
         <SingleSelect
           placeholder="Exam Type"
           onValueChange={(value) => setTypeFilter(value as TQuestionTypeFilter)}
@@ -126,7 +126,7 @@ const Exams = () => {
         </SingleSelect>
       </div>
 
-      <div className="flex flex-col w-full mt-10 gap-5">{renderExams}</div>
+      <div className="flex flex-col w-full mt-5 gap-5">{renderExams}</div>
     </div>
   );
 };
