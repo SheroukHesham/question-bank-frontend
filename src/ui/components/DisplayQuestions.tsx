@@ -182,7 +182,7 @@ const DisplayQuestions = ({
             setSpecializationFilter(value === "all" ? null : value)
           }
         >
-          <SelectItem value="all">All</SelectItem>
+          <SelectItem value="all">All Subtopics</SelectItem>
           {categoryFilter
             ? subcategories
                 .filter(

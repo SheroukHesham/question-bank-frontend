@@ -86,7 +86,7 @@ export function AppSidebar() {
   });
 
   return (
-    <Sidebar>
+    <Sidebar className="z-10">
       <SidebarHeader>
         <div className="px-5 bg-white mt-5 mb-5 flex justify-center ">
           <button type="button" onClick={() => goTo("/")}>

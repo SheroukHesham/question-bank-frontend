@@ -7,6 +7,7 @@ import { useFetch } from "../hooks/custom";
 import DisplayQuestions from "./DisplayQuestions";
 import { categoryQueries } from "../lib/queries/categories.queries";
 import { subcategoryQueries } from "../lib/queries/subcategory.queries";
+import { createPortal } from "react-dom";
 
 interface IProps {
   examType: TQuestionTypes;
@@ -64,19 +65,19 @@ const ExamAddFromBankModal = ({
 
   if (!shouldRender) return null;
 
-  return (
+  return createPortal(
     <div
       data-open={open}
       data-closed={!open}
       onAnimationEnd={() => {
         if (!open) setShouldRender(false);
       }}
-      className="fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 max-h-80vh overflow-auto"
+      className="fixed inset-0 isolate z-100 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 max-h-80vh overflow-auto"
     >
       <div
-        className={`absolute rounded-lg bg-popover p-5 m-auto w-[95%] z-10 h-[95%] inset-0 ${open ? "flex" : "hidden"}`}
+        className={`absolute  rounded-lg bg-popover p-5 m-auto w-[95%] z-100 h-[95%] inset-0 ${open ? "flex" : "hidden"}`}
       >
-        <div className="relative w-full h-full bg-popover z-10 flex flex-col gap-5">
+        <div className="relative w-full h-full bg-popover z-100 flex flex-col gap-5">
           <div className="w-full flex justify-between">
             <h1 className="text-3xl font-semibold tracking-tight">
               Add From Question Bank
@@ -114,7 +115,8 @@ const ExamAddFromBankModal = ({
           />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 
