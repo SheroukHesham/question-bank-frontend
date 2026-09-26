@@ -43,6 +43,7 @@ interface IProps {
   };
   questionTypeLock?: TQuestionTypes;
   setAddedQuestions?: Dispatch<SetStateAction<IQuestions[]>>;
+  saveButton?: boolean;
 }
 
 const QuestionForm = ({
@@ -52,6 +53,7 @@ const QuestionForm = ({
   defaultCategory,
   questionTypeLock,
   setAddedQuestions,
+  saveButton = true,
 }: IProps) => {
   const [mcq, setMcq] = useState(
     (questionTypeLock && questionTypeLock === "mcq") ?? true,
@@ -288,12 +290,13 @@ const QuestionForm = ({
       onClose={() => {
         reset();
       }}
+      saveButton={saveButton}
     >
       <div className="w-full flex gap-5 flex-col overflow-auto ">
         <div className="flex w-full relative justify-between">
           <div className="flex flex-col w-lg min-w-sm gap-2">
             <span className="text-lg font-semibold">
-              Question Type{"  "}
+              Question Type
               <span className="text-destructive font-bold"> *</span>
             </span>
             <div className="flex gap-5">
@@ -315,7 +318,7 @@ const QuestionForm = ({
               </p>
             )}
           </div>
-          <div className="flex flex-col gap-3 w-3xs ">
+          <div className="flex flex-col gap-3 w-3xs ml-3">
             <SingleSelect
               label="Difficulty"
               onValueChange={(value) =>

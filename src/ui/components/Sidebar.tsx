@@ -19,6 +19,7 @@ import { NAVBAR_ITEMS } from "@/ui/data";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/ui/store";
 import { useNavigationGuard } from "../context/NavigationGuardContext";
+import universityLogo from "@/ui/assets/university.png";
 
 export function AppSidebar() {
   const activeTab = useSelector(
@@ -89,7 +90,7 @@ export function AppSidebar() {
       <SidebarHeader>
         <div className="px-5 bg-white mt-5 mb-5 flex justify-center ">
           <button type="button" onClick={() => goTo("/")}>
-            <img className="h-20" src="../../../university.png" />
+            <img className="h-20" src={universityLogo} />
           </button>
         </div>
       </SidebarHeader>

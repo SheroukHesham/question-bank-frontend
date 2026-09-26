@@ -319,8 +319,8 @@ const ExamForm = () => {
         )}
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="h-full">
-        <div className="w-full flex flex-col gap-5 h-full">
-          <div className="flex flex-col gap-y-3 w-full sticky top-0 bg-popover  py-2 z-10 ">
+        <div className="w-full flex flex-col gap-5 h-full mt-2">
+          <div className="flex flex-col gap-y-3 w-full sticky top-0 bg-background  py-2 z-2 ">
             <div className="flex w-full justify-end">
               <div className="flex flex-col gap-y-1">
                 <NumberSelectorInput

@@ -126,7 +126,16 @@ export function Modal({
                   Cancel
                 </Button>
               </DialogClose>
-              {saveButton && <Button type="submit">Save</Button>}
+              {saveButton && (
+                <Button
+                  type="button"
+                  onClick={() => {
+                    if (onSubmit) onSubmit();
+                  }}
+                >
+                  Save
+                </Button>
+              )}
             </DialogFooter>
           </form>
         </ModalProvider>

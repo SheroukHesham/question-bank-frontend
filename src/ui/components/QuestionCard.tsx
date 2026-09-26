@@ -112,7 +112,7 @@ const QuestionCard = ({
       return (
         <p
           aria-expanded={expanded}
-          className="w-full font-semibold line-clamp-3 text-justify first-letter:uppercase aria-expanded:line-clamp-none "
+          className="w-full font-semibold line-clamp-3 text-justify aria-expanded:line-clamp-none whitespace-pre-line"
         >
           {question.modelAnswer}
         </p>
@@ -123,11 +123,17 @@ const QuestionCard = ({
     <div
       className="flex flex-col gap-y-7 bg-card text-card-foreground p-5 rounded-md shadow h-fit"
       onClick={() => {
-        if (onClick) {
-          onClick();
+        const selectedText = window.getSelection()?.toString();
+
+        if (selectedText) {
           return;
         }
+
         setExpanded((prev) => !prev);
+
+        if (onClick) {
+          onClick();
+        }
       }}
     >
       <div className="flex flex-col gap-1">
@@ -156,12 +162,12 @@ const QuestionCard = ({
                   {idx + 1}
                 </div>
               </div>
-              <span
+              <p
                 aria-expanded={expanded}
-                className="text-xl font-semibold text-card-foreground text-justify h-fit w-fit first-letter:uppercase line-clamp-3 aria-expanded:line-clamp-none"
+                className="text-xl font-semibold text-card-foreground text-justify h-fit w-fit first-letter:uppercase line-clamp-3 aria-expanded:line-clamp-none whitespace-pre-line"
               >
                 {header}
-              </span>
+              </p>
             </div>
           </div>
         </div>

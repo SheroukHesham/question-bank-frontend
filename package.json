@@ -1,7 +1,11 @@
 {
-  "name": "question-bank-frontend",
+  "name": "question-bank",
+  "productName": "Question Bank",
+  "author": {
+    "name": "Sherouk"
+  },
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "main": "dist-electron/electron/main.js",
   "scripts": {

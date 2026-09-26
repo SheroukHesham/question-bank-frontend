@@ -41,13 +41,42 @@ function getScaledImageDimensions(imageBuffer: Buffer): {
   };
 }
 
+const textRunsWithLineBreaks = (
+  text: string,
+  options?: { bold?: boolean },
+): TextRun[] => {
+  const lines = text.split(/\r?\n/);
+
+  return lines.flatMap((line, index) => [
+    new TextRun({
+      text: line,
+      bold: options?.bold,
+    }),
+    ...(index < lines.length - 1 ? [new TextRun({ break: 1 })] : []),
+  ]);
+};
+
 function buildQuestionBlock(question: IQuestions, index: number): Paragraph[] {
+  const headerLines = question.header.split(/\r?\n/);
+
   const blocks: Paragraph[] = [
     new Paragraph({
       spacing: { before: 300, after: 100 },
       children: [
-        new TextRun({ text: `${index + 1}. `, bold: true }),
-        new TextRun({ text: question.header, bold: true }),
+        new TextRun({
+          text: `${index + 1}. `,
+          bold: true,
+        }),
+
+        ...headerLines.flatMap((line, lineIndex) => [
+          new TextRun({
+            text: line,
+            bold: true,
+          }),
+          ...(lineIndex < headerLines.length - 1
+            ? [new TextRun({ break: 1 })]
+            : []),
+        ]),
       ],
     }),
   ];
@@ -158,12 +187,19 @@ function buildAnswerKeySection(questions: IQuestions[]): Paragraph[] {
         new Paragraph({
           children: [
             new TextRun({
-              text: `${index + 1}. ${question.header}`,
+              text: `${index + 1}. `,
+              bold: true,
+            }),
+            ...textRunsWithLineBreaks(question.header, {
               bold: true,
             }),
           ],
         }),
-        new Paragraph({ text: question.modelAnswer, spacing: { after: 200 } }),
+
+        new Paragraph({
+          children: textRunsWithLineBreaks(question.modelAnswer),
+          spacing: { after: 200 },
+        }),
       );
     }
   });

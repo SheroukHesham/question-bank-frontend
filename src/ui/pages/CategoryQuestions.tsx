@@ -52,9 +52,11 @@ const CategoryQuestions = () => {
           <div className="flex w-full justify-between">
             <div className="flex  items-center gap-2 mt-10">
               <h1 className="text-4xl font-semibold ">{category?.name}</h1>
-              <span className="text-muted/50 text-3xl font-semibold">
-                ({categoryTotal?.total})
-              </span>
+              {categoryTotal?.total && categoryTotal?.total > 0 && (
+                <span className="text-muted/50 text-3xl font-semibold">
+                  ({categoryTotal?.total})
+                </span>
+              )}
             </div>
             {editMode ? (
               <Button

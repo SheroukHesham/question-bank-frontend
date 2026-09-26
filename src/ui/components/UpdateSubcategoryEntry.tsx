@@ -48,6 +48,9 @@ const UpdateSubcategoryEntry = ({ subcategory, setSubFormDirty }: IProps) => {
       queryClient.invalidateQueries({
         queryKey: ["subcategories", "findByCategoryId"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["categories", "findAllDetails"],
+      });
       toast.success("Subtopic Name Updated Successfully", {
         position: "top-center",
         style: {

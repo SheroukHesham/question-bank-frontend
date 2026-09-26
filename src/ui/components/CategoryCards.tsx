@@ -51,7 +51,7 @@ const CategoryCards = ({ categoriesDetails }: IProps) => {
                     })}
                   </div>
                 ) : (
-                  <span className="italic">No Types Yet!</span>
+                  <span className="italic">No Subtopics Yet!</span>
                 )}
               </div>
             </div>

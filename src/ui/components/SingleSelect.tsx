@@ -31,7 +31,7 @@ export function SingleSelect({
   defaultValue,
 }: IProps) {
   return (
-    <Field className="w-full max-w-3xs gap-2 mb-5">
+    <Field className="w-full max-w-3xs gap-2">
       {label && (
         <FieldLabel>
           {label}

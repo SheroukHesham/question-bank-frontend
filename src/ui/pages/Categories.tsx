@@ -20,9 +20,11 @@ const Categories = () => {
     <div className="w-full p-10 ">
       <div className="flex items-center gap-2">
         <h1 className="text-4xl font-semibold ">All Topics</h1>
-        <span className="text-muted/50 text-3xl font-semibold">
-          ({categoriesDetails?.length})
-        </span>
+        {categoriesDetails && categoriesDetails?.length > 0 && (
+          <span className="text-muted/50 text-3xl font-semibold">
+            ({categoriesDetails?.length})
+          </span>
+        )}
       </div>
       <div className="w-full flex justify-end ">
         <CategoryForm />

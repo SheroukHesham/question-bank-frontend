@@ -34,7 +34,7 @@ const DisplayQuestions = ({
   selectedQuestions,
   examType,
 }: IProps) => {
-  const PAGE_SIZE = 5;
+  const PAGE_SIZE = 25;
   const [currentPage, setCurrentPage] = useState(1);
   const [typeFilter, setTypeFilter] = useState<TQuestionTypeFilter>("all");
   const [specializationFilter, setSpecializationFilter] = useState<
